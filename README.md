@@ -1,5 +1,5 @@
 # XV6 modified by XKZ
-The xv6 operation system,, officially hosted in [mit-pdos/xv6-public](https://github.com/mit-pdos/xv6-public), provided by the course [6.828](https://pdos.csail.mit.edu/6.828/), is a well-known and novel operation system for learners.  
+The xv6 operation system, officially hosted in [mit-pdos/xv6-public](https://github.com/mit-pdos/xv6-public), provided by the course [6.828](https://pdos.csail.mit.edu/6.828/), is a well-known and novel operation system for learners.  
 
 ## Goals
 - Lottery Scheduling  

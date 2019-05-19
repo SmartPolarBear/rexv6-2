@@ -69,6 +69,7 @@ struct proc {
   uint ustack;                 // Bottom of the user stack
   int mthread;                 // If non-zero, it's the main thread of a process
 
+  // 
 };
 
 // Process memory is laid out contiguously, low addresses first:
