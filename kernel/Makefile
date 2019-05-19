@@ -39,7 +39,7 @@ OBJS = \
 	tui.o\
 	sysfile.o\
 	sysproc.o\
-        syssync.o\
+    syssync.o\
 	timer.o\
 	trap.o\
 	uart.o\
@@ -48,6 +48,7 @@ OBJS = \
 	vm.o\
 	semaphore.o\
 	rwlock.o\
+	rand.o\
 
 _OBJS = $(addprefix $(OUTDIR)/,$(OBJS))
 
