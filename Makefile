@@ -35,7 +35,8 @@ clean:
 	$(MAKE) -C tools clean
 	rm -rf build/*
 
-QEMUOPTS = -drive file=build/fs.img,index=1,media=disk,format=raw -drive file=build/xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m $(RAM) -soundhw all $(QEMUEXTRA)
+QEMUOPTS = -drive file=build/fs.img,index=1,media=disk,format=raw -drive file=build/xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m $(RAM) $(QEMUEXTRA)
+#QEMUOPTS +=  -soundhw all
 QEMUGDB = -gdb tcp::$(GDBPORT)
 
 qemu: build/fs.img build/xv6.img

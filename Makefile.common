@@ -6,12 +6,14 @@ endif
 INCLDIR=$(TOP_SRCDIR)/include
 BUILDDIR=$(TOP_SRCDIR)/build
 
+CC = gcc
+
 OBJCOPY = objcopy
 OBJDUMP = objdump
 RANLIB = ranlib
 QEMU = qemu-system-i386
 
-CFLAGS += -nostdinc -fno-builtin -fno-stack-protector -std=gnu99 -Wall -Wextra -m32 -I$(INCLDIR)
+CFLAGS += -nostdinc -fno-builtin -fno-stack-protector -std=gnu11 -Wall -Wextra -m32 -I$(INCLDIR)
 
 # Release or Debug?
 #CFLAGS += -O2
@@ -24,5 +26,5 @@ LDFLAGS += -m elf_i386
 GDBPORT = 26000
 
 # Emulation Settings
-CPUS = 2
-RAM = 512
+CPUS = 4
+RAM = 1024
