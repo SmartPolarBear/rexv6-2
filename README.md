@@ -15,6 +15,7 @@ Type :
 In the terminal.
 
 ## Acknowledgements
-[sunziping2016/xv6-improved](https://github.com/sunziping2016/xv6-improved)
-[XV6 Chinese Documents](https://github.com/ranxian/xv6-chinese)  
+[sunziping2016/xv6-improved](https://github.com/sunziping2016/xv6-improved)  
+[avaiyang/xv6-lottery-scheduling](https://github.com/avaiyang/xv6-lottery-scheduling)  
+[XV6 Chinese Documents](https://github.com/ranxian/xv6-chinese)    
 
