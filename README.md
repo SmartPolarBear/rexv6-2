@@ -3,7 +3,7 @@ The xv6 operation system,, officially hosted in [mit-pdos/xv6-public](https://gi
 
 ## Goals
 - Lottery Scheduling  
-- Flexible Mount & Unmount  
+- Signals  
 - FAT32 Support  
 
 *(To be continued)*  
