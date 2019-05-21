@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "memlayout.h": "c",
-        "buf.h": "c"
+        "buf.h": "c",
+        "syscall.h": "c",
+        "date.h": "c",
+        "x86.h": "c",
+        "proc.h": "c"
     }
 }

@@ -67,6 +67,7 @@ void rwlock_release_write(userrwlock);
 int rwlock_holding_read(userrwlock);
 int rwlock_holding_write(userrwlock);
 void rwlock_free(userrwlock);
+int settickets(int);
 
 // ulib.c
 int stat(char*, struct stat*);

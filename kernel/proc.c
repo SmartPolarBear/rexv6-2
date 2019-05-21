@@ -8,8 +8,6 @@
 #include "xv6/spinlock.h"
 #include "xv6/rand.h"
 
-#define DEFAULT_TICKETS (10)
-
 struct
 {
     struct spinlock lock;

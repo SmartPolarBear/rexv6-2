@@ -89,3 +89,17 @@ sys_uptime(void)
     release(&tickslock);
     return xticks;
 }
+
+int sys_settickets(void)
+{
+    int ticket_num=0;
+    if(argint(0,&ticket_num)<0)
+    {
+        proc->tickets=DEFAULT_TICKETS;
+    }
+    else
+    {
+        proc->tickets=ticket_num;
+    }
+    return 0;
+}

@@ -68,3 +68,4 @@
 #define SYS_playsound 77
 #define SYS_nosound 78
 
+#define SYS_settickets (79)

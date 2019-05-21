@@ -1,3 +1,6 @@
+#ifndef __INCLUDE_XV6_PROC_H
+#define __INCLUDE_XV6_PROC_H
+
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -77,3 +80,7 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+
+#define DEFAULT_TICKETS (10)
+
+#endif

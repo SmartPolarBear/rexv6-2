@@ -63,3 +63,5 @@ SYSCALL(mount)
 SYSCALL(unmount)
 SYSCALL(gettime)
 
+SYSCALL(settickets)
+
