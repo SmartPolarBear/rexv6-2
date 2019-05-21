@@ -29,6 +29,8 @@ void pinit(void)
     initlock(&ptable.lock, "ptable");
 }
 
+
+
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
 // If found, change state to EMBRYO and initialize
