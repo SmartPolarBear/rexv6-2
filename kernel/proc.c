@@ -42,8 +42,12 @@ static struct proc *allocproc(void)
     acquire(&ptable.lock);
 
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    {
         if (p->state == UNUSED)
+        {
             goto found;
+        }
+    }
 
     release(&ptable.lock);
     return 0;

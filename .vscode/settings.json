@@ -5,6 +5,7 @@
         "syscall.h": "c",
         "date.h": "c",
         "x86.h": "c",
-        "proc.h": "c"
+        "proc.h": "c",
+        "rand.h": "c"
     }
 }
