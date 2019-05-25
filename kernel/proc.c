@@ -8,6 +8,16 @@
 #include "xv6/spinlock.h"
 #include "xv6/rand.h"
 
+struct proc_node
+{
+    union
+    {
+        struct{struct proc_node *next;struct proc_node *prev;}ll;
+    }ds;
+
+    struct proc *proc;
+};
+
 struct
 {
     struct spinlock lock;
@@ -26,8 +36,6 @@ void pinit(void)
 {
     initlock(&ptable.lock, "ptable");
 }
-
-
 
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.

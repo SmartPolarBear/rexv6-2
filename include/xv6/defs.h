@@ -85,6 +85,8 @@ void            ioapicinit(void);
 // kalloc.c
 char*           kalloc(void);
 void            kfree(char*);
+void            *kmemalloc(int size);
+void            kmemfree(void *mem,int size);
 void            kinit1(void*, void*);
 void            kinit2(void*, void*);
 
