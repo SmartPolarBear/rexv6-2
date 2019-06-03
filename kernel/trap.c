@@ -10,12 +10,11 @@
 
 // Interrupt descriptor table (shared by all CPUs).
 struct gatedesc idt[256];
-extern uint vectors[];  // in vectors.S: array of 256 entry pointers
+extern uint vectors[]; // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
 uint new_ticks;
-void
-tvinit(void)
+void tvinit(void)
 {
     int i;
 
@@ -26,17 +25,16 @@ tvinit(void)
     initlock(&tickslock, "time");
 }
 
-void
-idtinit(void)
+void idtinit(void)
 {
     lidt(idt, sizeof(idt));
 }
 
 //PAGEBREAK: 41
-void
-trap(struct trapframe *tf)
+void trap(struct trapframe *tf)
 {
-    if (tf->trapno == T_SYSCALL) {
+    if (tf->trapno == T_SYSCALL)
+    {
         if (proc->killed)
             exit();
         proc->tf = tf;
@@ -46,9 +44,11 @@ trap(struct trapframe *tf)
         return;
     }
 
-    switch (tf->trapno) {
+    switch (tf->trapno)
+    {
     case T_IRQ0 + IRQ_TIMER:
-        if (cpunum() == 0) {
+        if (cpunum() == 0)
+        {
             acquire(&tickslock);
             ticks++;
             new_ticks++;
@@ -56,14 +56,14 @@ trap(struct trapframe *tf)
             release(&tickslock);
         }
         else if (cpunum() == 1)
-        new_ticks++;
+            new_ticks++;
         lapiceoi();
         break;
     case T_IRQ0 + IRQ_IDE:
         ideintr();
         lapiceoi();
         break;
-    case T_IRQ0 + IRQ_IDE+1:
+    case T_IRQ0 + IRQ_IDE + 1:
         // Bochs generates spurious IDE1 interrupts.
         break;
     case T_IRQ0 + IRQ_KBD:
@@ -81,9 +81,15 @@ trap(struct trapframe *tf)
         lapiceoi();
         break;
 
+    case T_DIVIDE:
+        //if (proc->signal_handlers[SIGFPE])
+            signal_deliver(SIGFPE);
+        break;
+
     //PAGEBREAK: 13
     default:
-        if (proc == 0 || (tf->cs & 3) == 0) {
+        if (proc == 0 || (tf->cs & 3) == 0)
+        {
             // In kernel, it must be our mistake.
             cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
                     tf->trapno, cpunum(), tf->eip, rcr2());

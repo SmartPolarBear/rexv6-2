@@ -3,14 +3,16 @@
 #include "xv6/fcntl.h"
 #include "xv6/user.h"
 #include "xv6/x86.h"
+#include "xv6/signal.h"
 
-char*
+char *
 gets(char *buf, int max)
 {
     int i, cc;
     char c;
 
-    for (i = 0; i + 1 < max; ) {
+    for (i = 0; i + 1 < max;)
+    {
         cc = read(0, &c, 1);
         if (cc < 1)
             break;
@@ -22,8 +24,7 @@ gets(char *buf, int max)
     return buf;
 }
 
-int
-stat(char *n, struct stat *st)
+int stat(char *n, struct stat *st)
 {
     int fd;
     int r;
@@ -36,8 +37,7 @@ stat(char *n, struct stat *st)
     return r;
 }
 
-int
-atoi(const char *s)
+int atoi(const char *s)
 {
     int n;
 
@@ -45,4 +45,13 @@ atoi(const char *s)
     while ('0' <= *s && *s <= '9')
         n = n * 10 + *s++ - '0';
     return n;
+}
+
+void sigtrampoline(void);
+__asm__("sigtrampoline:\n\t"
+        "call sigreturn\n\t");
+
+int signal(int signum, sighandler_t handler)
+{
+    return sigregister(signum, handler, sigtrampoline);
 }

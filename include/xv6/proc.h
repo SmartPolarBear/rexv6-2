@@ -1,5 +1,6 @@
 #ifndef __INCLUDE_XV6_PROC_H
 #define __INCLUDE_XV6_PROC_H
+#include "xv6/signal.h"
 
 // Per-CPU state
 struct cpu {
@@ -72,6 +73,8 @@ struct proc {
   uint ustack;                 // Bottom of the user stack
   int mthread;                 // If non-zero, it's the main thread of a process
 
+  sighandler_t signal_handlers[10];
+  void *signal_trampoline;
   // 
 };
 
@@ -82,5 +85,9 @@ struct proc {
 //   expandable heap
 
 #define DEFAULT_TICKETS (10)
+
+void signal_deliver(int signum);
+void signal_return(void);
+sighandler_t signal_register_handler(int signum, sighandler_t handler, void *trampoline);
 
 #endif

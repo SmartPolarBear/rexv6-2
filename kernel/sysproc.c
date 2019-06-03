@@ -7,27 +7,23 @@
 #include "xv6/mmu.h"
 #include "xv6/proc.h"
 
-int
-sys_fork(void)
+int sys_fork(void)
 {
     return fork();
 }
 
-int
-sys_exit(void)
+int sys_exit(void)
 {
     exit();
-    return 0;  // not reached
+    return 0; // not reached
 }
 
-int
-sys_wait(void)
+int sys_wait(void)
 {
     return wait();
 }
 
-int
-sys_kill(void)
+int sys_kill(void)
 {
     int pid;
 
@@ -36,14 +32,12 @@ sys_kill(void)
     return kill(pid);
 }
 
-int
-sys_getpid(void)
+int sys_getpid(void)
 {
     return proc->pid;
 }
 
-int
-sys_sbrk(void)
+int sys_sbrk(void)
 {
     int addr;
     int n;
@@ -56,8 +50,7 @@ sys_sbrk(void)
     return addr;
 }
 
-int
-sys_sleep(void)
+int sys_sleep(void)
 {
     int n;
     uint ticks0;
@@ -66,8 +59,10 @@ sys_sleep(void)
         return -1;
     acquire(&tickslock);
     ticks0 = ticks;
-    while (ticks - ticks0 < n) {
-        if (proc->killed) {
+    while (ticks - ticks0 < n)
+    {
+        if (proc->killed)
+        {
             release(&tickslock);
             return -1;
         }
@@ -79,8 +74,7 @@ sys_sleep(void)
 
 // return how many clock tick interrupts have occurred
 // since start.
-int
-sys_uptime(void)
+int sys_uptime(void)
 {
     uint xticks;
 
@@ -92,14 +86,58 @@ sys_uptime(void)
 
 int sys_settickets(void)
 {
-    int ticket_num=0;
-    if(argint(0,&ticket_num)<0)
+    int ticket_num = 0;
+    if (argint(0, &ticket_num) < 0)
     {
-        proc->tickets=DEFAULT_TICKETS;
+        proc->tickets = DEFAULT_TICKETS;
     }
     else
     {
-        proc->tickets=ticket_num;
+        proc->tickets = ticket_num;
     }
+    return 0;
+}
+
+int sys_sigregister(void)
+{
+    // int signum = 0;
+    // if (argint(0, &signum) < 0)
+    //     return -1;
+
+    // int handler = 0, haddr = 0;
+    // if (argint(1, &haddr) < 0)
+    //     return -1;
+    // handler = (void *)haddr;
+
+    // int trampoline = 0, trampaddr = 0;
+    // if (argint(2, &trampaddr) < 0)
+    //     return -1;
+    // trampoline = (void *)trampaddr;
+
+    // return (int)signal_register_handler(signum, handler, trampoline);
+    int tmp;
+    int signum;
+    void *handler;
+    void *trampoline;
+
+    if (argint(0, &tmp) < 0)
+        return -1;
+    signum = tmp;
+
+    if (argint(1, &tmp) < 0)
+        return -1;
+    handler = (void *)tmp;
+
+    if (argint(2, &tmp) < 0)
+        return -1;
+    trampoline = (void *)tmp;
+
+    return (int)signal_register_handler(signum, handler, trampoline);
+}
+
+int sys_sigreturn(void)
+{
+    signal_return();
+
     return 0;
 }

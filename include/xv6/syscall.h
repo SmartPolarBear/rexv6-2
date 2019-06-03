@@ -69,3 +69,5 @@
 #define SYS_nosound 78
 
 #define SYS_settickets (79)
+#define SYS_sigregister (80)
+#define SYS_sigreturn (81)

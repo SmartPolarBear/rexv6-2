@@ -65,3 +65,5 @@ SYSCALL(gettime)
 
 SYSCALL(settickets)
 
+SYSCALL(sigregister)
+SYSCALL(sigreturn)

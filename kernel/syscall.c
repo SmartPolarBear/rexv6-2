@@ -132,6 +132,9 @@ extern int sys_rwlock_free(void);
 
 extern int sys_settickets(void);
 
+extern int sys_sigregister(void);
+extern int sys_sigreturn(void);
+
 static int (*syscalls[])(void) = {
     [SYS_fork]    sys_fork,
     [SYS_exit]    sys_exit,
@@ -187,6 +190,8 @@ static int (*syscalls[])(void) = {
     [SYS_rwlock_holding_write] 	sys_rwlock_holding_write,
     [SYS_rwlock_free]    	sys_rwlock_free,
     [SYS_settickets]        sys_settickets,
+    [SYS_sigregister]       sys_sigregister,
+    [SYS_sigreturn]         sys_sigreturn,
 };
 
 void syscall(void)

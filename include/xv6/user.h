@@ -8,22 +8,22 @@ struct rtcdate;
 int fork(void);
 int exit(void) __attribute__((noreturn));
 int wait(void);
-int pipe(int*);
-int write(int, void*, int);
-int read(int, void*, int);
+int pipe(int *);
+int write(int, void *, int);
+int read(int, void *, int);
 int close(int);
 int kill(int);
-int exec(char*, char**);
-int open(char*, int);
-int mknod(char*, short, short);
-int unlink(char*);
-int fstat(int fd, struct stat*);
-int link(char*, char*);
-int mkdir(char*);
-int chdir(char*);
+int exec(char *, char **);
+int open(char *, int);
+int mknod(char *, short, short);
+int unlink(char *);
+int fstat(int fd, struct stat *);
+int link(char *, char *);
+int mkdir(char *);
+int chdir(char *);
 int dup(int);
 int getpid(void);
-char* sbrk(int);
+char *sbrk(int);
 int sleep(int);
 int uptime(void);
 int getcrtc(int, int);
@@ -32,11 +32,11 @@ int getcurpos();
 int setcurpos(int);
 void playsound(uint);
 void nosound();
-int mount(int, char*, int);
+int mount(int, char *, int);
 int unmount(int);
 int geteditstatus();
 int seteditstatus(int);
-int gettime(struct rtcdate*);
+int gettime(struct rtcdate *);
 
 // thread api
 int thread_create(void);
@@ -70,10 +70,15 @@ void rwlock_free(userrwlock);
 int settickets(int);
 
 // ulib.c
-int stat(char*, struct stat*);
-void printf(int, char*, ...);
-char* gets(char*, int max);
-int atoi(const char*);
+int stat(char *, struct stat *);
+void printf(int, char *, ...);
+char *gets(char *, int max);
+int atoi(const char *);
+
+int signal(int, void(*)(int));
+void sigtrampoline(void);
+int sigregister(int, void(*)(int), void(*)(void));
+int sigreturn(void);
 
 #include <stdlib.h>
 #include <string.h>

@@ -6,6 +6,10 @@
         "date.h": "c",
         "x86.h": "c",
         "proc.h": "c",
-        "rand.h": "c"
+        "rand.h": "c",
+        "signal.h": "c",
+        "types.h": "c",
+        "stat.h": "c",
+        "user.h": "c"
     }
 }
