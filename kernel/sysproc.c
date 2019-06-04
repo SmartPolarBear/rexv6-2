@@ -100,37 +100,23 @@ int sys_settickets(void)
 
 int sys_sigregister(void)
 {
-    // int signum = 0;
-    // if (argint(0, &signum) < 0)
-    //     return -1;
-
-    // int handler = 0, haddr = 0;
-    // if (argint(1, &haddr) < 0)
-    //     return -1;
-    // handler = (void *)haddr;
-
-    // int trampoline = 0, trampaddr = 0;
-    // if (argint(2, &trampaddr) < 0)
-    //     return -1;
-    // trampoline = (void *)trampaddr;
-
-    // return (int)signal_register_handler(signum, handler, trampoline);
-    int tmp;
-    int signum;
-    void *handler;
-    void *trampoline;
-
-    if (argint(0, &tmp) < 0)
+    int signum = 0;
+    if (argint(0, &signum) < 0)
         return -1;
-    signum = tmp;
 
-    if (argint(1, &tmp) < 0)
+    int handler = 0, haddr = 0;
+    if (argint(1, &haddr) < 0)
         return -1;
-    handler = (void *)tmp;
+    handler = (void *)haddr;
 
-    if (argint(2, &tmp) < 0)
+    int trampoline = 0, trampaddr = 0;
+    if (argint(2, &trampaddr) < 0)
         return -1;
-    trampoline = (void *)tmp;
+    trampoline = (void *)trampaddr;
+    
+    cprintf("signum=%d,handler=%x,trampoline=%x\n", signum, handler, trampoline);
+    if (!handler)
+        cprintf("(sysproc.c)invalid handler.\n");
 
     return (int)signal_register_handler(signum, handler, trampoline);
 }

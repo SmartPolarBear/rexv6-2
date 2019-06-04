@@ -26,5 +26,5 @@ LDFLAGS += -m elf_i386
 GDBPORT = 26000
 
 # Emulation Settings
-CPUS = 4
+CPUS = 2
 RAM = 1024

@@ -4,6 +4,6 @@
 #define SIGKILL (0)
 #define SIGFPE  (1)
 
-typedef void (*sighandler_t)(int);
+ typedef void (*sighandler_t)(int);
 
 #endif
