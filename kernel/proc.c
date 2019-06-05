@@ -8,6 +8,13 @@
 #include "xv6/spinlock.h"
 #include "xv6/rand.h"
 
+#define INIT_PROC_SIGNALS(tp)                                                             \
+    do                                                                                    \
+    {                                                                                     \
+        memset(tp->signal_handlers, DEFAULT_SIGNAL_HANDLER, sizeof(tp->signal_handlers)); \
+        tp->signal_trampoline = (void *)NULL;                                             \
+    } while (0);
+
 struct
 {
     struct spinlock lock;
@@ -81,8 +88,8 @@ found:
     memset(p->context, 0, sizeof *p->context);
     p->context->eip = (uint)forkret;
 
-    memset(p->signal_handlers, DEFAULT_SIGNAL_HANDLER, sizeof(p->signal_handlers));
-    p->signal_trampoline = (void *)NULL;
+    //set signal_handlers to default value and trampoline to NULL
+    INIT_PROC_SIGNALS(p);
 
     return p;
 }
@@ -182,6 +189,9 @@ int fork(void)
     np->cwd = idup(proc->cwd);
 
     safestrcpy(np->name, proc->name, sizeof(proc->name));
+
+    //set signal_handlers to default value and trampoline to NULL
+    INIT_PROC_SIGNALS(np);
 
     pid = np->pid;
 
@@ -681,7 +691,7 @@ sighandler_t signal_register_handler(int signum, sighandler_t handler, void *tra
     if (!proc)
         return (sighandler_t)DEFAULT_SIGNAL_HANDLER;
 
-    if(!VALIDATE_HANDLER(handler))
+    if (!VALIDATE_HANDLER(handler))
     {
         cprintf("(proc.c)signal_register_handler get invalid handler");
         return (sighandler_t)DEFAULT_SIGNAL_HANDLER;
