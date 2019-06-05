@@ -726,10 +726,11 @@ sighandler_t signal_register_handler(int signum, sighandler_t handler, void *tra
     return previous;
 }
 
+//set value of ESP
 #define PROC_STK_FROMTOP(idx) \
     (*((uint *)(proc->tf->esp - ((idx) + 1) * 4)))
 
-// This function must add the signal frame to the process stack, including saving
+// Add the signal frame to the process stack, including saving
 // the volatile registers (eax, ecx, edx) on the stack.
 void signal_deliver(int signum)
 {
@@ -744,7 +745,7 @@ void signal_deliver(int signum)
     proc->tf->esp -= 24;
 }
 
-// This function must clean up the signal frame from the stack and restore the volatile
+// Clean up the signal frame from the stack and restore the volatile
 // registers (eax, ecx, edx).
 void signal_return(void)
 {
