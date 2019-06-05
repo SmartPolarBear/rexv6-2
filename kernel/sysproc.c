@@ -114,8 +114,7 @@ int sys_sigregister(void)
         return -1;
     trampoline = (void *)trampaddr;
     
-    cprintf("signum=%d,handler=%x,trampoline=%x\n", signum, handler, trampoline);
-    if (!handler)
+    if (!VALIDATE_HANDLER(handler))
         cprintf("(sysproc.c)invalid handler.\n");
 
     return (int)signal_register_handler(signum, handler, trampoline);

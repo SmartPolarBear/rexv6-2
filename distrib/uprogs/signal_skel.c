@@ -4,7 +4,12 @@
 #include "xv6/user.h"
 #include "xv6/signal.h"
 
-void my_handle_signal(int signum);
+void my_handle_signal(int signum)
+{
+    printf(1, "Received signal %d\n", signum);
+
+    return;
+}
 
 int main(void)
 {
@@ -12,7 +17,6 @@ int main(void)
     int y = 0;
 
     sighandler_t handler = (sighandler_t)my_handle_signal;
-    printf(1, "(skel.c)is handler(0x%x) null? %d.\n",handler, handler == NULL);
 
     signal(SIGFPE, handler);
 
@@ -23,9 +27,3 @@ int main(void)
     exit();
 }
 
-void my_handle_signal(int signum)
-{
-    printf(1, "Received signal %d\n", signum);
-
-    return;
-}

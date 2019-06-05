@@ -8,19 +8,6 @@
 #include "xv6/spinlock.h"
 #include "xv6/rand.h"
 
-struct proc_node
-{
-    union {
-        struct
-        {
-            struct proc_node *next;
-            struct proc_node *prev;
-        } ll;
-    } ds;
-
-    struct proc *proc;
-};
-
 struct
 {
     struct spinlock lock;
@@ -93,6 +80,9 @@ found:
     p->context = (struct context *)sp;
     memset(p->context, 0, sizeof *p->context);
     p->context->eip = (uint)forkret;
+
+    memset(p->signal_handlers, DEFAULT_SIGNAL_HANDLER, sizeof(p->signal_handlers));
+    p->signal_trampoline = (void *)NULL;
 
     return p;
 }
@@ -688,27 +678,19 @@ void procdump(void)
 //save the signal handler and its trampoline
 sighandler_t signal_register_handler(int signum, sighandler_t handler, void *trampoline)
 {
-    // if (!proc)
-    //     return (sighandler_t)-1;
-
-    // sighandler_t previous = proc->signal_handlers[signum];
-    // proc->signal_handlers[signum] = handler;
-    // proc->signal_trampoline = trampoline;
-
-    // return previous;
     if (!proc)
-        return (sighandler_t)-1;
+        return (sighandler_t)DEFAULT_SIGNAL_HANDLER;
 
-    if(!handler)
-        cprintf("(proc.c)invalid handler.\n");
-    
-    if(!trampoline)
-        cprintf("(proc.c)invalid trampoline.\n");
+    if(!VALIDATE_HANDLER(handler))
+    {
+        cprintf("(proc.c)signal_register_handler get invalid handler");
+        return (sighandler_t)DEFAULT_SIGNAL_HANDLER;
+    }
 
     sighandler_t previous = proc->signal_handlers[signum];
-
     proc->signal_handlers[signum] = handler;
     proc->signal_trampoline = trampoline;
+
     return previous;
 }
 
@@ -719,23 +701,14 @@ sighandler_t signal_register_handler(int signum, sighandler_t handler, void *tra
 // the volatile registers (eax, ecx, edx) on the stack.
 void signal_deliver(int signum)
 {
-    // PROC_STK_FROMTOP(0) = proc->tf->eip;
-    // PROC_STK_FROMTOP(1) = proc->tf->eax;
-    // PROC_STK_FROMTOP(2) = proc->tf->ecx;
-    // PROC_STK_FROMTOP(3) = proc->tf->edx;
-    // PROC_STK_FROMTOP(4) = signum;
-    // PROC_STK_FROMTOP(5) = (uint)proc->signal_trampoline;
+    PROC_STK_FROMTOP(0) = proc->tf->eip;
+    PROC_STK_FROMTOP(1) = proc->tf->eax;
+    PROC_STK_FROMTOP(2) = proc->tf->ecx;
+    PROC_STK_FROMTOP(3) = proc->tf->edx;
+    PROC_STK_FROMTOP(4) = signum;
+    PROC_STK_FROMTOP(5) = (uint)proc->signal_trampoline;
 
-    // proc->tf->eip = (uint)proc->signal_handlers[signum];
-    // proc->tf->esp -= 24;
-    *((uint *)(proc->tf->esp - 4)) = proc->tf->eip;
-    *((uint *)(proc->tf->esp - 8)) = proc->tf->eax;
-    *((uint *)(proc->tf->esp - 12)) = proc->tf->ecx;
-    *((uint *)(proc->tf->esp - 16)) = proc->tf->edx;
-    *((uint *)(proc->tf->esp - 20)) = signum;
-    *((uint *)(proc->tf->esp - 24)) = (uint)proc->signal_trampoline;
     proc->tf->eip = (uint)proc->signal_handlers[signum];
-
     proc->tf->esp -= 24;
 }
 
@@ -743,16 +716,10 @@ void signal_deliver(int signum)
 // registers (eax, ecx, edx).
 void signal_return(void)
 {
-    // proc->tf->esp += 24;
-
-    // proc->tf->eip = PROC_STK_FROMTOP(0);
-    // proc->tf->eax = PROC_STK_FROMTOP(1);
-    // proc->tf->ecx = PROC_STK_FROMTOP(2);
-    // proc->tf->edx = PROC_STK_FROMTOP(3);
     proc->tf->esp += 24;
 
-    proc->tf->eip = *((uint *)(proc->tf->esp - 4));
-    proc->tf->eax = *((uint *)(proc->tf->esp - 8));
-    proc->tf->ecx = *((uint *)(proc->tf->esp - 12));
-    proc->tf->edx = *((uint *)(proc->tf->esp - 16));
+    proc->tf->eip = PROC_STK_FROMTOP(0);
+    proc->tf->eax = PROC_STK_FROMTOP(1);
+    proc->tf->ecx = PROC_STK_FROMTOP(2);
+    proc->tf->edx = PROC_STK_FROMTOP(3);
 }

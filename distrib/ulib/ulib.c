@@ -53,6 +53,5 @@ __asm__("sigtrampoline:\n\t"
 
 int signal(int signum, sighandler_t handler)
 {
-    printf(1, "(ulib.c) is handler(0x%x) null? %d.\n",handler, handler == NULL);
     return sigregister(signum, handler, sigtrampoline);
 }
