@@ -1,3 +1,6 @@
+#ifndef __INCLUDE_XV6_SYSCALL_H
+#define __INCLUDE_XV6_SYSCALL_H
+
 // System call numbers
 #define SYS_fork    1
 #define SYS_exit    2
@@ -71,3 +74,5 @@
 #define SYS_settickets (79)
 #define SYS_sigregister (80)
 #define SYS_sigreturn (81)
+
+#endif

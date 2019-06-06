@@ -648,27 +648,6 @@ int kill(int pid)
     return -1;
 }
 
-int kill2(int pid,int sig)
-{
-    struct proc *p = NULL;
-
-    acquire(&ptable.lock);
-    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    {
-        if (p->pid == pid)
-        {
-            break;
-        }
-    }
-    release(&ptable.lock);
-
-    if (p == NULL)
-        return -1;
-
-    signal_deliver()
-
-    return 0;
-}
 
 //PAGEBREAK: 36
 // Print a process listing to console.  For debugging.

@@ -1,3 +1,5 @@
+#ifndef __INCLUDE_XV6_X86_H
+#define __INCLUDE_XV6_X86_H
 // Routines to let C code use special x86 instructions.
 
 static inline uchar inb(ushort port)
@@ -164,3 +166,5 @@ struct trapframe {
   ushort ss;
   ushort padding6;
 };
+
+#endif

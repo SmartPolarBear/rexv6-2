@@ -1,5 +1,5 @@
-#ifndef USER_H
-#define USER_H
+#ifndef __INCLUDE_XV6_USER_H
+#define __INCLUDE_XV6_USER_H
 
 struct stat;
 struct rtcdate;
