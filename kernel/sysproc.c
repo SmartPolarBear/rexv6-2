@@ -98,31 +98,35 @@ int sys_settickets(void)
     return 0;
 }
 
-int sys_sigregister(void)
+int sys_sigset(void)
 {
-    int signum = 0;
+    int signum, haddr;
     if (argint(0, &signum) < 0)
         return -1;
-
-    int handler = 0, haddr = 0;
     if (argint(1, &haddr) < 0)
         return -1;
-    handler = (void *)haddr;
-
-    int trampoline = 0, trampaddr = 0;
-    if (argint(2, &trampaddr) < 0)
-        return -1;
-    trampoline = (void *)trampaddr;
-    
-    if (!VALIDATE_HANDLER(handler))
-        cprintf("(sysproc.c)invalid handler.\n");
-
-    return (int)signal_register_handler(signum, handler, trampoline);
+    return (int)sigset(signum, (sighandler_t)haddr);
 }
 
-int sys_sigreturn(void)
+int sys_sigsend(void)
 {
-    signal_return();
+    int pid, signum;
+    if (argint(0, &pid) < 0)
+        return -1;
+    if (argint(1, &signum) < 0)
+        return -1;
+        
+    return sigsend(pid, signum);
+}
 
-    return 0;
+int sys_sigpause(void)
+{
+    sigpause();
+    return 1;
+}
+
+int sys_sigret(void)
+{
+    sigret();
+    return 1;
 }

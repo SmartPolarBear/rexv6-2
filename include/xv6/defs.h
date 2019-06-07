@@ -220,5 +220,9 @@ void            acquiresemaphore(struct semaphore*);
 void            releasesemaphore(struct semaphore*);
 int             getcounter(struct semaphore*);
 
+//signalasm.S
+void            invoke_sigret_start(void);
+void            invoke_sigret_end(void);
+
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

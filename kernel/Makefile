@@ -44,6 +44,7 @@ OBJS = \
 	trap.o\
 	uart.o\
 	trapasm.o\
+	signalasm.o\
 	vectors.o\
 	vm.o\
 	semaphore.o\

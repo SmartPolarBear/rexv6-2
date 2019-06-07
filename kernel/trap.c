@@ -82,19 +82,19 @@ void trap(struct trapframe *tf)
         break;
 
     case T_DIVIDE:
-        if (VALIDATE_HANDLER(proc->signal_handlers[SIGFPE]))
-        {
-            signal_deliver(SIGFPE);
-        }
-        else
-        {
-            cprintf("(trap.c)Invalid handler for SIGNAL#%d in proc pid=%d.\n", SIGFPE, proc->pid);
-            for (int i = 0; i < 5; i++)
-            {
-                cprintf("->(trap.c)PID=%d,signal[%d]=%x\n", proc->pid, i, proc->signal_handlers[SIGFPE]);
-            }
-            break;
-        }
+        // if (VALIDATE_HANDLER(proc->signal_handlers[SIGFPE]))
+        // {
+        //     signal_deliver(SIGFPE);
+        // }
+        // else
+        // {
+        //     cprintf("(trap.c)Invalid handler for SIGNAL#%d in proc pid=%d.\n", SIGFPE, proc->pid);
+        //     for (int i = 0; i < 5; i++)
+        //     {
+        //         cprintf("->(trap.c)PID=%d,signal[%d]=%x\n", proc->pid, i, proc->signal_handlers[SIGFPE]);
+        //     }
+        //     break;
+        // }
         break;
 
     //PAGEBREAK: 13

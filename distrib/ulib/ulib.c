@@ -46,12 +46,3 @@ int atoi(const char *s)
         n = n * 10 + *s++ - '0';
     return n;
 }
-
-void sigtrampoline(void);
-__asm__("sigtrampoline:\n\t"
-        "call sigreturn\n\t");
-
-int signal(int signum, sighandler_t handler)
-{
-    return sigregister(signum, handler, sigtrampoline);
-}

@@ -18,7 +18,7 @@ int main(void)
 
     sighandler_t handler = (sighandler_t)my_handle_signal;
 
-    signal(SIGFPE, handler);
+    sigset(SIGFPE, handler);
 
     x = x / y;
 

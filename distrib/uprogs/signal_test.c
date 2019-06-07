@@ -19,7 +19,7 @@ int main(void)
     uint saved_eax = 0;
     uint saved_edx = 0;
 
-    signal(SIGFPE, handle_signal);
+    sigset(SIGFPE, handle_signal);
 
     __asm__("movl $0x21,%eax\n\t");
     __asm__("movl $0x0,%ecx\n\t");

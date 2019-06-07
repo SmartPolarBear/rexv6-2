@@ -18,7 +18,7 @@ int fetchint(uint addr, int *ip)
 {
     if (addr >= proc->sz || addr + 4 > proc->sz)
         return -1;
-    *ip = *(int*)(addr);
+    *ip = *(int *)(addr);
     return 0;
 }
 
@@ -31,8 +31,8 @@ int fetchstr(uint addr, char **pp)
 
     if (addr >= proc->sz)
         return -1;
-    *pp = (char*)addr;
-    ep = (char*)proc->sz;
+    *pp = (char *)addr;
+    ep = (char *)proc->sz;
     for (s = *pp; s < ep; s++)
         if (*s == 0)
             return s - *pp;
@@ -56,7 +56,7 @@ int argptr(int n, char **pp, int size)
         return -1;
     if (size < 0 || (uint)i >= proc->sz || (uint)i + size > proc->sz)
         return -1;
-    *pp = (char*)i;
+    *pp = (char *)i;
     return 0;
 }
 
@@ -132,75 +132,83 @@ extern int sys_rwlock_free(void);
 
 extern int sys_settickets(void);
 
-extern int sys_sigregister(void);
-extern int sys_sigreturn(void);
+extern int sys_sigset(void);
+extern int sys_sigsend(void);
+extern int sys_sigret(void);
+extern int sys_sigpause(void);
 
 static int (*syscalls[])(void) = {
-    [SYS_fork]    sys_fork,
-    [SYS_exit]    sys_exit,
-    [SYS_wait]    sys_wait,
-    [SYS_pipe]    sys_pipe,
-    [SYS_read]    sys_read,
-    [SYS_kill]    sys_kill,
-    [SYS_exec]    sys_exec,
-    [SYS_fstat]   sys_fstat,
-    [SYS_chdir]   sys_chdir,
-    [SYS_dup]     sys_dup,
-    [SYS_getpid]  sys_getpid,
-    [SYS_sbrk]    sys_sbrk,
-    [SYS_sleep]   sys_sleep,
-    [SYS_uptime]  sys_uptime,
-    [SYS_open]    sys_open,
-    [SYS_write]   sys_write,
-    [SYS_mknod]   sys_mknod,
-    [SYS_unlink]  sys_unlink,
-    [SYS_link]    sys_link,
-    [SYS_mkdir]   sys_mkdir,
-    [SYS_close]   sys_close,
+    [SYS_fork] sys_fork,
+    [SYS_exit] sys_exit,
+    [SYS_wait] sys_wait,
+    [SYS_pipe] sys_pipe,
+    [SYS_read] sys_read,
+    [SYS_kill] sys_kill,
+    [SYS_exec] sys_exec,
+    [SYS_fstat] sys_fstat,
+    [SYS_chdir] sys_chdir,
+    [SYS_dup] sys_dup,
+    [SYS_getpid] sys_getpid,
+    [SYS_sbrk] sys_sbrk,
+    [SYS_sleep] sys_sleep,
+    [SYS_uptime] sys_uptime,
+    [SYS_open] sys_open,
+    [SYS_write] sys_write,
+    [SYS_mknod] sys_mknod,
+    [SYS_unlink] sys_unlink,
+    [SYS_link] sys_link,
+    [SYS_mkdir] sys_mkdir,
+    [SYS_close] sys_close,
     [SYS_getcrtc] sys_getcrtc,
     [SYS_setcrtc] sys_setcrtc,
     [SYS_getcurpos] sys_getcurpos,
     [SYS_setcurpos] sys_setcurpos,
     [SYS_geteditstatus] sys_geteditstatus,
     [SYS_seteditstatus] sys_seteditstatus,
-    [SYS_mount]   sys_mount,
-    [SYS_unmount]   sys_unmount,
+    [SYS_mount] sys_mount,
+    [SYS_unmount] sys_unmount,
     [SYS_playsound] sys_playsound,
     [SYS_nosound] sys_nosound,
     [SYS_gettime] sys_gettime,
     [SYS_thread_create] thread_create,
-    [SYS_thread_exit]   thread_exit,
-    [SYS_thread_wait]   thread_wait,
-    [SYS_lock_create]  sys_lock_create,
+    [SYS_thread_exit] thread_exit,
+    [SYS_thread_wait] thread_wait,
+    [SYS_lock_create] sys_lock_create,
     [SYS_lock_acquire] sys_lock_acquire,
     [SYS_lock_release] sys_lock_release,
     [SYS_lock_holding] sys_lock_holding,
-    [SYS_lock_free]    sys_lock_free,
-    [SYS_semaphore_create]     sys_semaphore_create,
-    [SYS_semaphore_acquire]    sys_semaphore_acquire,
-    [SYS_semaphore_release]    sys_semaphore_release,
+    [SYS_lock_free] sys_lock_free,
+    [SYS_semaphore_create] sys_semaphore_create,
+    [SYS_semaphore_acquire] sys_semaphore_acquire,
+    [SYS_semaphore_release] sys_semaphore_release,
     [SYS_semaphore_getcounter] sys_semaphore_getcounter,
-    [SYS_semaphore_free]       sys_semaphore_free,
-    [SYS_rwlock_create]  	sys_rwlock_create,
-    [SYS_rwlock_acquire_read] 	sys_rwlock_acquire_read,
-    [SYS_rwlock_release_read] 	sys_rwlock_release_read,
-    [SYS_rwlock_holding_read] 	sys_rwlock_holding_read,
-    [SYS_rwlock_acquire_write] 	sys_rwlock_acquire_write,
-    [SYS_rwlock_release_write] 	sys_rwlock_release_write,
-    [SYS_rwlock_holding_write] 	sys_rwlock_holding_write,
-    [SYS_rwlock_free]    	sys_rwlock_free,
-    [SYS_settickets]        sys_settickets,
-    [SYS_sigregister]       sys_sigregister,
-    [SYS_sigreturn]         sys_sigreturn,
+    [SYS_semaphore_free] sys_semaphore_free,
+    [SYS_rwlock_create] sys_rwlock_create,
+    [SYS_rwlock_acquire_read] sys_rwlock_acquire_read,
+    [SYS_rwlock_release_read] sys_rwlock_release_read,
+    [SYS_rwlock_holding_read] sys_rwlock_holding_read,
+    [SYS_rwlock_acquire_write] sys_rwlock_acquire_write,
+    [SYS_rwlock_release_write] sys_rwlock_release_write,
+    [SYS_rwlock_holding_write] sys_rwlock_holding_write,
+    [SYS_rwlock_free] sys_rwlock_free,
+    [SYS_settickets] sys_settickets,
+
+    [SYS_sigset] sys_sigset,
+    [SYS_sigsend] sys_sigsend,
+    [SYS_sigret] sys_sigret,
+    [SYS_sigpause] sys_sigpause,
 };
 
 void syscall(void)
 {
     int num;
     num = proc->tf->eax;
-    if (num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+    if (num > 0 && num < NELEM(syscalls) && syscalls[num])
+    {
         proc->tf->eax = syscalls[num]();
-    } else {
+    }
+    else
+    {
         cprintf("%d %s: unknown sys call %d\n",
                 proc->pid, proc->name, num);
         proc->tf->eax = -1;

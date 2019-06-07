@@ -14,6 +14,9 @@ typedef unsigned short u_short;
 typedef unsigned int u_int;
 typedef unsigned long u_long;
 
-#define NULL ((void*)(0))
+typedef int BOOL;
 
+#define NULL ((void*)(0))
+#define TRUE ((BOOL)1)
+#define FALSE ((BOOL)0)
 #endif

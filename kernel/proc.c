@@ -8,13 +8,6 @@
 #include "xv6/spinlock.h"
 #include "xv6/rand.h"
 
-#define INIT_PROC_SIGNALS(tp)                                                             \
-    do                                                                                    \
-    {                                                                                     \
-        memset(tp->signal_handlers, DEFAULT_SIGNAL_HANDLER, sizeof(tp->signal_handlers)); \
-        tp->signal_trampoline = (void *)NULL;                                             \
-    } while (0);
-
 struct
 {
     struct spinlock lock;
@@ -88,8 +81,18 @@ found:
     memset(p->context, 0, sizeof *p->context);
     p->context->eip = (uint)forkret;
 
-    //set signal_handlers to default value and trampoline to NULL
-    INIT_PROC_SIGNALS(p);
+    for (int i = SIGNAL_MIN; i < SIGNAL_MAX; i++)
+    {
+        p->sighandlers[i] = (sighandler_t)-1;
+    }
+    p->cstack.head = 0;
+    for (cstackframe_t *sig = p->cstack.frames; sig < &p->cstack.frames[SIGNAL_MAX - SIGNAL_MIN]; sig++)
+    {
+        sig->used = FALSE;
+    }
+
+    p->ignore_signals = FALSE;
+    p->sigpause_involked = FALSE;
 
     return p;
 }
@@ -188,10 +191,12 @@ int fork(void)
             np->ofile[i] = filedup(proc->ofile[i]);
     np->cwd = idup(proc->cwd);
 
-    safestrcpy(np->name, proc->name, sizeof(proc->name));
+    for (int i = SIGNAL_MIN; i < SIGNAL_MAX; i++)
+    {
+        np->sighandlers[i] = proc->sighandlers[i];
+    }
 
-    //set signal_handlers to default value and trampoline to NULL
-    INIT_PROC_SIGNALS(np);
+    safestrcpy(np->name, proc->name, sizeof(proc->name));
 
     pid = np->pid;
 
@@ -648,7 +653,6 @@ int kill(int pid)
     return -1;
 }
 
-
 //PAGEBREAK: 36
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
@@ -686,52 +690,130 @@ void procdump(void)
     }
 }
 
-//save the signal handler and its trampoline
-sighandler_t signal_register_handler(int signum, sighandler_t handler, void *trampoline)
+int cstk_push(cstack_t *cstack, int sid, int rid, int signum)
 {
-    if (!proc)
-        return (sighandler_t)DEFAULT_SIGNAL_HANDLER;
-
-    if (!VALIDATE_HANDLER(handler))
+    struct proc *p = NULL;
+    cstackframe_t *newsig = NULL;
+    for (newsig = cstack->frames; newsig < &cstack->frames[SIGNAL_MAX - SIGNAL_MIN]; newsig++)
     {
-        cprintf("(proc.c)signal_register_handler get invalid handler");
-        return (sighandler_t)DEFAULT_SIGNAL_HANDLER;
+        if (cas(&newsig->used, FALSE, TRUE))
+            goto found;
+    }
+    return 0;
+found:
+    newsig->sid = sid;
+    newsig->rid = rid;
+    newsig->signum = signum;
+    do
+    {
+        newsig->next = cstack->head;
+    } while (!cas((int *)&cstack->head, (int)newsig->next, (int)newsig));
+
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    {
+        if (p->pid == rid)
+        {
+            while (p->state == NEG_SLEEPING)
+            {
+                // busy-wait
+            }
+            if (cas(&p->sigpause_involked, 1, 0)) // only one thread will change the state to RUNNABLE
+                p->state = RUNNABLE;
+
+            break;
+        }
     }
 
-    sighandler_t previous = proc->signal_handlers[signum];
-    proc->signal_handlers[signum] = handler;
-    proc->signal_trampoline = trampoline;
+    return 1;
+}
 
+cstackframe_t *cstk_pop(cstack_t *cstack)
+{
+    cstackframe_t *top = NULL;
+    do
+    {
+        top = cstack->head;
+        if (top == 0)
+            break;
+    } while (!cas((int *)&cstack->head, (int)top, (int)top->next));
+    return top;
+}
+
+sighandler_t sigset(int signum, sighandler_t sighandler)
+{
+    sighandler_t previous = proc->sighandlers[signum];
+    proc->sighandlers[signum] = sighandler;
     return previous;
 }
 
-//set value of ESP
-#define PROC_STK_FROMTOP(idx) \
-    (*((uint *)(proc->tf->esp - ((idx) + 1) * 4)))
-
-// Add the signal frame to the process stack, including saving
-// the volatile registers (eax, ecx, edx) on the stack.
-void signal_deliver(int signum)
+int sigsend(int pid, int signum)
 {
-    PROC_STK_FROMTOP(0) = proc->tf->eip;
-    PROC_STK_FROMTOP(1) = proc->tf->eax;
-    PROC_STK_FROMTOP(2) = proc->tf->ecx;
-    PROC_STK_FROMTOP(3) = proc->tf->edx;
-    PROC_STK_FROMTOP(4) = signum;
-    PROC_STK_FROMTOP(5) = (uint)proc->signal_trampoline;
+    struct proc *p = NULL;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    {
+        if (p->pid == pid)
+            goto found;
+    }
+    return -1; // pid wan't found, meaning it's not a valid pid. return error
+found:
+    if (cstk_push(&p->cstack, proc->pid, pid, signum))
+        return 0; //success
 
-    proc->tf->eip = (uint)proc->signal_handlers[signum];
-    proc->tf->esp -= 24;
+    return -1; //cstack full
 }
 
-// Clean up the signal frame from the stack and restore the volatile
-// registers (eax, ecx, edx).
-void signal_return(void)
+void sigret(void)
 {
-    proc->tf->esp += 24;
+    memmove(proc->tf, &proc->oldtf, sizeof(struct trapframe));
+    proc->ignore_signals = FALSE;
+}
 
-    proc->tf->eip = PROC_STK_FROMTOP(0);
-    proc->tf->eax = PROC_STK_FROMTOP(1);
-    proc->tf->ecx = PROC_STK_FROMTOP(2);
-    proc->tf->edx = PROC_STK_FROMTOP(3);
+void sigpause(void)
+{
+    pushcli();
+    if (!cas(&proc->state, RUNNING, NEG_SLEEPING))
+        panic("sigpause: cas #1 failed");
+    if (proc->cstack.head == 0)
+    {
+        proc->chan = 0;
+        proc->sigpause_involked = TRUE;
+        sched();
+    }
+    else
+    {
+        if (!cas(&proc->state, NEG_SLEEPING, RUNNING))
+            panic("sigpause: cas #2 failed");
+    }
+    popcli();
+}
+
+void handle_signals(struct trapframe *tf)
+{
+    if (proc == 0)
+        return; // no proc is defined for this CPU
+
+    if (proc->ignore_signals)
+        return; // currently handling a signal
+
+    if ((tf->cs & 3) != DPL_USER)
+        return; // CPU isn't at privilege level 3, hence in user mode
+
+    struct cstackframe *top = cstk_pop(&proc->cstack);
+    if (top == (struct cstackframe *)0)
+        return; // no pending signals
+
+    if (proc->sighandlers[top->signum] == (sighandler_t)-1)
+        return; // default signal handler, ignore the signal
+
+    proc->ignore_signals = TRUE;
+
+    memmove(&proc->oldtf, proc->tf, sizeof(struct trapframe)); //backing up trap frame
+    proc->tf->esp -= (uint)&invoke_sigret_end - (uint)&invoke_sigret_start;
+    memmove((void *)proc->tf->esp, invoke_sigret_start, (uint)&invoke_sigret_end - (uint)&invoke_sigret_start);
+    *((int *)(proc->tf->esp - 4)) = top->signum;
+    *((int *)(proc->tf->esp - 8)) = top->sid;
+    *((int *)(proc->tf->esp - 12)) = proc->tf->esp; // sigret system call code address
+    proc->tf->esp -= 12;
+    proc->tf->eip = (uint)proc->sighandlers[top->signum]; // trapret will resume into signal handler
+    top->used = 0;                                        // free the cstackframe
 }

@@ -65,5 +65,7 @@ SYSCALL(gettime)
 
 SYSCALL(settickets)
 
-SYSCALL(sigregister)
-SYSCALL(sigreturn)
+SYSCALL(sigset)
+SYSCALL(sigsend)
+SYSCALL(sigret)
+SYSCALL(sigpause)

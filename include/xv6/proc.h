@@ -1,6 +1,8 @@
 #ifndef __INCLUDE_XV6_PROC_H
 #define __INCLUDE_XV6_PROC_H
-#include "xv6/signal.h"
+#include <xv6/types.h>
+#include <xv6/signal.h>
+#include <xv6/x86.h>
 
 // Per-CPU state
 struct cpu
@@ -52,15 +54,44 @@ struct context
   uint eip;
 };
 
+// enum procstate
+// {
+//   UNUSED,
+//   EMBRYO,
+//   SLEEPING,
+//   RUNNABLE,
+//   RUNNING,
+//   ZOMBIE
+// };
+
 enum procstate
 {
   UNUSED,
+  NEG_UNUSED,
   EMBRYO,
   SLEEPING,
+  NEG_SLEEPING,
   RUNNABLE,
+  NEG_RUNNABLE,
   RUNNING,
-  ZOMBIE
+  ZOMBIE,
+  NEG_ZOMBIE
 };
+
+typedef struct cstackframe
+{
+  int sid;
+  int rid;
+  int signum;
+  BOOL used;
+  struct cstackframe *next;
+} cstackframe_t;
+
+typedef struct cstack
+{
+  cstackframe_t frames[SIGNAL_MAX - SIGNAL_MIN];
+  cstackframe_t *head;
+} cstack_t;
 
 // Per-process state
 struct proc
@@ -80,13 +111,16 @@ struct proc
   char name[16];              // Process name (debugging)
   int tickets;                //Ticket count for lottery scheduling
 
-  sighandler_t signal_handlers[10];
-  void *signal_trampoline;
-
   // Multi-thread support
   uint ustack; // Bottom of the user stack
   int mthread; // If non-zero, it's the main thread of a process
-  //
+
+  //signal
+  sighandler_t sighandlers[SIGNAL_MAX - SIGNAL_MIN + 1];
+  cstack_t cstack;
+  BOOL ignore_signals;
+  struct trapframe oldtf;
+  BOOL sigpause_involked;
 };
 
 // Process memory is laid out contiguously, low addresses first:
@@ -97,8 +131,9 @@ struct proc
 
 #define DEFAULT_TICKETS (10)
 
-void signal_deliver(int signum);
-void signal_return(void);
-sighandler_t signal_register_handler(int signum, sighandler_t handler, void *trampoline);
-
+sighandler_t sigset(int signum, sighandler_t sighandler);
+int sigsend(int pid, int signum);
+void sigret(void);
+void sigpause(void);
+void handle_signals(struct trapframe *tf);
 #endif

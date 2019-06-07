@@ -1,0 +1,39 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Rebuild kernel and run",
+            "type": "shell",
+            "command": "cd kernel&&make clean&&cd ..&&make qemu",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Rebuild kernel",
+            "type": "shell",
+            "command": "cd kernel&&make clean&&cd ..&&make",
+            "problemMatcher": [
+                "$gcc"
+            ],
+        },
+        {
+            "label": "Rebuild",
+            "type": "shell",
+            "command": "make clean&&make",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
