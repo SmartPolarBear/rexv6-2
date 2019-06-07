@@ -7,8 +7,8 @@ int main(int argc, char *argv[]);
 void terminal_handler(int pid, int signum)
 {
     printf(1, "SIGINT from pid=%d\n\n", pid);
-    kill(getpid());
-
+    //kill(getpid());
+    exit();
     return;
 }
 

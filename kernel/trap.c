@@ -86,15 +86,6 @@ void trap(struct trapframe *tf)
         {
             sigsend(proc->pid, SIGFPE);
         }
-        else
-        {
-            cprintf("(trap.c)Invalid handler for SIGNAL#%d in proc pid=%d.\n", SIGFPE, proc->pid);
-            for (int i = 0; i < 5; i++)
-            {
-                cprintf("->(trap.c)PID=%d,signal[%d]=%x\n", proc->pid, i, proc->sighandlers[SIGFPE]);
-            }
-            break;
-        }
         break;
 
     //PAGEBREAK: 13

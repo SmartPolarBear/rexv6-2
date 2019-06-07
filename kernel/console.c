@@ -21,7 +21,8 @@ static int panicked = 0;
 
 int editStatus = 0;
 
-static struct {
+static struct
+{
     struct spinlock lock;
     int locking;
 } cons;
@@ -40,7 +41,8 @@ printint(int xx, int base, int sign)
         x = xx;
 
     i = 0;
-    do {
+    do
+    {
         buf[i++] = digits[x % base];
     } while ((x /= base) != 0);
 
@@ -53,8 +55,7 @@ printint(int xx, int base, int sign)
 //PAGEBREAK: 50
 
 // Print to the console. only understands %d, %x, %p, %s.
-void
-cprintf(char *fmt, ...)
+void cprintf(char *fmt, ...)
 {
     int i, c, locking;
     uint *argp;
@@ -67,16 +68,19 @@ cprintf(char *fmt, ...)
     if (fmt == 0)
         panic("null fmt");
 
-    argp = (uint*)(void*)(&fmt + 1);
-    for (i = 0; (c = fmt[i] & 0xff) != 0; i++) {
-        if (c != '%') {
+    argp = (uint *)(void *)(&fmt + 1);
+    for (i = 0; (c = fmt[i] & 0xff) != 0; i++)
+    {
+        if (c != '%')
+        {
             consputc(c);
             continue;
         }
         c = fmt[++i] & 0xff;
         if (c == 0)
             break;
-        switch (c) {
+        switch (c)
+        {
         case 'd':
             printint(*argp++, 10, 1);
             break;
@@ -85,7 +89,7 @@ cprintf(char *fmt, ...)
             printint(*argp++, 16, 0);
             break;
         case 's':
-            if ((s = (char*)*argp++) == 0)
+            if ((s = (char *)*argp++) == 0)
                 s = "(null)";
             for (; *s; s++)
                 consputc(*s);
@@ -105,8 +109,7 @@ cprintf(char *fmt, ...)
         release(&cons.lock);
 }
 
-void
-panic(char *s)
+void panic(char *s)
 {
     int i;
     uint pcs[10];
@@ -129,7 +132,7 @@ panic(char *s)
 #define KEY_LF 0xE4
 #define KEY_RT 0xE5
 #define CRTPORT 0x3d4
-static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
+static ushort *crt = (ushort *)P2V(0xb8000); // CGA memory
 
 static void
 cgaputc(int c)
@@ -144,19 +147,25 @@ cgaputc(int c)
 
     if (c == '\n')
         pos += 80 - pos % 80;
-    else if (c == BACKSPACE) {
-        if (pos > 0) {
+    else if (c == BACKSPACE)
+    {
+        if (pos > 0)
+        {
             --pos;
             flag = 1;
         }
     }
-    else if (c == KEY_LF){
-        if (pos > 0){
+    else if (c == KEY_LF)
+    {
+        if (pos > 0)
+        {
             --pos;
         }
     }
-    else if (c == KEY_RT){
-        if (pos <= 25 * 80) {
+    else if (c == KEY_RT)
+    {
+        if (pos <= 25 * 80)
+        {
             ++pos;
         }
     }
@@ -166,7 +175,8 @@ cgaputc(int c)
     if (pos < 0 || pos > 25 * 80)
         panic("pos under/overflow");
 
-    if ((pos / 80) >= 24) { // Scroll up.
+    if ((pos / 80) >= 24)
+    { // Scroll up.
         memmove(crt, crt + 80, sizeof(crt[0]) * 23 * 80);
         pos -= 80;
         memset(crt + pos, 0, sizeof(crt[0]) * (24 * 80 - pos));
@@ -176,134 +186,140 @@ cgaputc(int c)
     outb(CRTPORT, 15);
     outb(CRTPORT + 1, pos);
 
-    if(flag == 1)
+    if (flag == 1)
         crt[pos] = ' ' | 0x0700;
-
 }
 
-void
-consputc(int c)
+void consputc(int c)
 {
-    if (panicked) {
+    if (panicked)
+    {
         cli();
         for (;;)
             ;
     }
 
-    if (c == BACKSPACE) {
+    if (c == BACKSPACE)
+    {
         uartputc('\b');
         uartputc(' ');
         uartputc('\b');
-    } else
+    }
+    else
         uartputc(c);
     cgaputc(c);
 }
 
 #define INPUT_BUF 128
-struct {
+struct
+{
     char buf[INPUT_BUF];
-    uint r;  // Read index
-    uint w;  // Write index
-    uint e;  // Edit index
+    uint r; // Read index
+    uint w; // Write index
+    uint e; // Edit index
 } input;
 
-#define C(x)  ((x)-'@')  // Control-x
+#define C(x) ((x) - '@') // Control-x
 
 #define INSERT -2;
 
-void
-consoleintr(int (*getc)(void))
+void consoleintr(int (*getc)(void))
 {
     int c, doprocdump = 0;
-
+    BOOL kill_proc = FALSE;
 
     acquire(&cons.lock);
-    while ((c = getc()) >= 0) {
-        if(editStatus != 0 && c != 0)
+    while ((c = getc()) >= 0)
+    {
+        if (editStatus != 0 && c != 0)
         {
 
-            if(editStatus == -1)
+            if (editStatus == -1)
             {
-                switch(c)
+                switch (c)
                 {
-                    case C('I'):
-                        editStatus = -2;
-                        break;
-                    case 'q':
-                        editStatus = -3;
-                        break;
-                    case 0xe2:
-                        editStatus = -4;
-                        break;
-                    case 0xe3:
-                        editStatus = -5;
-                        break;
-                    case 0xe4:
-                        editStatus = -6;
-                        break;
-                    case 0xe5:
-                        editStatus = -7;
-                        break;
+                case C('I'):
+                    editStatus = -2;
+                    break;
+                case 'q':
+                    editStatus = -3;
+                    break;
+                case 0xe2:
+                    editStatus = -4;
+                    break;
+                case 0xe3:
+                    editStatus = -5;
+                    break;
+                case 0xe4:
+                    editStatus = -6;
+                    break;
+                case 0xe5:
+                    editStatus = -7;
+                    break;
                 }
             }
-            else if(editStatus == -2)
+            else if (editStatus == -2)
             {
-                switch(c)
+                switch (c)
                 {
-                    case C('I'):
-                        editStatus = -1;
-                        break;
-                    case C('Q'):
-                        editStatus = -3;
-                    case 0xe2:
-                        editStatus = -4;
-                        break;
-                    case 0xe3:
-                        editStatus = -5;
-                        break;
-                    case 0xe4:
-                        editStatus = -6;
-                        break;
-                    case 0xe5:
-                        editStatus = -7;
-                        break;
-                    default:
-                        editStatus = c + 256;
-
+                case C('I'):
+                    editStatus = -1;
+                    break;
+                case C('Q'):
+                    editStatus = -3;
+                case 0xe2:
+                    editStatus = -4;
+                    break;
+                case 0xe3:
+                    editStatus = -5;
+                    break;
+                case 0xe4:
+                    editStatus = -6;
+                    break;
+                case 0xe5:
+                    editStatus = -7;
+                    break;
+                default:
+                    editStatus = c + 256;
                 }
-
-
             }
-
 
             continue;
         }
 
-        switch (c) {
-        case C('P'):  // Process listing.
+        switch (c)
+        {
+        case C('C'): //kill proc
+            kill_proc = TRUE;
+            break;
+        case C('P'): // Process listing.
             // procdump() locks cons.lock indirectly; invoke later
             doprocdump = 1;
             break;
-        case C('U'):  // Kill line.
+        case C('U'): // Kill line.
             while (input.e != input.w &&
-                    input.buf[(input.e-1) % INPUT_BUF] != '\n') {
+                   input.buf[(input.e - 1) % INPUT_BUF] != '\n')
+            {
                 input.e--;
                 consputc(BACKSPACE);
             }
             break;
         case C('H'):
-        case '\x7f':  // Backspace
-            if (input.e != input.w) {
+        case '\x7f': // Backspace
+            if (input.e != input.w)
+            {
                 input.e--;
                 consputc(BACKSPACE);
             }
             break;
         default:
-            if (c != 0 && input.e-input.r < INPUT_BUF) {
+            if (c != 0 && input.e - input.r < INPUT_BUF)
+            {
                 c = (c == '\r') ? '\n' : c;
                 input.buf[input.e++ % INPUT_BUF] = c;
                 consputc(c);
-                if (c == '\n' || c == C('D') || input.e == input.r + INPUT_BUF) {
+                if (c == '\n' || c == C('D') || input.e == input.r + INPUT_BUF)
+                {
                     input.w = input.e;
                     wakeup(&input.r);
                 }
@@ -312,13 +328,17 @@ consoleintr(int (*getc)(void))
         }
     }
     release(&cons.lock);
-    if (doprocdump) {
-        procdump();  // now call procdump() wo. cons.lock held
+    if (doprocdump)
+    {
+        procdump(); // now call procdump() wo. cons.lock held
+    }
+    if (kill_proc)
+    {
+        cprintf("CTRL-C.\n");
     }
 }
 
-int
-consoleread(struct inode *ip, char *dst, uint off, int n)
+int consoleread(struct inode *ip, char *dst, uint off, int n)
 {
     uint target;
     int c;
@@ -326,9 +346,12 @@ consoleread(struct inode *ip, char *dst, uint off, int n)
     iunlock(ip);
     target = n;
     acquire(&cons.lock);
-    while (n > 0) {
-        while (input.r == input.w) {
-            if (proc->killed) {
+    while (n > 0)
+    {
+        while (input.r == input.w)
+        {
+            if (proc->killed)
+            {
                 release(&cons.lock);
                 ilock(ip);
                 return -1;
@@ -336,14 +359,17 @@ consoleread(struct inode *ip, char *dst, uint off, int n)
             sleep(&input.r, &cons.lock);
         }
         c = input.buf[input.r++ % INPUT_BUF];
-        if (c == C('D')) { // EOF
-            if (n < target) {
+        if (c == C('D'))
+        { // EOF
+            if (n < target)
+            {
                 // Save ^D for next time, to make sure
                 // caller gets a 0-byte result.
                 input.r--;
             }
             break;
         }
+
         *dst++ = c;
         --n;
         if (c == '\n')
@@ -352,11 +378,11 @@ consoleread(struct inode *ip, char *dst, uint off, int n)
     release(&cons.lock);
     ilock(ip);
 
+    
     return target - n;
 }
 
-int
-consolewrite(struct inode *ip, char *buf, uint off, int n)
+int consolewrite(struct inode *ip, char *buf, uint off, int n)
 {
     int i;
 
@@ -370,8 +396,7 @@ consolewrite(struct inode *ip, char *buf, uint off, int n)
     return n;
 }
 
-void
-consoleinit(void)
+void consoleinit(void)
 {
     initlock(&cons.lock, "console");
 

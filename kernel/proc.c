@@ -748,6 +748,7 @@ sighandler_t sigset(int signum, sighandler_t sighandler)
 
 int sigsend(int pid, int signum)
 {
+    cprintf("sigsend:Enter.\n");
     struct proc *p = NULL;
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
@@ -756,8 +757,12 @@ int sigsend(int pid, int signum)
     }
     return -1; // pid wan't found, meaning it's not a valid pid. return error
 found:
+    cprintf("sigsend:Find proc.\n");
     if (cstk_push(&p->cstack, proc->pid, pid, signum))
+    {
         return 0; //success
+    }
+
 
     return -1; //cstack full
 }
