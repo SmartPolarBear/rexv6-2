@@ -7,18 +7,18 @@
 
 unsigned counter = 0;
 
-void handle_signal(int signum);
+void handle_signal(int pid, int signum);
+
+uint saved_ecx = 0;
+uint saved_eax = 0;
+uint saved_edx = 0;
 
 int main(void)
 {
     register uint eax asm("%eax");
     register uint ecx asm("%ecx");
     register uint edx asm("%edx");
-
-    uint saved_ecx = 0;
-    uint saved_eax = 0;
-    uint saved_edx = 0;
-
+    
     sigset(SIGFPE, handle_signal);
 
     __asm__("movl $0x21,%eax\n\t");
@@ -44,13 +44,13 @@ int main(void)
     exit();
 }
 
-void handle_signal(int signum)
+void handle_signal(int pid, int signum)
 {
     unsigned addr_signum, addr_retaddr, *retaddr;
 
-   // __asm__("movl $0xFFFF,%eax\n\t");
-   // __asm__("movl $0xFFFF,%ecx\n\t");
-   // __asm__("movl $0xFFFF,%edx\n\t");
+    // __asm__("movl $0xFFFF,%eax\n\t");
+    // __asm__("movl $0xFFFF,%ecx\n\t");
+    // __asm__("movl $0xFFFF,%edx\n\t");
 
     if (counter < NUM_EXCEPTIONS)
     {
