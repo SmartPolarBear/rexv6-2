@@ -3,6 +3,10 @@
 
 #define SIGKILL (0)
 #define SIGFPE (1)
+#define SIGINT (2)
+
+#define SIGUSR1 (30)
+#define SIGUSR2 (31)
 
 typedef void (*sighandler_t)(int spid, int signum);
 
