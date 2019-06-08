@@ -12,6 +12,7 @@ typedef void (*sighandler_t)(int signum);
 
 #define SIGNAL_MIN (0)
 #define SIGNAL_MAX (32)
+#define SIGNAL_COUNT (SIGNAL_MAX - SIGNAL_MIN)
 
 #define VALIDATE_HANDLER(handler) ((handler) != (sighandler_t)(-1))
 

@@ -335,7 +335,7 @@ void consoleintr(int (*getc)(void))
     if (kill_proc)
     {
         cprintf("\n^C.\n");
-        term_cur();
+        sigsend(lastproc_pid(), SIGINT);
     }
 }
 

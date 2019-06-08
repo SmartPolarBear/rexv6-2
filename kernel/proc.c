@@ -81,18 +81,20 @@ found:
     memset(p->context, 0, sizeof *p->context);
     p->context->eip = (uint)forkret;
 
-    for (int i = SIGNAL_MIN; i < SIGNAL_MAX; i++)
+    for (int i = SIGNAL_MIN; i < SIGNAL_COUNT; i++)
     {
         p->sighandlers[i] = (sighandler_t)-1;
     }
     p->cstack.head = 0;
-    for (cstackframe_t *sig = p->cstack.frames; sig < &p->cstack.frames[SIGNAL_MAX - SIGNAL_MIN]; sig++)
+    for (cstackframe_t *sig = p->cstack.frames; sig <= &p->cstack.frames[SIGNAL_COUNT - 1]; sig++)
     {
         sig->used = FALSE;
     }
 
     p->ignore_signals = FALSE;
     p->sigpause_involked = FALSE;
+
+    p->starttime = ticks;
 
     return p;
 }
@@ -191,7 +193,7 @@ int fork(void)
             np->ofile[i] = filedup(proc->ofile[i]);
     np->cwd = idup(proc->cwd);
 
-    for (int i = SIGNAL_MIN; i < SIGNAL_MAX; i++)
+    for (int i = SIGNAL_MIN; i < SIGNAL_COUNT; i++)
     {
         np->sighandlers[i] = proc->sighandlers[i];
     }
@@ -691,6 +693,60 @@ void procdump(void)
     }
 }
 
+static inline void qsort(int *arr, int st, int ed)
+{
+    if (st < ed)
+    {
+        int i = st - 1, j = st + 1, piv = arr[st];
+        do
+        {
+            do
+            {
+                i++;
+            } while (arr[i] < piv);
+            do
+            {
+                j--;
+            } while (arr[j] > piv);
+            if (i < j)
+            {
+                int t = arr[i];
+                arr[i] = arr[j];
+                arr[j] = t;
+            }
+        } while (i < j);
+        qsort(arr, st, j);
+        qsort(arr, j + 1, ed);
+    }
+}
+
+int lastproc_pid(void)
+{
+    int pid = -1, pids[NPROC], pptr = 0;
+    memset(pids, 0, sizeof(pids));
+
+    acquire(&ptable.lock);
+
+    for (struct proc *p = ptable.proc;
+         p < &ptable.proc[NPROC];
+         p++)
+    {
+        if (p->state == RUNNING)
+        {
+            pid = p->pid;
+            break;
+        }
+        else if (p->state == SLEEPING)
+        {
+            pids[pptr++] = p->pid;
+        }
+    }
+    release(&ptable.lock);
+
+    return pid >= 0 ? pid : pids[pptr - 1];
+  
+}
+
 int cstk_push(cstack_t *cstack, int dest, int signum)
 {
     struct proc *p = NULL;
@@ -813,29 +869,11 @@ void handle_signals(struct trapframe *tf)
     memmove(&proc->oldtf, proc->tf, sizeof(struct trapframe)); //backing up trap frame
     proc->tf->esp -= (uint)&invoke_sigret_end - (uint)&invoke_sigret_start;
     memmove((void *)proc->tf->esp, invoke_sigret_start, (uint)&invoke_sigret_end - (uint)&invoke_sigret_start);
+
     *((int *)(proc->tf->esp - 4)) = top->signum;
     *((int *)(proc->tf->esp - 8)) = proc->tf->esp; // sigret system call code address
     proc->tf->esp -= 8;
+
     proc->tf->eip = (uint)proc->sighandlers[top->signum]; // trapret will resume into signal handler
     top->used = 0;                                        // free the cstackframe
-}
-
-void term_cur(void)
-{
-    int pid = -1;
-    acquire(&ptable.lock);
-
-    for (struct proc *p = ptable.proc;
-         p < &ptable.proc[NPROC];
-         p++)
-    {
-        if (p->state == RUNNING)
-        {
-            pid = p->pid;
-            break;
-        }
-    }
-    release(&ptable.lock);
-
-    sigsend(pid, SIGINT);
 }

@@ -109,13 +109,14 @@ struct proc
   struct inode *cwd;          // Current directory
   char name[16];              // Process name (debugging)
   int tickets;                //Ticket count for lottery scheduling
+  unsigned long long starttime;
 
   // Multi-thread support
-  uint ustack; // Bottom of the user stack
-  int mthread; // If non-zero, it's the main thread of a process
+  uint ustack;                // Bottom of the user stack
+  int mthread;                // If non-zero, it's the main thread of a process
 
   //signal
-  sighandler_t sighandlers[SIGNAL_MAX - SIGNAL_MIN + 1];
+  sighandler_t sighandlers[SIGNAL_COUNT];
   cstack_t cstack;
   BOOL ignore_signals;
   struct trapframe oldtf;
@@ -132,8 +133,9 @@ struct proc
 
 sighandler_t sigset(int signum, sighandler_t sighandler);
 int sigsend(int pid, int signum);
-void term_cur(void);
+int lastproc_pid(void);
 void sigret(void);
 void sigpause(void);
 void handle_signals(struct trapframe *tf);
+
 #endif
