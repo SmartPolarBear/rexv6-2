@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-08 20:01:27
+ * @ Modified time: 2019-06-08 20:17:10
  * @ Description:
  */
 
@@ -703,7 +703,12 @@ void procdump(void)
 
 int lastproc_pid(void)
 {
-    int pid = -1, pids[NPROC], pptr = 0;
+    int pid = -1, pptr = 0, maxtime = 0;
+
+    struct node
+    {
+        int pid, time;
+    } pids[NPROC];
     memset(pids, 0, sizeof(pids));
 
     acquire(&ptable.lock);
@@ -719,7 +724,8 @@ int lastproc_pid(void)
         }
         else if (p->state == SLEEPING)
         {
-            pids[pptr++] = p->pid;
+            pids[pptr++] = (struct node){p->pid, p->starttime};
+            maxtime = MAX(p->starttime, maxtime);
         }
     }
 
@@ -727,10 +733,23 @@ int lastproc_pid(void)
 
     if (pid < 0 && pptr <= MIN_PROC_NUM)
         return -1;
-        
-    qsort(pids, pptr, sizeof(int), __builtin_intdescendingcmp);
 
-    return pid >= 0 ? pid : pids[0];
+    if (pid < 0)
+    {
+        for (int i = 0; i < pptr; i++)
+        {
+            if (pids[i].time == maxtime)
+            {
+                pid = pids[i].pid;
+                break;
+            }
+        }
+    }
+
+    if (pid < 0)
+        return -1;
+
+    return pid;
 }
 
 int cstk_push(cstack_t *cstack, int dest, int signum)

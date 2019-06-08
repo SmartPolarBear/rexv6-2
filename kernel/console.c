@@ -336,7 +336,7 @@ void consoleintr(int (*getc)(void))
     {
         cprintf("\n^C.\n");
         int dpid = 0;
-        if ((dpid = lastproc_pid()) > 0)
+        if ((dpid = lastproc_pid()) >= 0)
         {
             sigsend(dpid, SIGINT);
         }
