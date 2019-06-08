@@ -1,3 +1,14 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-06-01 23:56:40
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-06-08 20:22:29
+ * @ Description:
+ */
+
+#if !defined(__INCLUDE_XV6_DEFS_H)
+#define __INCLUDE_XV6_DEFS_H
+
 struct buf;
 struct context;
 struct file;
@@ -169,6 +180,9 @@ int strncmp(const char *, const char *, uint);
 char *strncpy(char *, const char *, int);
 
 //qsort.c
+#if !defined(NONKERNEL)
+#include "stdint.h"
+#endif // NONKERNEL
 
 void qsort(void *base, size_t nmemb, size_t size, int (*cmp)(const void *, const void *));
 int __builtin_intascendingcmp(const void *a, const void *b);
@@ -235,3 +249,5 @@ void invoke_sigret_end(void);
 
 #define MIN(x, y) ((x) >= (y) ? (y) : (x))
 #define MAX(x, y) ((x) >= (y) ? (x) : (y))
+
+#endif // __INCLUDE_XV6_DEFS_H

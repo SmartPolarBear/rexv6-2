@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-08 17:37:48
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-08 19:59:02
+ * @ Modified time: 2019-06-08 20:22:59
  * @ Description: Inspired by the version used by the klibc 1.5.20
  */
 
@@ -31,6 +31,7 @@
  */
 
 #include "xv6/types.h"
+#include "stdint.h"
 
 //small to big
 int __builtin_intascendingcmp(const void *a, const void *b)
