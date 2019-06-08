@@ -170,6 +170,10 @@ char*           strncpy(char*, const char*, int);
 
 //qsort.c
 
+void qsort(void *base, size_t nmemb, size_t size, int (*cmp)(const void *, const void *));
+int __builtin_intascendingcmp(const void *a, const void *b);
+int __builtin_intdescendingcmp(const void *a, const void *b);
+
 // syscall.c
 int             argint(int, int*);
 int             argptr(int, char**, int);

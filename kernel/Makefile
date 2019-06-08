@@ -50,6 +50,7 @@ OBJS = \
 	semaphore.o\
 	rwlock.o\
 	rand.o\
+	qsort.o\
 
 _OBJS = $(addprefix $(OUTDIR)/,$(OBJS))
 

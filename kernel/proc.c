@@ -1,3 +1,11 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-06-01 23:56:40
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-06-08 20:01:27
+ * @ Description:
+ */
+
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
@@ -693,33 +701,6 @@ void procdump(void)
     }
 }
 
-static inline void qsort(int *arr, int st, int ed)
-{
-    if (st < ed)
-    {
-        int i = st - 1, j = st + 1, piv = arr[st];
-        do
-        {
-            do
-            {
-                i++;
-            } while (arr[i] < piv);
-            do
-            {
-                j--;
-            } while (arr[j] > piv);
-            if (i < j)
-            {
-                int t = arr[i];
-                arr[i] = arr[j];
-                arr[j] = t;
-            }
-        } while (i < j);
-        qsort(arr, st, j);
-        qsort(arr, j + 1, ed);
-    }
-}
-
 int lastproc_pid(void)
 {
     int pid = -1, pids[NPROC], pptr = 0;
@@ -741,10 +722,15 @@ int lastproc_pid(void)
             pids[pptr++] = p->pid;
         }
     }
+
     release(&ptable.lock);
 
-    return pid >= 0 ? pid : pids[pptr - 1];
-  
+    if (pid < 0 && pptr <= MIN_PROC_NUM)
+        return -1;
+        
+    qsort(pids, pptr, sizeof(int), __builtin_intdescendingcmp);
+
+    return pid >= 0 ? pid : pids[0];
 }
 
 int cstk_push(cstack_t *cstack, int dest, int signum)

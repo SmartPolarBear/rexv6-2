@@ -335,7 +335,11 @@ void consoleintr(int (*getc)(void))
     if (kill_proc)
     {
         cprintf("\n^C.\n");
-        sigsend(lastproc_pid(), SIGINT);
+        int dpid = 0;
+        if ((dpid = lastproc_pid()) > 0)
+        {
+            sigsend(dpid, SIGINT);
+        }
     }
 }
 

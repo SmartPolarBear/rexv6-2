@@ -13,5 +13,30 @@
         "user.h": "c",
         "defs.h": "c"
     },
-    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe"
+    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
+
+    "autoHeader": {
+        "format": {
+            "startWith": "/**",
+            "middleWith": "*",
+            "endWith": "*/",
+            "headerPrefix": "@",
+        },
+        "header": {
+            "Author": "SmartPolarBear",
+            "Create Time": {
+                "type": "createTime",
+                "format": "YYYY-MM-DD HH:mm:ss",
+            },
+            "Modified by": {
+                "type": "modifier",
+                "value": "SmartPolarBear",
+            },
+            "Modified time": {
+                "type": "modifyTime",
+                "format": "YYYY-MM-DD HH:mm:ss"
+            },
+            "Description": "",
+        }
+    }
 }

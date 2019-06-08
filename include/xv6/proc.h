@@ -130,6 +130,7 @@ struct proc
 //   expandable heap
 
 #define DEFAULT_TICKETS (10)
+#define MIN_PROC_NUM (2)
 
 sighandler_t sigset(int signum, sighandler_t sighandler);
 int sigsend(int pid, int signum);
