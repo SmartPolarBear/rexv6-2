@@ -691,7 +691,7 @@ void procdump(void)
     }
 }
 
-int cstk_push(cstack_t *cstack, int sid, int rid, int signum)
+int cstk_push(cstack_t *cstack, int dest, int signum)
 {
     struct proc *p = NULL;
     cstackframe_t *newsig = NULL;
@@ -702,8 +702,7 @@ int cstk_push(cstack_t *cstack, int sid, int rid, int signum)
     }
     return 0;
 found:
-    newsig->sid = sid;
-    newsig->rid = rid;
+    newsig->dest = dest;
     newsig->signum = signum;
     do
     {
@@ -712,7 +711,7 @@ found:
 
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
-        if (p->pid == rid)
+        if (p->pid == dest)
         {
             while (p->state == NEG_SLEEPING)
             {
@@ -757,7 +756,7 @@ int sigsend(int pid, int signum)
     }
     return -1; // pid wan't found, meaning it's not a valid pid. return error
 found:
-    if (cstk_push(&p->cstack, proc->pid, pid, signum))
+    if (cstk_push(&p->cstack, pid, signum))
     {
         return 0; //success
     }
@@ -776,6 +775,7 @@ void sigpause(void)
     pushcli();
     if (!cas(&proc->state, RUNNING, NEG_SLEEPING))
         panic("sigpause: cas #1 failed");
+
     if (proc->cstack.head == 0)
     {
         proc->chan = 0;
@@ -814,16 +814,15 @@ void handle_signals(struct trapframe *tf)
     proc->tf->esp -= (uint)&invoke_sigret_end - (uint)&invoke_sigret_start;
     memmove((void *)proc->tf->esp, invoke_sigret_start, (uint)&invoke_sigret_end - (uint)&invoke_sigret_start);
     *((int *)(proc->tf->esp - 4)) = top->signum;
-    *((int *)(proc->tf->esp - 8)) = top->sid;
-    *((int *)(proc->tf->esp - 12)) = proc->tf->esp; // sigret system call code address
-    proc->tf->esp -= 12;
+    *((int *)(proc->tf->esp - 8)) = proc->tf->esp; // sigret system call code address
+    proc->tf->esp -= 8;
     proc->tf->eip = (uint)proc->sighandlers[top->signum]; // trapret will resume into signal handler
     top->used = 0;                                        // free the cstackframe
 }
 
 void term_cur(void)
 {
-    int pid = 0;
+    int pid = -1;
     acquire(&ptable.lock);
 
     for (struct proc *p = ptable.proc;
@@ -838,5 +837,5 @@ void term_cur(void)
     }
     release(&ptable.lock);
 
-    kill(pid);
+    sigsend(pid, SIGINT);
 }

@@ -80,8 +80,7 @@ enum procstate
 
 typedef struct cstackframe
 {
-  int sid;
-  int rid;
+  int dest;
   int signum;
   BOOL used;
   struct cstackframe *next;

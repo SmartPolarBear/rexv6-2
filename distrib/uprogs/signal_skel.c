@@ -4,7 +4,7 @@
 #include "xv6/user.h"
 #include "xv6/signal.h"
 
-void my_handle_signal(int pid, int signum)
+void my_handle_signal(int signum)
 {
     printf(1, "Received signal %d\n", signum);
 
@@ -25,4 +25,5 @@ int main(void)
     printf(1, "x = %d\n", x);
 
     exit();
+    return 0;
 }
