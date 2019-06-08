@@ -168,6 +168,8 @@ int             strlen(const char*);
 int             strncmp(const char*, const char*, uint);
 char*           strncpy(char*, const char*, int);
 
+//qsort.c
+
 // syscall.c
 int             argint(int, int*);
 int             argptr(int, char**, int);
