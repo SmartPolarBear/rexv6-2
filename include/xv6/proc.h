@@ -133,6 +133,7 @@ struct proc
 
 sighandler_t sigset(int signum, sighandler_t sighandler);
 int sigsend(int pid, int signum);
+void term_cur(void);
 void sigret(void);
 void sigpause(void);
 void handle_signals(struct trapframe *tf);

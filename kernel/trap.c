@@ -67,7 +67,7 @@ void trap(struct trapframe *tf)
         // Bochs generates spurious IDE1 interrupts.
         break;
     case T_IRQ0 + IRQ_KBD:
-        kbdintr();
+        kbdintr(); //handle kbd
         lapiceoi();
         break;
     case T_IRQ0 + IRQ_COM1:
@@ -86,6 +86,7 @@ void trap(struct trapframe *tf)
         {
             sigsend(proc->pid, SIGFPE);
         }
+        lapiceoi();
         break;
 
     //PAGEBREAK: 13

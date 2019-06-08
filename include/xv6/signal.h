@@ -8,7 +8,7 @@
 #define SIGUSR1 (30)
 #define SIGUSR2 (31)
 
-typedef void (*sighandler_t)(int spid, int signum);
+typedef void (*sighandler_t)(int signum);
 
 #define SIGNAL_MIN (0)
 #define SIGNAL_MAX (32)

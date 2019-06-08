@@ -659,6 +659,7 @@ int kill(int pid)
 // No lock to avoid wedging a stuck machine further.
 void procdump(void)
 {
+
     static char *states[] = {
         [UNUSED] "unused",
         [EMBRYO] "embryo",
@@ -748,7 +749,6 @@ sighandler_t sigset(int signum, sighandler_t sighandler)
 
 int sigsend(int pid, int signum)
 {
-    cprintf("sigsend:Enter.\n");
     struct proc *p = NULL;
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
@@ -757,12 +757,10 @@ int sigsend(int pid, int signum)
     }
     return -1; // pid wan't found, meaning it's not a valid pid. return error
 found:
-    cprintf("sigsend:Find proc.\n");
     if (cstk_push(&p->cstack, proc->pid, pid, signum))
     {
         return 0; //success
     }
-
 
     return -1; //cstack full
 }
@@ -821,4 +819,24 @@ void handle_signals(struct trapframe *tf)
     proc->tf->esp -= 12;
     proc->tf->eip = (uint)proc->sighandlers[top->signum]; // trapret will resume into signal handler
     top->used = 0;                                        // free the cstackframe
+}
+
+void term_cur(void)
+{
+    int pid = 0;
+    acquire(&ptable.lock);
+
+    for (struct proc *p = ptable.proc;
+         p < &ptable.proc[NPROC];
+         p++)
+    {
+        if (p->state == RUNNING)
+        {
+            pid = p->pid;
+            break;
+        }
+    }
+    release(&ptable.lock);
+
+    kill(pid);
 }

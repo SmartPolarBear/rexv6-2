@@ -334,7 +334,8 @@ void consoleintr(int (*getc)(void))
     }
     if (kill_proc)
     {
-        cprintf("CTRL-C.\n");
+        cprintf("\n^C.\n");
+        term_cur();
     }
 }
 
@@ -378,7 +379,6 @@ int consoleread(struct inode *ip, char *dst, uint off, int n)
     release(&cons.lock);
     ilock(ip);
 
-    
     return target - n;
 }
 
