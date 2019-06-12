@@ -11,7 +11,9 @@
         "types.h": "c",
         "stat.h": "c",
         "user.h": "c",
-        "defs.h": "c"
+        "defs.h": "c",
+        "assert.h": "c",
+        "fcntl.h": "c"
     },
     "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
 
