@@ -1,3 +1,12 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-06-01 23:56:40
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-06-14 23:35:50
+ * @ Description:
+ */
+
+
 #include "xv6/types.h"
 #include "xv6/param.h"
 #include "xv6/memlayout.h"
@@ -42,7 +51,7 @@ int exec(char *path, char **argv)
         goto bad;
 
     // Load program into memory.
-    sz = 0;
+    sz = 0x1000;    //skip the first page
     for (i = 0, off = elf.phoff; i < elf.phnum; i++, off += sizeof(ph))
     {
         if (readi(ip, (char *)&ph, off, sizeof(ph)) != sizeof(ph))
