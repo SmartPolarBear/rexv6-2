@@ -1,3 +1,11 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-06-01 23:56:40
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-06-16 00:48:04
+ * @ Description:
+ */
+
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
@@ -6,6 +14,8 @@
 #include "xv6/proc.h"
 #include "xv6/x86.h"
 #include "xv6/syscall.h"
+
+#define IN_FIRST_PAGE(addr) (proc->pid > 1 && addr < PGSIZE)
 
 // User code makes a system call with INT T_SYSCALL.
 // System call number in %eax.
@@ -17,9 +27,17 @@
 int fetchint(uint addr, int *ip)
 {
     if (addr >= proc->sz || addr + 4 > proc->sz)
-        return -1;
+    {
+        return ERROR_OUT_OF_STACK;
+    }
+
+    if (IN_FIRST_PAGE(addr))
+    {
+        return ERROR_IN_FIRST_PAGE;
+    }
+
     *ip = *(int *)(addr);
-    return 0;
+    return ERROR_SUCCESS;
 }
 
 // Fetch the nul-terminated string at addr from the current process.
@@ -30,13 +48,22 @@ int fetchstr(uint addr, char **pp)
     char *s, *ep;
 
     if (addr >= proc->sz)
-        return -1;
+    {
+        return ERROR_OUT_OF_STACK;
+    }
+
+    if (IN_FIRST_PAGE(addr))
+    {
+        return ERROR_IN_FIRST_PAGE;
+    }
+
     *pp = (char *)addr;
     ep = (char *)proc->sz;
     for (s = *pp; s < ep; s++)
         if (*s == 0)
             return s - *pp;
-    return -1;
+
+    return ERROR_INVALID_VAL;
 }
 
 // Fetch the nth 32-bit system call argument.
@@ -50,14 +77,20 @@ int argint(int n, int *ip)
 // lies within the process address space.
 int argptr(int n, char **pp, int size)
 {
-    int i;
+    int i, hret = 0;
 
-    if (argint(n, &i) < 0)
-        return -1;
+    if ((hret = argint(n, &i)) < 0)
+    {
+        return hret;
+    }
+
     if (size < 0 || (uint)i >= proc->sz || (uint)i + size > proc->sz)
-        return -1;
+    {
+        return ERROR_INVALID_VAL;
+    }
+
     *pp = (char *)i;
-    return 0;
+    return ERROR_SUCCESS;
 }
 
 // Fetch the nth word-sized system call argument as a string pointer.
@@ -66,9 +99,11 @@ int argptr(int n, char **pp, int size)
 // between this check and being used by the kernel.)
 int argstr(int n, char **pp)
 {
-    int addr;
-    if (argint(n, &addr) < 0)
-        return -1;
+    int addr, hret = 0;
+    if ((hret = argint(n, &addr)) < 0)
+    {
+        return hret;
+    }
     return fetchstr(addr, pp);
 }
 
