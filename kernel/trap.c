@@ -89,6 +89,24 @@ void trap(struct trapframe *tf)
         lapiceoi();
         break;
 
+    case T_PGFLT:
+        // Specially, if the trap 14 occurs with address=0x0, it could be a null dereference.
+        if (proc != 0 && (tf->cs & 3) != 0) //is user proc
+        {
+            int addr = rcr2();
+            if (addr == 0x0)
+            {
+                cprintf("This trap may indicate a NULL dereference.\n"
+                        "pid %d %s: trap %d err %d on cpu %d \n"
+                        "eip 0x%x addr 0x%x--kill proc. \n",
+                        proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip,
+                        addr);
+
+                proc->killed = 1;
+            }
+        }
+        break;
+
     //PAGEBREAK: 13
     default:
         if (proc == 0 || (tf->cs & 3) == 0)
@@ -100,23 +118,10 @@ void trap(struct trapframe *tf)
         }
 
         // In user space, assume process misbehaved.
-        // Specially, if the trap 14 occurs with address=0x0, it could be a null dereference.
-        int addr = rcr2();
-        if (tf->trapno == 14 && addr == 0x0)
-        {
-            cprintf("This trap may indicate a NULL dereference.\n"
-                    "pid %d %s: trap %d err %d on cpu %d \n"
-                    "eip 0x%x addr 0x%x--kill proc. \n",
-                    proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip,
-                    addr);
-        }
-        else
-        {
-            cprintf("pid %d %s: trap %d err %d on cpu %d "
-                    "eip 0x%x addr 0x%x--kill proc\n",
-                    proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip,
-                    addr);
-        }
+        cprintf("pid %d %s: trap %d err %d on cpu %d "
+                "eip 0x%x addr 0x%x--kill proc\n",
+                proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip,
+                rcr2());
 
         proc->killed = 1;
     }
