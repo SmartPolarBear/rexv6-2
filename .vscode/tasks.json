@@ -21,7 +21,7 @@
             "command": "cd kernel&&make clean&&cd ..&&make",
             "problemMatcher": [
                 "$gcc"
-            ],
+            ]
         },
         {
             "label": "Rebuild",
@@ -34,6 +34,29 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "Compile xv6 and run in debug mode",
+            "command": "bash",
+            "args": [
+                "-c",
+                "make && make qemu-nox-gdb"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }

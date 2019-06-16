@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "gdb",
+            "request": "attach",
+            "name": "debug xv6",
+            "executable": "build/kernel/kernel",
+            "target": ":26000",
+            "remote": true,
+            "cwd": "${workspaceRoot}",
+            
+        }
+    ]
+}
