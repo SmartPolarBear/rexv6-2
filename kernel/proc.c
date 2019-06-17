@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-08 22:55:38
+ * @ Modified time: 2019-06-16 23:27:18
  * @ Description:
  */
 
@@ -181,7 +181,7 @@ int fork(void)
     }
 
     // Copy process state from p.
-    if ((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0)
+    if ((np->pgdir = copyuvm(proc->pgdir, proc->sz, proc->tf->esp)) == 0)
     {
         kfree(np->kstack);
         np->kstack = 0;

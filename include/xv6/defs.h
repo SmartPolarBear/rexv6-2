@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-08 20:22:29
+ * @ Modified time: 2019-06-16 23:25:39
  * @ Description:
  */
 
@@ -221,7 +221,7 @@ int deallocuvm(pde_t *, uint, uint);
 void freevm(pde_t *);
 void inituvm(pde_t *, char *, uint);
 int loaduvm(pde_t *, char *, struct inode *, uint, uint);
-pde_t *copyuvm(pde_t *, uint);
+pde_t *copyuvm(pde_t *, uint, uint);
 void switchuvm(struct proc *);
 void switchkvm(void);
 int copyout(pde_t *, uint, void *, uint);

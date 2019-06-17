@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-16 00:48:04
+ * @ Modified time: 2019-06-16 23:29:07
  * @ Description:
  */
 
@@ -26,7 +26,8 @@
 // Fetch the int at addr from the current process.
 int fetchint(uint addr, int *ip)
 {
-    if (addr >= proc->sz || addr + 4 > proc->sz)
+    // if (addr >= proc->sz || addr + 4 > proc->sz)
+    if (addr >= STACKBASE || addr + 4 > STACKBASE)
     {
         return ERROR_OUT_OF_STACK;
     }
@@ -47,7 +48,8 @@ int fetchstr(uint addr, char **pp)
 {
     char *s, *ep;
 
-    if (addr >= proc->sz)
+    // if (addr >= proc->sz)
+    if (addr >= STACKBASE)
     {
         return ERROR_OUT_OF_STACK;
     }
@@ -58,7 +60,7 @@ int fetchstr(uint addr, char **pp)
     }
 
     *pp = (char *)addr;
-    ep = (char *)proc->sz;
+    ep = (char *)STACKBASE;
     for (s = *pp; s < ep; s++)
         if (*s == 0)
             return s - *pp;
@@ -84,7 +86,8 @@ int argptr(int n, char **pp, int size)
         return hret;
     }
 
-    if (size < 0 || (uint)i >= proc->sz || (uint)i + size > proc->sz)
+    // if (size < 0 || (uint)i >= proc->sz || (uint)i + size > proc->sz)
+    if (size < 0 || (uint)i >= STACKBASE || (uint)i + size > STACKBASE)
     {
         return ERROR_INVALID_VAL;
     }

@@ -2,10 +2,9 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-16 21:14:23
+ * @ Modified time: 2019-06-16 23:26:39
  * @ Description:
  */
-
 
 #include "xv6/types.h"
 #include "xv6/param.h"
@@ -51,7 +50,7 @@ int exec(char *path, char **argv)
         goto bad;
 
     // Load program into memory.
-    sz = 0x1000;    //skip the first page
+    sz = 0x1000; //skip the first page
     for (i = 0, off = elf.phoff; i < elf.phnum; i++, off += sizeof(ph))
     {
         if (readi(ip, (char *)&ph, off, sizeof(ph)) != sizeof(ph))
@@ -75,11 +74,16 @@ int exec(char *path, char **argv)
 
     // Allocate two pages at the next page boundary.
     // Make the first inaccessible.  Use the second as the user stack.
+    // sz = PGROUNDUP(sz);
+    // if ((sz = allocuvm(pgdir, sz, sz + 2 * PGSIZE)) == 0)
+    //     goto bad;
+    // clearpteu(pgdir, (char *)(sz - 2 * PGSIZE));
+    // sp = sz;
     sz = PGROUNDUP(sz);
-    if ((sz = allocuvm(pgdir, sz, sz + 2 * PGSIZE)) == 0)
+    if ((allocuvm(pgdir, STACKBASE - PGSIZE, STACKBASE)) == 0)
         goto bad;
-    clearpteu(pgdir, (char *)(sz - 2 * PGSIZE));
-    sp = sz;
+    //clearpteu(pgdir, (char *)(sz - 2 * PGSIZE));
+    sp = STACKBASE;
 
     // Push argument strings, prepare rest of stack in ustack.
     for (argc = 0; argv[argc]; argc++)
@@ -115,6 +119,7 @@ int exec(char *path, char **argv)
     proc->tf->esp = sp;
     proc->ustack = sz;
     proc->mthread = 1;
+    proc->stk_sz = 1;
 
     for (int i = SIGNAL_MIN; i < SIGNAL_MAX; i++)
     {

@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-08 20:18:44
+ * @ Modified time: 2019-06-16 23:16:27
  * @ Description:
  */
 
@@ -105,6 +105,7 @@ typedef struct cstack
 struct proc
 {
   uint sz;                    // Size of process memory (bytes)
+  uint stk_sz;                // Size of stack in page
   pde_t *pgdir;               // Page table
   char *kstack;               // Bottom of kernel stack for this process
   enum procstate state;       // Process state
