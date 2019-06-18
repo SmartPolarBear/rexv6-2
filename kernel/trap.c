@@ -116,10 +116,25 @@ void trap(struct trapframe *tf)
         // Specially, if the trap 14 occurs with address=0x0, it could be a null dereference.
         if (proc != 0 && (tf->cs & 3) != 0) //is user proc
         {
+            /*
+            it's like this:
+            STACKBASE->     ---------                   -\
+                            |       |                     |
+                            |       |                     |
+                            |       |                     |
+            stk_off->       ---------   -\                 > the whole stack size after extending is (STACKBASE-stk_off)
+                            |       |     |               |
+                            |       |      > PGSIZE       |
+                            |       |     |               |
+            stk_next_off->  ---------   -/              -/
+             */
+
+            
             int addr = rcr2();
             uint stk_off = STACKBASE - proc->stk_sz * PGSIZE;
             uint stk_next_off = STACKBASE - (proc->stk_sz + 1) * PGSIZE;
 
+            //access to the 0x0 address indicates a null dereference.
             if (addr == 0x0)
             {
                 USER_FAULT("Segment fault.\n");
@@ -129,13 +144,14 @@ void trap(struct trapframe *tf)
             {
                 if (allocuvm(proc->pgdir, stk_next_off, stk_off) == 0)
                 {
-                    USER_FAULT("Segment fault.\n");
+                    USER_FAULT("Segment fault.\n"); //can't alloc more page
                 }
                 else
                 {
                     proc->stk_sz += 1; //new page allocated.
                 }
             }
+            //not specified conditions, kill the proc.
             else
             {
                 USER_FAULT("Segment fault.\n");
