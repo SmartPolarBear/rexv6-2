@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-16 23:27:18
+ * @ Modified time: 2019-06-18 23:06:25
  * @ Description:
  */
 
@@ -63,6 +63,7 @@ found:
     p->pid = nextpid++;
     p->ustack = 0;
     p->mthread = 1;
+    p->stk_sz = 1;
     p->tickets = DEFAULT_TICKETS;
 
     release(&ptable.lock);
@@ -188,6 +189,7 @@ int fork(void)
         np->state = UNUSED;
         return -1;
     }
+
     np->sz = proc->sz;
     np->parent = proc;
     np->ustack = proc->ustack;

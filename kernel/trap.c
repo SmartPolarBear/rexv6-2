@@ -30,6 +30,16 @@ void idtinit(void)
     lidt(idt, sizeof(idt));
 }
 
+#define SEGFAULT_PROMPT                                                        \
+    do                                                                         \
+    {                                                                          \
+        cprintf("Segment fault.\n");                                           \
+        cprintf("pid %d %s: trap %d err %d on cpu %d "                         \
+                "eip 0x%x addr 0x%x--kill proc\n",                             \
+                proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip, \
+                rcr2());                                                       \
+    } while (0)
+
 //PAGEBREAK: 41
 void trap(struct trapframe *tf)
 {
@@ -94,17 +104,48 @@ void trap(struct trapframe *tf)
         if (proc != 0 && (tf->cs & 3) != 0) //is user proc
         {
             int addr = rcr2();
+            uint stk_off = STACKBASE - proc->stk_sz * PGSIZE;
+            uint stk_next_off = STACKBASE - (proc->stk_sz + 1) * PGSIZE;
+
             if (addr == 0x0)
             {
-                cprintf("This trap may indicate a NULL dereference.\n"
-                        "pid %d %s: trap %d err %d on cpu %d \n"
-                        "eip 0x%x addr 0x%x--kill proc. \n",
-                        proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip,
-                        addr);
+                cprintf("1\n");
+                SEGFAULT_PROMPT;
 
-                proc->killed = 1;
+                proc->killed = TRUE;
+            }
+            else if (addr <= stk_off && addr >= stk_next_off)
+            {
+                cprintf("should extend the page.\n");
+                if (allocuvm(proc->pgdir, stk_next_off, stk_off) == 0)
+                {
+                    SEGFAULT_PROMPT;
+                }
+                else
+                {
+                    proc->stk_sz += 1; //new page allocated.
+                    //cprintf("Now the stack top is at 0x%x,size=%d in bytes\n", stk_next_off, KERNBASE - stk_next_off);
+                    // cprintf("fucked the page successfully.\n");
+                }
+
+                //proc->killed = TRUE;
+            }
+            else
+            {
+                cprintf("2\n");
+                SEGFAULT_PROMPT;
+
+                proc->killed = TRUE;
             }
         }
+        else // In kernel
+        {
+            // In kernel, it must be our mistake.
+            cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
+                    tf->trapno, cpunum(), tf->eip, rcr2());
+            panic("trap");
+        }
+
         break;
 
     //PAGEBREAK: 13

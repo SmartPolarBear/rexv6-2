@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-16 23:29:48
+ * @ Modified time: 2019-06-18 23:08:06
  * @ Description:
  */
 
@@ -383,6 +383,7 @@ copyuvm(pde_t *pgdir, uint sz, uint sp)
             goto bad;
     }
 
+    
     stkoffset = STACKBASE - proc->stk_sz * PGSIZE;
     for (i = STACKBASE; i > stkoffset; i -= PGSIZE)
     {
