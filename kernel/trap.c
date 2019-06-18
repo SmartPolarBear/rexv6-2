@@ -103,7 +103,8 @@ void trap(struct trapframe *tf)
                 cpunum(), tf->cs, tf->eip);
         lapiceoi();
         break;
-
+    
+    //floating point error
     case T_DIVIDE:
         if (VALIDATE_HANDLER(proc->sighandlers[SIGFPE]))
         {
@@ -112,6 +113,7 @@ void trap(struct trapframe *tf)
         lapiceoi();
         break;
 
+    //page fault
     case T_PGFLT:
         // Specially, if the trap 14 occurs with address=0x0, it could be a null dereference.
         if (proc != 0 && (tf->cs & 3) != 0) //is user proc
@@ -129,7 +131,7 @@ void trap(struct trapframe *tf)
             stk_next_off->  ---------   -/              -/
              */
 
-            
+
             int addr = rcr2();
             uint stk_off = STACKBASE - proc->stk_sz * PGSIZE;
             uint stk_next_off = STACKBASE - (proc->stk_sz + 1) * PGSIZE;
