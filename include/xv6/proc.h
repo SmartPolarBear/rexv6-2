@@ -2,16 +2,16 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-16 23:16:27
+ * @ Modified time: 2019-06-18 23:35:11
  * @ Description:
  */
-
 
 #ifndef __INCLUDE_XV6_PROC_H
 #define __INCLUDE_XV6_PROC_H
 #include <xv6/types.h>
 #include <xv6/signal.h>
 #include <xv6/x86.h>
+#include <xv6/mmu.h>
 
 // Per-CPU state
 struct cpu
@@ -122,8 +122,8 @@ struct proc
   unsigned long long starttime;
 
   // Multi-thread support
-  uint ustack;                // Bottom of the user stack
-  int mthread;                // If non-zero, it's the main thread of a process
+  uint ustack; // Bottom of the user stack
+  int mthread; // If non-zero, it's the main thread of a process
 
   //signal
   sighandler_t sighandlers[SIGNAL_COUNT];
@@ -141,6 +141,8 @@ struct proc
 
 #define DEFAULT_TICKETS (10)
 #define MIN_PROC_NUM (2)
+#define MAX_PROC_STK_SIZE (0x800000) //8MB,8388608B
+#define MAX_PROC_STK_PGCNT (MAX_PROC_STK_SIZE / PGSIZE)
 
 sighandler_t sigset(int signum, sighandler_t sighandler);
 int sigsend(int pid, int signum);

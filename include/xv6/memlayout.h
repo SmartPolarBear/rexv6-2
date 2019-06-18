@@ -1,3 +1,15 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-06-18 23:34:10
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-06-18 23:34:11
+ * @ Description:
+ */
+
+
+#if !defined(__INCLUDE_XV6_MEMLAYOUT_H)
+#define __INCLUDE_XV6_MEMLAYOUT_H
+
 // Memory layout
 
 #define EXTMEM 0x100000     // Start of extended memory
@@ -14,3 +26,5 @@
 
 #define V2P_WO(x) ((x)-KERNBASE)   // same as V2P, but without casts
 #define P2V_WO(x) ((x) + KERNBASE) // same as P2V, but without casts
+
+#endif // __INCLUDE_XV6_MEMLAYOUT_H

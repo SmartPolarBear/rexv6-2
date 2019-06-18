@@ -30,14 +30,27 @@ void idtinit(void)
     lidt(idt, sizeof(idt));
 }
 
-#define SEGFAULT_PROMPT                                                        \
+//Call when a user process run into trouble.
+//Will kill the porcess
+#define USER_FAULT(fault_prompt)                                               \
     do                                                                         \
     {                                                                          \
-        cprintf("Segment fault.\n");                                           \
+        cprintf(fault_prompt);                                                 \
         cprintf("pid %d %s: trap %d err %d on cpu %d "                         \
                 "eip 0x%x addr 0x%x--kill proc\n",                             \
                 proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip, \
                 rcr2());                                                       \
+        proc->killed = TRUE;                                                   \
+    } while (0)
+
+//Call this when kernel run into trouble
+//Will panic the kernel with panic("trap").
+#define KERN_FAULT                                                    \
+    do                                                                \
+    {                                                                 \
+        cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n", \
+                tf->trapno, cpunum(), tf->eip, rcr2());               \
+        panic("trap");                                                \
     } while (0)
 
 //PAGEBREAK: 41
@@ -109,41 +122,29 @@ void trap(struct trapframe *tf)
 
             if (addr == 0x0)
             {
-                cprintf("1\n");
-                SEGFAULT_PROMPT;
-
-                proc->killed = TRUE;
+                USER_FAULT("Segment fault.\n");
             }
-            else if (addr <= stk_off && addr >= stk_next_off)
+            //will not allocate more than MAX_PROC_STK_PGCNT pages for stack, otherwise the SEGFAULT will arise.
+            else if (addr <= stk_off && addr >= stk_next_off && proc->stk_sz < MAX_PROC_STK_PGCNT)
             {
-                cprintf("should extend the page.\n");
                 if (allocuvm(proc->pgdir, stk_next_off, stk_off) == 0)
                 {
-                    SEGFAULT_PROMPT;
+                    USER_FAULT("Segment fault.\n");
                 }
                 else
                 {
                     proc->stk_sz += 1; //new page allocated.
-                    //cprintf("Now the stack top is at 0x%x,size=%d in bytes\n", stk_next_off, KERNBASE - stk_next_off);
-                    // cprintf("fucked the page successfully.\n");
                 }
-
-                //proc->killed = TRUE;
             }
             else
             {
-                cprintf("2\n");
-                SEGFAULT_PROMPT;
-
-                proc->killed = TRUE;
+                USER_FAULT("Segment fault.\n");
             }
         }
         else // In kernel
         {
             // In kernel, it must be our mistake.
-            cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
-                    tf->trapno, cpunum(), tf->eip, rcr2());
-            panic("trap");
+            KERN_FAULT;
         }
 
         break;
@@ -153,18 +154,11 @@ void trap(struct trapframe *tf)
         if (proc == 0 || (tf->cs & 3) == 0)
         {
             // In kernel, it must be our mistake.
-            cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
-                    tf->trapno, cpunum(), tf->eip, rcr2());
-            panic("trap");
+            KERN_FAULT;
         }
 
         // In user space, assume process misbehaved.
-        cprintf("pid %d %s: trap %d err %d on cpu %d "
-                "eip 0x%x addr 0x%x--kill proc\n",
-                proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip,
-                rcr2());
-
-        proc->killed = 1;
+        USER_FAULT("");
     }
 
     // Force process exit if it has been killed and is in user space.
