@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-19 23:40:02
+ * @ Modified time: 2019-06-20 23:08:47
  * @ Description:
  */
 
@@ -35,21 +35,6 @@ void pinit(void)
     initlock(&ptable.lock, "ptable");
 }
 
-//allocate a pid, atomic action with cas.
-int allocpid(void)
-{
-    int pid = 0;
-
-    //this loop in fact fucked nothing but change nextpid in an atomic way.
-    //never try to remove it.
-    do
-    {
-        pid = nextpid;
-    } while (!cas(&nextpid, pid, pid + 1));
-
-    return pid;
-}
-
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
 // If found, change state to EMBRYO and initialize
@@ -60,49 +45,28 @@ static struct proc *allocproc(void)
     struct proc *p;
     char *sp;
 
-    //     acquire(&ptable.lock);
+    acquire(&ptable.lock);
 
-    //     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    //     {
-    //         if (p->state == UNUSED)
-    //         {
-    //             goto found;
-    //         }
-    //     }
-
-    //     release(&ptable.lock);
-    //     return 0;
-
-    // found:
-    pushcli();
-    do
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
-        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+        if (p->state == UNUSED)
         {
-            if (p->state == UNUSED)
-            {
-                break; // break the for loop
-            }
+            goto found;
         }
+    }
 
-        if (p == &ptable.proc[NPROC])
-        {
-            popcli();
-            return 0; // ptable is full
-        }
-    } while (!cas(&p->state, UNUSED, EMBRYO));
+    release(&ptable.lock);
+    return 0;
 
-    popcli();
-
-    //p->state = EMBRYO;
-    //p->pid = nextpid++;
-    p->pid = allocpid();
+found:
+    p->state = EMBRYO;
+    p->pid = nextpid++;
     p->ustack = 0;
     p->mthread = 1;
     p->stk_sz = 1;
     p->tickets = DEFAULT_TICKETS;
 
-    //release(&ptable.lock);
+    release(&ptable.lock);
 
     // Allocate kernel stack.
     if ((p->kstack = kalloc()) == 0)
