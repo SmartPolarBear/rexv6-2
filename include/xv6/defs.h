@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-16 23:25:39
+ * @ Modified time: 2019-06-21 23:59:18
  * @ Description:
  */
 
@@ -226,9 +226,11 @@ void switchuvm(struct proc *);
 void switchkvm(void);
 int copyout(pde_t *, uint, void *, uint);
 void clearpteu(pde_t *pgdir, char *uva);
-
-void freestackvm(pde_t *pgdir, uint stack);
-pde_t *copystackuvm(pde_t *pgdir, uint sz, uint stack);
+//threads
+int clone(int func, void *arg, void *stack);
+int join(int pid, void **stack, void **retval);
+void texit(void *retval);
+void cleanthread(struct proc *p);
 
 // semaphore.c
 void initqueue(struct proclist *list);

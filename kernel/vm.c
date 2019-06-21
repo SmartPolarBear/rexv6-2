@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-21 22:59:28
+ * @ Modified time: 2019-06-21 23:26:54
  * @ Description:
  */
 
@@ -315,35 +315,6 @@ void freevm(pde_t *pgdir)
     kfree((char *)pgdir);
 }
 
-void freestackvm(pde_t *pgdir, uint stack)
-{
-    freevm(pgdir);
-    // uint i;
-
-    // if (pgdir == 0)
-    //     panic("freevm: no pgdir");
-    // pte_t *pte;
-    // if (stack)
-    // {
-    //     for (i = stack - 2 * PGSIZE; i < stack; i += PGSIZE)
-    //     {
-    //         pte = walkpgdir(pgdir, (void *)i, 0);
-    //         if (*pte & PTE_P)
-    //             kfree((char *)P2V(PTE_ADDR(*pte)));
-    //         else
-    //             panic("freestackvm: stack not found");
-    //     }
-    // }
-    // for (i = 0; i < NPDENTRIES; i++)
-    // {
-    //     if (pgdir[i] & PTE_P)
-    //     {
-    //         char *v = P2V(PTE_ADDR(pgdir[i]));
-    //         kfree(v);
-    //     }
-    // }
-    // kfree((char *)pgdir);
-}
 
 // Clear PTE_U on a page. Used to create an inaccessible
 // page beneath the user stack.
@@ -407,50 +378,6 @@ bad:
     return 0;
 }
 
-pde_t *copystackuvm(pde_t *pgdir, uint sz, uint stack)
-{
-    return copyuvm(pgdir, sz, stack);
-    //     pde_t *d;
-    //     pte_t *pte;
-    //     uint pa, i, flags;
-    //     char *mem;
-
-    //     uint stk_st = stack - 0;
-    //     uint stk_ed = stack - proc->stk_sz * PGSIZE;
-
-    //     cprintf("proc's stack:%d\n", proc->stk_sz);
-
-    //     if ((d = setupkvm()) == 0)
-    //         return 0;
-    //     for (i = /* 0*/ PGSIZE; i < sz; i += PGSIZE)
-    //     {
-    //         if ((pte = walkpgdir(pgdir, (void *)i, 0)) == 0)
-    //             panic("copyuvm: pte should exist");
-    //         if (!(*pte & PTE_P))
-    //             panic("copyuvm: page not present");
-    //         pa = PTE_ADDR(*pte);
-    //         flags = PTE_FLAGS(*pte);
-    //         // if (i + 2 * PGSIZE < stack || i >= stack)
-    //         if (i >= stk_ed && i <= stk_st)
-    //         {
-    //             cprintf("copystackuvm:copy in stack.\n");
-    //             mem = P2V(pa);
-    //         }
-    //         else
-    //         {
-    //             if ((mem = kalloc()) == 0)
-    //                 goto bad;
-    //             memmove(mem, (char *)P2V(pa), PGSIZE);
-    //         }
-    //         if (mappages(d, (void *)i, PGSIZE, V2P(mem), flags) < 0)
-    //             goto bad;
-    //     }
-    //     return d;
-
-    // bad:
-    //     freestackvm(d, stack);
-    //     return 0;
-}
 
 //PAGEBREAK!
 // Map user virtual address to kernel address.

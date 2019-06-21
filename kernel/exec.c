@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-16 23:26:39
+ * @ Modified time: 2019-06-21 23:52:43
  * @ Description:
  */
 
@@ -18,9 +18,6 @@
 
 int exec(char *path, char **argv)
 {
-    // Only main thread can call this.
-    if (!proc->mthread)
-        panic("exec: calling from non-main thread");
 
     char *s, *last;
     int i, off;
@@ -117,8 +114,6 @@ int exec(char *path, char **argv)
     proc->sz = sz;
     proc->tf->eip = elf.entry; // main
     proc->tf->esp = sp;
-    proc->ustack = sz;
-    proc->mthread = 1;
     proc->stk_sz = 1;
 
     for (int i = SIGNAL_MIN; i < SIGNAL_MAX; i++)

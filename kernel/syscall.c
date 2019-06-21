@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-16 23:29:07
+ * @ Modified time: 2019-06-21 23:33:44
  * @ Description:
  */
 
@@ -143,10 +143,6 @@ extern int sys_geteditstatus(void);
 extern int sys_seteditstatus(void);
 extern int sys_gettime(void);
 
-extern int thread_create(void);
-extern int thread_exit(void);
-extern int thread_wait(void);
-
 extern int sys_lock_create(void);
 extern int sys_lock_acquire(void);
 extern int sys_lock_release(void);
@@ -208,9 +204,6 @@ static int (*syscalls[])(void) = {
     [SYS_playsound] sys_playsound,
     [SYS_nosound] sys_nosound,
     [SYS_gettime] sys_gettime,
-    [SYS_thread_create] thread_create,
-    [SYS_thread_exit] thread_exit,
-    [SYS_thread_wait] thread_wait,
     [SYS_lock_create] sys_lock_create,
     [SYS_lock_acquire] sys_lock_acquire,
     [SYS_lock_release] sys_lock_release,

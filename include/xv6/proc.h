@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-20 23:32:59
+ * @ Modified time: 2019-06-22 00:05:22
  * @ Description:
  */
 
@@ -12,6 +12,7 @@
 #include <xv6/signal.h>
 #include <xv6/x86.h>
 #include <xv6/mmu.h>
+#include <xv6/spinlock.h>
 
 // Per-CPU state
 struct cpu
@@ -101,6 +102,19 @@ typedef struct cstack
   cstackframe_t *head;
 } cstack_t;
 
+typedef struct
+{
+  int isfree;
+  struct spinlock lock;
+  int flag;   //1 when locked
+  void *cond; //conditional
+} mutex_t;
+
+typedef struct
+{
+
+} cond_t;
+
 // Per-process state
 struct proc
 {
@@ -122,10 +136,18 @@ struct proc
   unsigned long long starttime;
 
   // Multi-thread support
-  uint ustack; // Bottom of the user stack
-  int mthread; // If non-zero, it's the main thread of a process
+  void *ustack;  // Bottom of the user stack
+  BOOL isthread; // If non-zero, it's the main thread of a process
+  struct proc *joinedthread;
+  void *retval;
 
-  //signal
+  //Mutex
+  mutex_t mtable[32];            //mutex table
+  mutex_t *mtable_shared;        //shared among threads
+  struct spinlock mlock;         //mutex table
+  struct spinlock *mlock_shared; //shared among thread
+
+  //Signal
   sighandler_t sighandlers[SIGNAL_COUNT];
   cstack_t cstack;
   BOOL ignore_signals;
@@ -136,8 +158,8 @@ struct proc
 // Process memory is laid out contiguously, low addresses first:
 //   text
 //   original data and bss
-//   fixed-size stack
 //   expandable heap
+//   * expandable stack
 
 #define DEFAULT_TICKETS (10)
 #define MIN_PROC_NUM (2)

@@ -13,7 +13,8 @@
         "user.h": "c",
         "defs.h": "c",
         "assert.h": "c",
-        "fcntl.h": "c"
+        "fcntl.h": "c",
+        "spinlock.h": "c"
     },
     "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
 
