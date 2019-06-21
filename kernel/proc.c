@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-20 23:08:47
+ * @ Modified time: 2019-06-20 23:22:10
  * @ Description:
  */
 
@@ -61,7 +61,8 @@ static struct proc *allocproc(void)
 found:
     p->state = EMBRYO;
     p->pid = nextpid++;
-    p->ustack = 0;
+    // p->ustack = 0;
+    p->ustack = STACKBASE;
     p->mthread = 1;
     p->stk_sz = 1;
     p->tickets = DEFAULT_TICKETS;

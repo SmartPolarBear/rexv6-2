@@ -182,4 +182,6 @@ int main(int argc, char *argv[])
 
         thread_exit();
     }
+
+    exit();
 }
