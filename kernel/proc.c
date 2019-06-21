@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-22 00:08:14
+ * @ Modified time: 2019-06-22 00:12:55
  * @ Description:
  */
 
@@ -792,8 +792,8 @@ int clone(int func, void *arg, void *stack)
     if ((np = allocproc()) == 0)
         return -1;
 
-    //TODO:init mutex table
-    //implement later
+    np->mtable_shared = proc->mtable_shared;
+    np->mlock_shared = proc->mlock_shared;
 
     np->pgdir = proc->pgdir;
     np->sz = proc->sz;
@@ -881,4 +881,22 @@ void cleanthread(struct proc *p)
     p->ustack = NULL;
     p->retval = NULL;
     p->isthread = FALSE;
+}
+
+//mutex
+
+void mutex_lock(int mutex)
+{
+    acquire(&proc->mtable_shared[mutex].lock);
+    while (proc->mtable_shared[mutex].flag == 1)
+        sleep(proc->mtable_shared[mutex].cond, &proc->mtable_shared[mutex].lock);
+    proc->mtable_shared[mutex].flag = 1;
+    release(&proc->mtable_shared[mutex].lock);
+}
+void mutex_unlock(int mutex)
+{
+    acquire(&proc->mtable_shared[mutex].lock);
+    proc->mtable_shared[mutex].flag = 0;
+    wakeup(proc->mtable_shared[mutex].cond);
+    release(&proc->mtable_shared[mutex].lock);
 }

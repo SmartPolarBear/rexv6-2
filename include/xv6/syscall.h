@@ -2,27 +2,25 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-16 00:46:44
+ * @ Modified time: 2019-06-22 00:16:32
  * @ Description:
  */
-
 
 #ifndef __INCLUDE_XV6_SYSCALL_H
 #define __INCLUDE_XV6_SYSCALL_H
 
 //error success is sucess.
-#define ERROR_SUCCESS           (0)
+#define ERROR_SUCCESS (0)
 
 //handle when trying to retreving more arguments than given.
-#define ERROR_OUT_OF_STACK      (-1)
+#define ERROR_OUT_OF_STACK (-1)
 
 //corresponding to null dereference handling
 //TODO: HANDLE IT WITH SIGNAL
-#define ERROR_IN_FIRST_PAGE     (-2)
-
+#define ERROR_IN_FIRST_PAGE (-2)
 
 //value invalid, like non-NUL-terminated strs or bad pointers.
-#define ERROR_INVALID_VAL       (-3)
+#define ERROR_INVALID_VAL (-3)
 
 // System call numbers
 #define SYS_fork 1
@@ -46,10 +44,6 @@
 #define SYS_link 19
 #define SYS_mkdir 20
 #define SYS_close 21
-
-#define SYS_thread_create 22
-#define SYS_thread_exit 23
-#define SYS_thread_wait 24
 
 #define SYS_lock_create 31
 #define SYS_lock_acquire 32
@@ -101,4 +95,11 @@
 #define SYS_sigret (82)
 #define SYS_sigpause (83)
 
+#define SYS_clone (22)
+#define SYS_join (23)
+#define SYS_texit (24)
+#define SYS_mutex_init (84)
+#define SYS_mutex_destroy (85)
+#define SYS_mutex_lock (86)
+#define SYS_mutex_unlock (87)
 #endif
