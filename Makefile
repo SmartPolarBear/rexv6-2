@@ -36,7 +36,8 @@ clean:
 	rm -rf build/*
 
 QEMUOPTS = -drive file=build/fs.img,index=1,media=disk,format=raw -drive file=build/xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m $(RAM) $(QEMUEXTRA)
-#QEMUOPTS +=  -soundhw all
+QEMUOPTS +=  -soundhw all
+QEMUOPTS += -accel whpx
 QEMUGDB = -gdb tcp::$(GDBPORT)
 
 qemu: build/fs.img build/xv6.img

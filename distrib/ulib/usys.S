@@ -74,3 +74,6 @@ SYSCALL(mutex_init)
 SYSCALL(mutex_destroy)
 SYSCALL(mutex_lock)
 SYSCALL(mutex_unlock)
+
+SYSCALL(nosound)
+SYSCALL(playsound)

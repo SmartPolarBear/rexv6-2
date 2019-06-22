@@ -11,7 +11,7 @@ CC = gcc
 OBJCOPY = objcopy
 OBJDUMP = objdump
 RANLIB = ranlib
-QEMU = qemu-system-i386
+QEMU = qemu-system-i386.exe
 
 CFLAGS += -nostdinc -fno-builtin -fno-stack-protector -std=gnu11 -Wall -Wextra -m32 -I$(INCLDIR)
 

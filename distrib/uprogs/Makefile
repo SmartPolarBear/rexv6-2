@@ -6,7 +6,7 @@ OUTDIR = $(BUILDDIR)/distrib/uprogs
 UPROGS = cat echo forktest grep init kill ln ls \
 		mkdir rm sh stressfs usertests wc zombie \
 		mount pwd reader stdtests jerry timetest vi bi \
-		semtest rwtest pthreadtest cp cmp testdev \
+		semtest rwtest pthreadtest cp cmp testdev testsound\
 		signal_skel signal_test nulldereftest stacktest\
 
 ULIB = $(OUTDIR)/../ulib/ulib.a
