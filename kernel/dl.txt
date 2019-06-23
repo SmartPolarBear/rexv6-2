@@ -1,9 +1,0 @@
-dev
-fs
-init
-lib
-mm
-proc
-sync
-syscall
-trap
