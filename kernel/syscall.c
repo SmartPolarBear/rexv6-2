@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-22 00:17:24
+ * @ Modified time: 2019-06-23 17:45:09
  * @ Description:
  */
 
@@ -15,7 +15,8 @@
 #include "xv6/x86.h"
 #include "xv6/syscall.h"
 
-#define IN_FIRST_PAGE(addr) (proc->pid > 1 && addr < PGSIZE)
+#define IN_FIRST_PAGE(addr) (proc->pid > 1 && (addr) < PGSIZE)
+#define IN_PROC_STACK(addr) ((addr) >= STACKBASE - proc->stk_sz * PGSIZE && (addr) <= STACKBASE)
 
 // User code makes a system call with INT T_SYSCALL.
 // System call number in %eax.
@@ -48,8 +49,7 @@ int fetchstr(uint addr, char **pp)
 {
     char *s, *ep;
 
-    // if (addr >= proc->sz)
-    if (addr >= STACKBASE)
+    if (addr >= proc->sz && !IN_PROC_STACK(addr))
     {
         return ERROR_OUT_OF_STACK;
     }
