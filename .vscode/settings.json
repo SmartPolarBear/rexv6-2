@@ -17,7 +17,8 @@
         "spinlock.h": "c",
         "mmu.h": "c",
         "fs.h": "c",
-        "pthread.h": "c"
+        "pthread.h": "c",
+        "mbr.h": "c"
     },
     "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
 
