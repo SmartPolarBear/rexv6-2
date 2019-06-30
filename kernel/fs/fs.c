@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-30 14:12:10
+ * @ Modified time: 2019-06-30 23:22:53
  * @ Description:
  */
 
@@ -58,7 +58,8 @@ int checkboot(int idx)
 void readmbr(int dev, mbr_t *mbr)
 {
     struct buf *bp;
-
+    int first_bootable_partition = 0;
+    BOOL found = FALSE;
     bp = bread(dev, 0);
     memmove(mbr, bp->data, sizeof(*mbr));
 
@@ -71,7 +72,13 @@ void readmbr(int dev, mbr_t *mbr)
         {
             if (mbr->partitions[i].flags & PART_BOOTABLE)
             {
+
                 msgbootable = "YES";
+                if (!found)
+                {
+                    first_bootable_partition = i;
+                    found = TRUE;
+                }
                 boot_partition = checkboot(i);
             }
             else
@@ -97,13 +104,14 @@ void readmbr(int dev, mbr_t *mbr)
             //memmove(&partitions[i] + sizeof(uint), &mbr->partitions[i], sizeof(struct dpartition));
             current_partition = i;
             partitions[i].dev = dev;
-            partitions[i].dev = dev;
             partitions[i].flags = mbr->partitions[i].flags;
             partitions[i].type = mbr->partitions[i].type;
             partitions[i].offset = mbr->partitions[i].offset;
             partitions[i].size = mbr->partitions[i].size;
             readsb(dev, &sbs[i]);
         }
+        current_partition = first_bootable_partition;
+        boot_partition = first_bootable_partition;
     }
     brelse(bp);
 }
@@ -116,6 +124,7 @@ void readsb(int dev, struct superblock *sb)
 
     bp = bread(dev, mbr.partitions[current_partition].offset);
     memmove(sb, bp->data, sizeof(*sb));
+    sb->offset = mbr.partitions[current_partition].offset;
     brelse(bp);
 }
 
@@ -289,6 +298,7 @@ ialloc(uint dev, short type)
     for (inum = 1; inum < sbs[current_partition].ninodes; inum++)
     {
         bp = bread(dev, IBLOCK(inum, sbs[current_partition]) + partitions[current_partition].offset);
+
         dip = (struct dinode *)bp->data + inum % IPB;
         if (dip->type == 0)
         { // a free inode
@@ -351,6 +361,7 @@ iget(uint dev, uint inum)
     ip = empty;
     ip->dev = dev;
     ip->inum = inum;
+    ip->part = current_partition;
     ip->ref = 1;
     ip->flags = 0;
     ip->partitions = partitions;
@@ -468,7 +479,10 @@ bmap(struct inode *ip, uint bn)
     {
         // Load indirect block, allocating if necessary.
         if ((addr = ip->addrs[NDIRECT]) == 0)
+        {
+            //TODO: should be checked if balloc returns a relative bnumber
             ip->addrs[NDIRECT] = addr = balloc(ip->dev);
+        }
         bp = bread(ip->dev, addr + partitions[current_partition].offset);
         a = (uint *)bp->data;
         if ((addr = a[bn]) == 0)
