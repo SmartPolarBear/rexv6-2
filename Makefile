@@ -18,8 +18,8 @@ build/kernel/kernel: FORCE
 build/tools/mkfs: FORCE
 	$(MAKE) -C tools all
 
-build/fs.img: build/fs/README build/tools/mkfs
-	build/tools/mkfs build/fs.img build/fs
+build/fs.img: build/fs/README build/tools/mkfs build/boot/bootblock build/kernel/kernel
+	build/tools/mkfs build/fs.img build/fs build/boot/bootblock build/kernel/kernel
 
 build/fs/README: FORCE
 	mkdir -p build/fs
@@ -35,22 +35,22 @@ clean:
 	$(MAKE) -C tools clean
 	rm -rf build/*
 
-QEMUOPTS = -drive file=build/fs.img,index=1,media=disk,format=raw -drive file=build/xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m $(RAM) $(QEMUEXTRA)
+QEMUOPTS = -drive file=build/fs.img,index=0,media=disk,format=raw -smp $(CPUS) -m $(RAM) $(QEMUEXTRA)
 QEMUOPTS +=  -soundhw all
 QEMUOPTS += -accel whpx
 QEMUGDB = -gdb tcp::$(GDBPORT)
 
-qemu: build/fs.img build/xv6.img
+qemu: build/fs.img
 	$(QEMU) -serial mon:stdio $(QEMUOPTS)
 
-qemu-nox: build/fs.img build/xv6.img
+qemu-nox: build/fs.img
 	$(QEMU) -nographic $(QEMUOPTS)
 
-qemu-gdb: build/fs.img build/xv6.img
+qemu-gdb: build/fs.img
 	@echo "*** Now run 'gdb'." 1>&2
 	$(QEMU) -serial mon:stdio $(QEMUOPTS) -S $(QEMUGDB)
 
-qemu-nox-gdb: build/fs.img build/xv6.img
+qemu-nox-gdb: build/fs.img
 	@echo "*** Now run 'gdb'." 1>&2
 	$(QEMU) -nographic $(QEMUOPTS) -S $(QEMUGDB)
 

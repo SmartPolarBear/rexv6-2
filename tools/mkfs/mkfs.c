@@ -87,16 +87,16 @@ uint xint(uint x)
 
 int main(int argc, char *argv[])
 {
-    int i;
+    int i, fd_bootblock, fd_kernel, blocks_for_kernel;
     uint rootino, off;
     char buf[BSIZE];
     struct dinode din;
 
     xv6static_assert(sizeof(int) == 4, "Integers must be 4 bytes!");
 
-    if (argc != 3)
+    if (argc != 5)
     {
-        fprintf(stderr, "Usage: mkfs fs.img basedir\n");
+        fprintf(stderr, "Usage: mkfs fs.img basedir bootblock\n");
         exit(1);
     }
 
@@ -123,17 +123,44 @@ int main(int argc, char *argv[])
     memset(&mbr.partitions[0], 0, sizeof(dpartition_t[NPARTITIONS]));
     memset(&mbr.magic[0], 0, sizeof(uchar[2]));
 
+    // Fill the filesystem with zero'ed blocks
+    for (i = 0; i < FSSIZE; i++)
+        wsect(i, zeroes, 1);
+
+    //write kernel to block 1
+    fd_kernel = open(argv[4], O_RDONLY, 0666);
+    printf("kernel:%s\n", argv[4]);
+    memset(buf, 0, sizeof(buf));
+    blocks_for_kernel = 0;
+    while ((read(fd_kernel, buf, sizeof(buf))) > 0)
+    {
+        blocks_for_kernel++;
+        wsect(blocks_for_kernel, buf, 1); // writes to absolute block #block_for_kernel
+    }
+    close(fd_kernel);
+
+    //copy bootblock into mbr bootstart
+    fd_bootblock = open(argv[3], O_RDONLY, 0666);
+    printf("bootblock:%s\n", argv[3]);
+    read(fd_bootblock, &mbr.bootstrap[0], sizeof(char) * BOOTSTRAP);
+
+    //set boot signature
+    lseek(fd_bootblock, 510, SEEK_SET);
+    read(fd_bootblock, mbr.magic, 2);
+
+    close(fd_bootblock);
+
     //allocate partition 0
     mbr.partitions[0].flags = PART_ALLOCATED | PART_BOOTABLE;
     mbr.partitions[0].type = FS_INODE;
-    mbr.partitions[0].offset = 1;
+    mbr.partitions[0].offset = blocks_for_kernel + 1;
     mbr.partitions[0].size = FSSIZE;
 
     memset(&partitions, 0, sizeof(struct dpartition) * 4);
-    partitions[0].offset = 1;
-    partitions[1].offset = 1 + FSSIZE;
-    partitions[2].offset = 1 + FSSIZE * 2;
-    partitions[3].offset = 1 + FSSIZE * 3;
+    partitions[0].offset = blocks_for_kernel + 1;
+    partitions[1].offset = blocks_for_kernel + 1 + FSSIZE;
+    partitions[2].offset = blocks_for_kernel + 1 + FSSIZE * 2;
+    partitions[3].offset = blocks_for_kernel + 1 + FSSIZE * 3;
 
     // initialize super blocks
     for (i = 0; i < NPARTITIONS; i++)
@@ -165,14 +192,16 @@ int main(int argc, char *argv[])
     freeblock = nmeta; // The first free block that we can allocate
     master_freeblock = freeblock;
 
-    // Fill the filesystem with zero'ed blocks
-    for (i = 0; i < FSSIZE; i++)
-        wsect(i, zeroes, 1);
-
     //write mbr
     memset(buf, 0, sizeof(buf));
     memmove(buf, &mbr, sizeof(mbr));
     wsect(0, buf, 1);
+
+    // Mark the in-use blocks in the free block list;
+    sbs[current_partition].initusedblock = freeblock;
+    memset(buf, 0, sizeof(buf));
+    memmove(buf, &sbs[current_partition], sizeof(sbs[current_partition]));
+    wsect(0, buf, 0); //TODO: will write 4 superblocks.
 
     // Copy the superblock struct into a zero'ed buf
     // and write it out as block 1
@@ -200,11 +229,6 @@ int main(int argc, char *argv[])
 
     winode(rootino, &din);
 
-    // Mark the in-use blocks in the free block list;
-    sbs[current_partition].initusedblock = freeblock;
-    memset(buf, 0, sizeof(buf));
-    memmove(buf, &sbs[current_partition], sizeof(sbs[current_partition]));
-    wsect(0, buf, 0); //TODO: will write 4 superblocks.
     balloc(freeblock);
 
     exit(0);
@@ -256,13 +280,14 @@ void rinode(uint inum, struct dinode *ip)
 // Read a sector from the image
 void rsect(uint sec, void *buf, int mbr)
 {
+    int i = -1;
     uint off = mbr ? 0 : partitions[current_partition].offset;
     if (lseek(fsfd, (off + sec) * BSIZE, 0) != (off + sec) * BSIZE)
     {
         perror("lseek");
         exit(1);
     }
-    if (read(fsfd, buf, BSIZE) != BSIZE)
+    if ((i = read(fsfd, buf, BSIZE)) != BSIZE)
     {
         perror("read");
         exit(1);
@@ -334,18 +359,18 @@ void iappend(uint inum, void *xp, int n)
             {
                 din.addrs[NDIRECT] = xint(freeblock++);
             }
-            rsect(xint(din.addrs[NDIRECT]), (char *)indirect,0);
+            rsect(xint(din.addrs[NDIRECT]), (char *)indirect, 0);
             if (indirect[fbn - NDIRECT] == 0)
             {
                 indirect[fbn - NDIRECT] = xint(freeblock++);
-                wsect(xint(din.addrs[NDIRECT]), (char *)indirect,0);
+                wsect(xint(din.addrs[NDIRECT]), (char *)indirect, 0);
             }
             x = xint(indirect[fbn - NDIRECT]);
         }
         n1 = min(n, (fbn + 1) * BSIZE - off);
-        rsect(x, buf,0);
+        rsect(x, buf, 0);
         bcopy(p, buf + off - (fbn * BSIZE), n1);
-        wsect(x, buf,0);
+        wsect(x, buf, 0);
         n -= n1;
         off += n1;
         p += n1;
