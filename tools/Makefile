@@ -3,17 +3,12 @@ include $(TOP_SRCDIR)/Makefile.common
 
 OUTDIR = $(BUILDDIR)/tools
 
-all: $(OUTDIR)/mkfs
+SUBDIRS = mkfs \
 
-mkfs: $(OUTDIR)/mkfs
-
-$(OUTDIR)/mkfs: mkfs.c | $(OUTDIR)
-	$(CC) -Wextra -Wall -O2 -o $@ $^ -iquote ../include
+all: 
+	for dir in $(SUBDIRS); do $(MAKE) -C $$dir all;	done
 
 clean:
-	rm -f $(OUTDIR)/*
-
-$(OUTDIR):
-	mkdir -p $(OUTDIR)
+	for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
 
 .PHONY: all mkfs clean

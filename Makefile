@@ -16,7 +16,7 @@ build/kernel/kernel: FORCE
 	$(MAKE) -C kernel kernel
 
 build/tools/mkfs: FORCE
-	$(MAKE) -C tools mkfs
+	$(MAKE) -C tools all
 
 build/fs.img: build/fs/README build/tools/mkfs
 	build/tools/mkfs build/fs.img build/fs

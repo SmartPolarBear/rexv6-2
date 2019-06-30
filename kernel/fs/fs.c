@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-30 00:49:21
+ * @ Modified time: 2019-06-30 14:12:10
  * @ Description:
  */
 
@@ -272,7 +272,6 @@ void iinit(int dev)
     nmeta = 1 + 1 + sbs[current_partition].nlog + (sbs[current_partition].ninodes / IPB + 1) + (sbs[current_partition].size / (BSIZE * 8) + 1);
     useable_capcity = (sbs[current_partition].size - nmeta) * BSIZE;
     used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
-    cprintf("useable capcity : %d KB\n", useable_capcity / KBSIZE);
 }
 
 static struct inode *iget(uint dev, uint inum);
