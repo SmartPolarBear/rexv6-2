@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-22 00:12:55
+ * @ Modified time: 2019-06-30 12:14:09
  * @ Description:
  */
 
@@ -139,7 +139,7 @@ void userinit(void)
     p->tf->eip = 0; // beginning of initcode.S
 
     safestrcpy(p->name, "initcode", sizeof(p->name));
-    p->cwd = namei("/");
+    //p->cwd = namei("/");
 
     // this assignment to p->state lets other cores
     // run this process. the acquire forces the above
@@ -473,6 +473,7 @@ void forkret(void)
         first = 0;
         iinit(ROOTDEV);
         initlog(ROOTDEV);
+        proc->cwd = namei("/");
     }
 
     // Return to "caller", actually trapret (see allocproc).

@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-26 23:32:34
+ * @ Modified time: 2019-06-30 00:49:21
  * @ Description:
  */
 
@@ -35,8 +35,24 @@
 static void itrunc(struct inode *);
 // there should be one superblock per disk device, but we run with
 // only one device
-struct superblock sb;
+//struct superblock sb;
 mbr_t mbr;
+int boot_partition = 0;
+int current_partition = 0;
+struct superblock sbs[NPARTITIONS] = {{0, 0, 0, 0, 0, 0, 0},
+                                      {0, 0, 0, 0, 0, 0, 0},
+                                      {0, 0, 0, 0, 0, 0, 0},
+                                      {0, 0, 0, 0, 0, 0, 0}};
+
+struct partition partitions[NPARTITIONS] = {{0, 0, 0, 0, 0},
+                                            {0, 0, 0, 0, 0},
+                                            {0, 0, 0, 0, 0},
+                                            {0, 0, 0, 0, 0}};
+
+int checkboot(int idx)
+{
+    return 0;
+}
 
 //read the master boot record
 void readmbr(int dev, mbr_t *mbr)
@@ -51,11 +67,12 @@ void readmbr(int dev, mbr_t *mbr)
     //output partition information
     for (int i = 0; i < NPARTITIONS; i++)
     {
-        if ((mbr->partitions[i].flags & PART_ALLOCATED) == 1)
+        if (mbr->partitions[i].flags & PART_ALLOCATED)
         {
-            if ((mbr->partitions[i].flags & PART_BOOTABLE) == 1)
+            if (mbr->partitions[i].flags & PART_BOOTABLE)
             {
                 msgbootable = "YES";
+                boot_partition = checkboot(i);
             }
             else
             {
@@ -70,12 +87,22 @@ void readmbr(int dev, mbr_t *mbr)
             {
                 msgtype = "FAT";
             }
-            
+
             cprintf("msgtype:%s\n", msgtype);
 
             cprintf("Partition %d: bootable: %s, type:%s, offset:%d, size:%d \n",
                     i, msgbootable, msgtype, mbr->partitions[i].offset,
                     mbr->partitions[i].size);
+
+            //memmove(&partitions[i] + sizeof(uint), &mbr->partitions[i], sizeof(struct dpartition));
+            current_partition = i;
+            partitions[i].dev = dev;
+            partitions[i].dev = dev;
+            partitions[i].flags = mbr->partitions[i].flags;
+            partitions[i].type = mbr->partitions[i].type;
+            partitions[i].offset = mbr->partitions[i].offset;
+            partitions[i].size = mbr->partitions[i].size;
+            readsb(dev, &sbs[i]);
         }
     }
     brelse(bp);
@@ -87,7 +114,7 @@ void readsb(int dev, struct superblock *sb)
 {
     struct buf *bp;
 
-    bp = bread(dev, 1);
+    bp = bread(dev, mbr.partitions[current_partition].offset);
     memmove(sb, bp->data, sizeof(*sb));
     brelse(bp);
 }
@@ -98,7 +125,7 @@ bzero(int dev, int bno)
 {
     struct buf *bp;
 
-    bp = bread(dev, bno);
+    bp = bread(dev, bno + partitions[current_partition].offset);
     memset(bp->data, 0, BSIZE);
     log_write(bp);
     brelse(bp);
@@ -114,10 +141,10 @@ balloc(uint dev)
     struct buf *bp;
 
     bp = 0;
-    for (b = 0; b < sb.size; b += BPB)
+    for (b = 0; b < sbs[current_partition].size; b += BPB)
     {
-        bp = bread(dev, BBLOCK(b, sb));
-        for (bi = 0; bi < BPB && b + bi < sb.size; bi++)
+        bp = bread(dev, BBLOCK(b, sbs[current_partition]) + partitions[current_partition].offset);
+        for (bi = 0; bi < BPB && b + bi < sbs[current_partition].size; bi++)
         {
             m = 1 << (bi % 8);
             if ((bp->data[bi / 8] & m) == 0)
@@ -143,8 +170,8 @@ bfree(int dev, uint b)
     struct buf *bp;
     int bi, m;
 
-    readsb(dev, &sb);
-    bp = bread(dev, BBLOCK(b, sb));
+    readsb(dev, &sbs[current_partition]);
+    bp = bread(dev, BBLOCK(b, sbs[current_partition]) + partitions[current_partition].offset);
     bi = b % BPB;
     m = 1 << (bi % 8);
     if ((bp->data[bi / 8] & m) == 0)
@@ -226,24 +253,26 @@ void iinit(int dev)
     int i = 0;
 
     initlock(&icache.lock, "icache");
+    readmbr(dev, &mbr);
+
     for (i = 0; i < NINODE; i++)
     {
         initsleeplock(&icache.inode[i].lock, "inode");
     }
+    cprintf("Boot partition: size %d nblocks %d ninodes %d nlog %d logstart %d inodestart %d bmap start %d\n", sbs[boot_partition].size,
+            sbs[boot_partition].nblocks, sbs[boot_partition].ninodes, sbs[current_partition].nlog, sbs[boot_partition].logstart, sbs[boot_partition].inodestart, sbs[boot_partition].bmapstart);
+    // readsb(dev, &sb);
 
-    readsb(dev, &sb);
-    cprintf("sb: size %d nblocks %d ninodes %d nlog %d logstart %d\
- inodestart %d bmap start %d\n",
-            sb.size, sb.nblocks,
-            sb.ninodes, sb.nlog, sb.logstart, sb.inodestart,
-            sb.bmapstart);
+    //     cprintf("sb: size %d nblocks %d ninodes %d nlog %d logstart %d\
+//  inodestart %d bmap start %d\n",
+    //             sb.size, sb.nblocks,
+    //             sb.ninodes, sb.nlog, sb.logstart, sb.inodestart,
+    //             sb.bmapstart);
     uint nmeta; //nmeta Number of meta blocks (boot, sb, nlog, inode, bitmap)
-    nmeta = 1 + 1 + sb.nlog + (sb.ninodes / IPB + 1) + (sb.size / (BSIZE * 8) + 1);
-    useable_capcity = (sb.size - nmeta) * BSIZE;
-    used_capcity = (sb.initusedblock - nmeta) * BSIZE;
+    nmeta = 1 + 1 + sbs[current_partition].nlog + (sbs[current_partition].ninodes / IPB + 1) + (sbs[current_partition].size / (BSIZE * 8) + 1);
+    useable_capcity = (sbs[current_partition].size - nmeta) * BSIZE;
+    used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
     cprintf("useable capcity : %d KB\n", useable_capcity / KBSIZE);
-
-    readmbr(dev, &mbr);
 }
 
 static struct inode *iget(uint dev, uint inum);
@@ -258,9 +287,9 @@ ialloc(uint dev, short type)
     struct buf *bp;
     struct dinode *dip;
 
-    for (inum = 1; inum < sb.ninodes; inum++)
+    for (inum = 1; inum < sbs[current_partition].ninodes; inum++)
     {
-        bp = bread(dev, IBLOCK(inum, sb));
+        bp = bread(dev, IBLOCK(inum, sbs[current_partition]) + partitions[current_partition].offset);
         dip = (struct dinode *)bp->data + inum % IPB;
         if (dip->type == 0)
         { // a free inode
@@ -280,7 +309,7 @@ void iupdate(struct inode *ip)
 {
     struct buf *bp;
     struct dinode *dip;
-    bp = bread(ip->dev, IBLOCK(ip->inum, sb));
+    bp = bread(ip->dev, IBLOCK(ip->inum, sbs[current_partition]) + partitions[current_partition].offset);
     dip = (struct dinode *)bp->data + ip->inum % IPB;
     dip->type = ip->type;
     dip->major = ip->major;
@@ -325,6 +354,7 @@ iget(uint dev, uint inum)
     ip->inum = inum;
     ip->ref = 1;
     ip->flags = 0;
+    ip->partitions = partitions;
     release(&icache.lock);
 
     return ip;
@@ -355,13 +385,14 @@ void ilock(struct inode *ip)
 
     if (!(ip->flags & I_VALID))
     {
-        bp = bread(ip->dev, IBLOCK(ip->inum, sb));
+        bp = bread(ip->dev, IBLOCK(ip->inum, sbs[current_partition]) + partitions[current_partition].offset);
         dip = (struct dinode *)bp->data + ip->inum % IPB;
         ip->type = dip->type;
         ip->major = dip->major;
         ip->minor = dip->minor;
         ip->nlink = dip->nlink;
         ip->size = dip->size;
+        ip->partitions = partitions;
         memmove(ip->addrs, dip->addrs, sizeof(ip->addrs));
         brelse(bp);
         ip->flags |= I_VALID;
@@ -439,7 +470,7 @@ bmap(struct inode *ip, uint bn)
         // Load indirect block, allocating if necessary.
         if ((addr = ip->addrs[NDIRECT]) == 0)
             ip->addrs[NDIRECT] = addr = balloc(ip->dev);
-        bp = bread(ip->dev, addr);
+        bp = bread(ip->dev, addr + partitions[current_partition].offset);
         a = (uint *)bp->data;
         if ((addr = a[bn]) == 0)
         {
@@ -476,7 +507,7 @@ itrunc(struct inode *ip)
 
     if (ip->addrs[NDIRECT])
     {
-        bp = bread(ip->dev, ip->addrs[NDIRECT]);
+        bp = bread(ip->dev, ip->addrs[NDIRECT] + partitions[current_partition].offset);
         a = (uint *)bp->data;
         for (j = 0; j < NINDIRECT; j++)
         {
@@ -560,7 +591,7 @@ int deffsread(struct inode *ip, char *dst, uint off, uint n)
 
     for (tot = 0; tot < n; tot += m, off += m, dst += m)
     {
-        bp = bread(ip->dev, bmap(ip, off / BSIZE));
+        bp = bread(ip->dev, bmap(ip, off / BSIZE) + partitions[current_partition].offset);
         m = min(n - tot, BSIZE - off % BSIZE);
         /*
         cprintf("data off %d:\n", off);
@@ -596,7 +627,7 @@ int deffswrite(struct inode *ip, char *src, uint off, uint n)
 
     for (tot = 0; tot < n; tot += m, off += m, src += m)
     {
-        bp = bread(ip->dev, bmap(ip, off / BSIZE));
+        bp = bread(ip->dev, bmap(ip, off / BSIZE) + partitions[current_partition].offset);
         m = min(n - tot, BSIZE - off % BSIZE);
         memmove(bp->data + off % BSIZE, src, m);
         log_write(bp);

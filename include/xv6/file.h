@@ -1,3 +1,15 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-06-30 00:22:38
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-06-30 00:23:03
+ * @ Description:
+ */
+
+#if !defined(__INCLUDE_XV6_FILE_H)
+#define __INCLUDE_XV6_FILE_H
+#include <xv6/mbr.h>
+
 struct file {
   enum { FD_NONE, FD_PIPE, FD_INODE } type;
   int ref; // reference count
@@ -23,6 +35,7 @@ struct inode {
   short nlink;
   uint size;
   uint addrs[NDIRECT+1];
+  partition_t *partitions;
 };
 #define I_VALID 0x2
 
@@ -59,3 +72,6 @@ extern struct devsw devsw[][MDEV];
 #define MDEVFULL 8
 //PAGEBREAK!
 // Blank page.
+
+
+#endif // __INCLUDE_XV6_FILE_H

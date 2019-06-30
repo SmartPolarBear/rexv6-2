@@ -43,17 +43,20 @@ int nmeta;   // Number of meta blocks (boot, sb, nlog, inode, bitmap)
 int nblocks; // Number of data blocks
 
 int fsfd;
-struct superblock sb;
+struct superblock sbs[4];
 mbr_t mbr;
 char zeroes[BSIZE];
 uint freeinode = 1;
 uint freeblock;
+uint master_freeblock;
+int current_partition = 0;
+dpartition_t partitions[4];
 
 void balloc(int);
-void wsect(uint, void *);
+void wsect(uint, void *, int);
 void winode(uint, struct dinode *);
 void rinode(uint inum, struct dinode *ip);
-void rsect(uint sec, void *buf);
+void rsect(uint sec, void *buf, int);
 uint ialloc(ushort type, int mtime);
 void iappend(uint inum, void *p, int n);
 void dappend(int dirino, char *name, int fileino);
@@ -111,7 +114,7 @@ int main(int argc, char *argv[])
     // 1 fs block = 1 disk sector
     // Number of meta blocks: boot block, superblock, log blocks,
     // i-node blocks and the free bitmap blocks
-    nmeta = 2 + nlog + ninodeblocks + nbitmap;
+    nmeta = 1 + nlog + ninodeblocks + nbitmap;
     // Now work out how many free blocks are left
     nblocks = FSSIZE - nmeta;
 
@@ -120,33 +123,56 @@ int main(int argc, char *argv[])
     memset(&mbr.partitions[0], 0, sizeof(dpartition_t[NPARTITIONS]));
     memset(&mbr.magic[0], 0, sizeof(uchar[2]));
 
-    mbr.partitions[0].flags |= PART_ALLOCATED;
+    //allocate partition 0
+    mbr.partitions[0].flags = PART_ALLOCATED | PART_BOOTABLE;
     mbr.partitions[0].type = FS_INODE;
-    mbr.partitions[0].offset = 0;
+    mbr.partitions[0].offset = 1;
     mbr.partitions[0].size = FSSIZE;
 
-    // Set up the superblock
-    sb.size = xint(FSSIZE);
-    sb.nblocks = xint(nblocks);
-    sb.ninodes = xint(NINODES);
-    sb.nlog = xint(nlog);
-    sb.logstart = xint(2);
-    sb.inodestart = xint(2 + nlog);
-    sb.bmapstart = xint(2 + nlog + ninodeblocks);
+    memset(&partitions, 0, sizeof(struct dpartition) * 4);
+    partitions[0].offset = 1;
+    partitions[1].offset = 1 + FSSIZE;
+    partitions[2].offset = 1 + FSSIZE * 2;
+    partitions[3].offset = 1 + FSSIZE * 3;
 
-    printf("nmeta %d (boot, super, log blocks %u inode blocks %u, bitmap blocks %u) blocks %d total %d\n",
-           nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
+    // initialize super blocks
+    for (i = 0; i < NPARTITIONS; i++)
+    {
+        sbs[i].size = xint(FSSIZE);
+        sbs[i].nblocks = xint(nblocks);
+        sbs[i].ninodes = xint(NINODES);
+        sbs[i].nlog = xint(nlog);
+        sbs[i].logstart = xint(1);
+        sbs[i].inodestart = xint(1 + nlog);
+        sbs[i].bmapstart = xint(1 + nlog + ninodeblocks);
+        sbs[i].offset = partitions[i].offset;
+    }
+
+    printf("Each partition has the following composition: nmeta %d (boot, super, log blocks %u inode blocks %u, bitmap blocks %u) blocks %d total %d\n", nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
+
+    // Set up the superblock
+    // sb.size = xint(FSSIZE);
+    // sb.nblocks = xint(nblocks);
+    // sb.ninodes = xint(NINODES);
+    // sb.nlog = xint(nlog);
+    // sb.logstart = xint(2);
+    // sb.inodestart = xint(2 + nlog);
+    // sb.bmapstart = xint(2 + nlog + ninodeblocks);
+
+    // printf("nmeta %d (boot, super, log blocks %u inode blocks %u, bitmap blocks %u) blocks %d total %d\n",
+    //        nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
 
     freeblock = nmeta; // The first free block that we can allocate
+    master_freeblock = freeblock;
 
     // Fill the filesystem with zero'ed blocks
     for (i = 0; i < FSSIZE; i++)
-        wsect(i, zeroes);
+        wsect(i, zeroes, 1);
 
     //write mbr
     memset(buf, 0, sizeof(buf));
     memmove(buf, &mbr, sizeof(mbr));
-    wsect(0, buf);
+    wsect(0, buf, 1);
 
     // Copy the superblock struct into a zero'ed buf
     // and write it out as block 1
@@ -175,19 +201,20 @@ int main(int argc, char *argv[])
     winode(rootino, &din);
 
     // Mark the in-use blocks in the free block list;
-    sb.initusedblock = freeblock;
+    sbs[current_partition].initusedblock = freeblock;
     memset(buf, 0, sizeof(buf));
-    memmove(buf, &sb, sizeof(sb));
-    wsect(1, buf);
+    memmove(buf, &sbs[current_partition], sizeof(sbs[current_partition]));
+    wsect(0, buf, 0); //TODO: will write 4 superblocks.
     balloc(freeblock);
 
     exit(0);
 }
 
 // Write a sector to the image
-void wsect(uint sec, void *buf)
+void wsect(uint sec, void *buf, int mbr)
 {
-    if (lseek(fsfd, sec * BSIZE, 0) != sec * BSIZE)
+    uint off = mbr ? 0 : partitions[current_partition].offset;
+    if (lseek(fsfd, (off + sec) * BSIZE, 0) != (off + sec) * BSIZE)
     {
         perror("lseek");
         exit(1);
@@ -206,11 +233,11 @@ void winode(uint inum, struct dinode *ip)
     uint bn;
     struct dinode *dip;
 
-    bn = IBLOCK(inum, sb);
-    rsect(bn, buf);
+    bn = IBLOCK(inum, sbs[current_partition]);
+    rsect(bn, buf, 0);
     dip = ((struct dinode *)buf) + (inum % IPB);
     *dip = *ip;
-    wsect(bn, buf);
+    wsect(bn, buf, 0);
 }
 
 // Read an i-node from the image
@@ -220,16 +247,17 @@ void rinode(uint inum, struct dinode *ip)
     uint bn;
     struct dinode *dip;
 
-    bn = IBLOCK(inum, sb);
-    rsect(bn, buf);
+    bn = IBLOCK(inum, sbs[current_partition]);
+    rsect(bn, buf, 0);
     dip = ((struct dinode *)buf) + (inum % IPB);
     *ip = *dip;
 }
 
 // Read a sector from the image
-void rsect(uint sec, void *buf)
+void rsect(uint sec, void *buf, int mbr)
 {
-    if (lseek(fsfd, sec * BSIZE, 0) != sec * BSIZE)
+    uint off = mbr ? 0 : partitions[current_partition].offset;
+    if (lseek(fsfd, (off + sec) * BSIZE, 0) != (off + sec) * BSIZE)
     {
         perror("lseek");
         exit(1);
@@ -269,8 +297,8 @@ void balloc(int used)
     {
         buf[i / 8] = buf[i / 8] | (0x1 << (i % 8));
     }
-    printf("balloc: write bitmap block at sector %d\n", sb.bmapstart);
-    wsect(sb.bmapstart, buf);
+    printf("balloc: write bitmap block at sector %d\n", sbs[current_partition].bmapstart + sbs[current_partition].offset + 1);
+    wsect(sbs[current_partition].bmapstart, buf, 0);
 }
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -306,18 +334,18 @@ void iappend(uint inum, void *xp, int n)
             {
                 din.addrs[NDIRECT] = xint(freeblock++);
             }
-            rsect(xint(din.addrs[NDIRECT]), (char *)indirect);
+            rsect(xint(din.addrs[NDIRECT]), (char *)indirect,0);
             if (indirect[fbn - NDIRECT] == 0)
             {
                 indirect[fbn - NDIRECT] = xint(freeblock++);
-                wsect(xint(din.addrs[NDIRECT]), (char *)indirect);
+                wsect(xint(din.addrs[NDIRECT]), (char *)indirect,0);
             }
             x = xint(indirect[fbn - NDIRECT]);
         }
         n1 = min(n, (fbn + 1) * BSIZE - off);
-        rsect(x, buf);
+        rsect(x, buf,0);
         bcopy(p, buf + off - (fbn * BSIZE), n1);
-        wsect(x, buf);
+        wsect(x, buf,0);
         n -= n1;
         off += n1;
         p += n1;
