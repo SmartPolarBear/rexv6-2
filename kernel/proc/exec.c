@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-01 00:29:08
+ * @ Modified time: 2019-07-01 20:03:08
  * @ Description:
  */
 
@@ -18,8 +18,6 @@
 
 int exec(char *path, char **argv)
 {
-    cprintf("enter exec.\n");
-
     char *s, *last;
     int i, off;
     uint argc, sz, sp, ustack[3 + MAXARG + 1];
@@ -33,7 +31,6 @@ int exec(char *path, char **argv)
     if ((ip = namei(path)) == 0)
     {
         end_op();
-        cprintf("bad path.\n");
         return -1;
     }
     ilock(ip);
@@ -128,7 +125,6 @@ int exec(char *path, char **argv)
     return 0;
 
 bad:
-    cprintf("error image.\n");
     if (pgdir)
         freevm(pgdir);
     if (ip)
