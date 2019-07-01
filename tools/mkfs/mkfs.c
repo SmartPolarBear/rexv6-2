@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
     memset(&mbr.magic[0], 0, sizeof(uchar[2]));
 
     // Fill the filesystem with zero'ed blocks
-    for (i = 0; i < FSSIZE; i++)
+    for (i = 0; i < NPARTITIONS * FSSIZE; i++)
         wsect(i, zeroes, 1);
 
     //write kernel to block 1
@@ -280,7 +280,7 @@ void rinode(uint inum, struct dinode *ip)
 // Read a sector from the image
 void rsect(uint sec, void *buf, int mbr)
 {
-    int i = -1;
+    int i = -111;
     uint off = mbr ? 0 : partitions[current_partition].offset;
     if (lseek(fsfd, (off + sec) * BSIZE, 0) != (off + sec) * BSIZE)
     {

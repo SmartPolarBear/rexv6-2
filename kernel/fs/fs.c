@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-01 00:29:48
+ * @ Modified time: 2019-07-02 00:05:55
  * @ Description:
  */
 
@@ -37,7 +37,7 @@ static void itrunc(struct inode *);
 // only one device
 //struct superblock sb;
 mbr_t mbr;
-int boot_partition = 0;
+int boot_partition = -1;
 int current_partition = 0;
 struct superblock sbs[NPARTITIONS] = {{0, 0, 0, 0, 0, 0, 0},
                                       {0, 0, 0, 0, 0, 0, 0},
@@ -49,9 +49,9 @@ struct partition partitions[NPARTITIONS] = {{0, 0, 0, 0, 0},
                                             {0, 0, 0, 0, 0},
                                             {0, 0, 0, 0, 0}};
 
-int checkboot(int idx)
+int checkboot(int index)
 {
-    return 0;
+    return boot_partition == -1 ? index : boot_partition;
 }
 
 //read the master boot record
@@ -94,8 +94,6 @@ void readmbr(int dev, mbr_t *mbr)
             {
                 msgtype = "FAT";
             }
-
-            cprintf("msgtype:%s\n", msgtype);
 
             cprintf("Partition %d: bootable: %s, type:%s, offset:%d, size:%d \n",
                     i, msgbootable, msgtype, mbr->partitions[i].offset,
@@ -552,6 +550,9 @@ void stati(struct inode *ip, struct stat *st)
 struct inode *
 getmntin(struct inode *ip)
 {
+    ip->dev=0;
+    return ip;
+
     if (ip->type != T_DIR)
         return ip;
     struct mountsw *mp;
@@ -565,11 +566,13 @@ getmntin(struct inode *ip)
 // Read data from inode.
 int readi(struct inode *ip, char *dst, uint off, uint n)
 {
+    return deffsread(ip, dst, off, n);
     struct mountsw *mp;
     ip = getmntin(ip);
     for (mp = mountsw; mp < mntswend; mp++)
         if (mp->dev == ip->dev)
             return getfs(mp->fsid)->read(ip, dst, off, n);
+
     return -1;
 }
 
@@ -577,6 +580,7 @@ int readi(struct inode *ip, char *dst, uint off, uint n)
 // Write data to inode.
 int writei(struct inode *ip, char *src, uint off, uint n)
 {
+    return deffswrite(ip, src, off, n);
     struct mountsw *mp;
     ip = getmntin(ip);
     for (mp = mountsw; mp < mntswend; mp++)
@@ -616,6 +620,7 @@ int deffsread(struct inode *ip, char *dst, uint off, uint n)
         memmove(dst, bp->data + off % BSIZE, m);
         brelse(bp);
     }
+    
     return n;
 }
 
@@ -674,7 +679,7 @@ dirlookup(struct inode *dp, char *name, uint *poff)
     if (dp->type != T_DIR)
         panic("dirlookup not DIR");
 
-    dp = getmntin(dp);
+    //dp = getmntin(dp);
 
     for (off = 0; off < dp->size; off += sizeof(de))
     {
@@ -691,7 +696,6 @@ dirlookup(struct inode *dp, char *name, uint *poff)
             return iget(getmntin(dp)->dev, inum);
         }
     }
-
     return 0;
 }
 
