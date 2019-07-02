@@ -7,6 +7,7 @@ OBJS = bio.o \
 	log.o \
 	mount.o \
 	pipe.o \
+	sysmount.o \
 	
 include $(KERN_SRCDIR)/Makefile.common
 

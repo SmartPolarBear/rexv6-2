@@ -1,3 +1,12 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-07-02 17:17:08
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-07-02 17:19:33
+ * @ Description:
+ */
+
+
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
@@ -44,27 +53,6 @@ int unmount(int dev)
             return 0;
         }
     return -1;
-}
-
-int
-sys_mount(void)
-{
-    int dev, fs;
-    char *path;
-    argint(0, &dev);
-    argstr(1, &path);
-    argint(2, &fs);
-    mount(dev, path, fs);
-    return 0;
-}
-
-int
-sys_unmount(void)
-{
-    int dev;
-    argint(0, &dev);
-    unmount(dev);
-    return 0;
 }
 
 //this mounts the root device
