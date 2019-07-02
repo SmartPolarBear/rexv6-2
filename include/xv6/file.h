@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-30 00:22:38
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-30 22:39:20
+ * @ Modified time: 2019-07-02 17:23:19
  * @ Description:
  */
 
@@ -48,8 +48,6 @@ struct devsw {
 };
 
 extern struct devsw devsw[][MDEV];
-
-
 
 #define NDEVHDA  2
 #define MDEVHDA  1
