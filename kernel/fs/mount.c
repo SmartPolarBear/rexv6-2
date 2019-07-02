@@ -67,11 +67,12 @@ sys_unmount(void)
     return 0;
 }
 
+//this mounts the root device
 void
 mountinit(void)
 {
     mntswend = mountsw;
     struct fstable deffs = { deffsread, deffswrite };
-    regfs(0, &deffs);
-    mount(1, "/", 0);
+    regfs(XV6FS, &deffs);
+    mount(ROOTDEV, "/", XV6FS);
 }

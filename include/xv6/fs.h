@@ -41,6 +41,11 @@ struct dinode
   uint addrs[NDIRECT + 1]; // Data block addresses
 };
 
+enum support_fs
+{
+  XV6FS,
+};
+
 // Inodes per block.
 #define IPB (BSIZE / sizeof(struct dinode))
 

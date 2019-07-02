@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-02 00:05:55
+ * @ Modified time: 2019-07-02 17:17:11
  * @ Description:
  */
 
@@ -550,9 +550,6 @@ void stati(struct inode *ip, struct stat *st)
 struct inode *
 getmntin(struct inode *ip)
 {
-    ip->dev=0;
-    return ip;
-
     if (ip->type != T_DIR)
         return ip;
     struct mountsw *mp;
@@ -566,7 +563,6 @@ getmntin(struct inode *ip)
 // Read data from inode.
 int readi(struct inode *ip, char *dst, uint off, uint n)
 {
-    return deffsread(ip, dst, off, n);
     struct mountsw *mp;
     ip = getmntin(ip);
     for (mp = mountsw; mp < mntswend; mp++)
@@ -580,7 +576,6 @@ int readi(struct inode *ip, char *dst, uint off, uint n)
 // Write data to inode.
 int writei(struct inode *ip, char *src, uint off, uint n)
 {
-    return deffswrite(ip, src, off, n);
     struct mountsw *mp;
     ip = getmntin(ip);
     for (mp = mountsw; mp < mntswend; mp++)
