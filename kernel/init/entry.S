@@ -17,7 +17,6 @@
 # 	multiboot ${kernel} ${kernel}
 # 	boot
 # }
-
 #include "xv6/asm.h"
 #include "xv6/memlayout.h"
 #include "xv6/mmu.h"

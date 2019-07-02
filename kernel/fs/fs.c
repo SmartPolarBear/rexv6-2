@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-02 17:26:39
+ * @ Modified time: 2019-07-02 17:37:40
  * @ Description:
  */
 
@@ -31,12 +31,14 @@
 #include "xv6/file.h"
 #include "xv6/mbr.h"
 
+#define DEFAULT_BOOTPARTITION (-32767)
+
 #define min(a, b) ((a) < (b) ? (a) : (b))
 static void itrunc(struct inode *);
 
 mbr_t mbr;
 
-int boot_partition = -1;
+int boot_partition = DEFAULT_BOOTPARTITION;
 int current_partition = 0;
 
 // there should be one superblock per disk device
@@ -52,15 +54,13 @@ struct partition partitions[NPARTITIONS] = {{0, 0, 0, 0, 0},
 
 int checkboot(int index)
 {
-    return boot_partition == -1 ? index : boot_partition;
+    return boot_partition == DEFAULT_BOOTPARTITION ? index : boot_partition;
 }
 
 //read the master boot record
 void readmbr(int dev, mbr_t *mbr)
 {
     struct buf *bp;
-    int first_bootable_partition = 0;
-    BOOL found = FALSE;
     bp = bread(dev, 0);
     memmove(mbr, bp->data, sizeof(*mbr));
 
@@ -75,11 +75,6 @@ void readmbr(int dev, mbr_t *mbr)
             {
 
                 msgbootable = "YES";
-                if (!found)
-                {
-                    first_bootable_partition = i;
-                    found = TRUE;
-                }
                 boot_partition = checkboot(i);
             }
             else
@@ -109,8 +104,7 @@ void readmbr(int dev, mbr_t *mbr)
             partitions[i].size = mbr->partitions[i].size;
             readsb(dev, &sbs[i]);
         }
-        current_partition = first_bootable_partition;
-        boot_partition = first_bootable_partition;
+        current_partition = boot_partition;
     }
     brelse(bp);
 }
@@ -406,7 +400,10 @@ void ilock(struct inode *ip)
         brelse(bp);
         ip->flags |= I_VALID;
         if (ip->type == 0)
+        {
+            cprintf("inum:%d\n", ip->inum);
             panic("ilock: no type");
+        }
     }
 }
 
@@ -616,7 +613,7 @@ int deffsread(struct inode *ip, char *dst, uint off, uint n)
         memmove(dst, bp->data + off % BSIZE, m);
         brelse(bp);
     }
-    
+
     return n;
 }
 

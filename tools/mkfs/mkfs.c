@@ -119,13 +119,14 @@ int main(int argc, char *argv[])
     nblocks = FSSIZE - nmeta;
 
     //Setup mbr
-    memset(&mbr.bootstrap[0], 0, sizeof(uchar[446]));
-    memset(&mbr.partitions[0], 0, sizeof(dpartition_t[NPARTITIONS]));
-    memset(&mbr.magic[0], 0, sizeof(uchar[2]));
+    memset(&mbr, 0, sizeof(mbr));
+    // memset(&mbr.bootstrap[0], 0, sizeof(uchar[446]));
+    // memset(&mbr.partitions[0], 0, sizeof(dpartition_t[NPARTITIONS]));
+    // memset(&mbr.magic[0], 0, sizeof(uchar[2]));
 
     // Fill the filesystem with zero'ed blocks
-    for (i = 0; i < NPARTITIONS * FSSIZE; i++)
-        wsect(i, zeroes, 1);
+    // for (i = 0; i < NPARTITIONS * FSSIZE; i++)
+    //     wsect(i, zeroes, 1);
 
     //write kernel to block 1
     fd_kernel = open(argv[4], O_RDONLY, 0666);
@@ -142,25 +143,34 @@ int main(int argc, char *argv[])
     //copy bootblock into mbr bootstart
     fd_bootblock = open(argv[3], O_RDONLY, 0666);
     printf("bootblock:%s\n", argv[3]);
-    read(fd_bootblock, &mbr.bootstrap[0], sizeof(char) * BOOTSTRAP);
+    read(fd_bootblock, &mbr.bootstrap[0], sizeof(mbr.bootstrap));
 
     //set boot signature
-    lseek(fd_bootblock, 510, SEEK_SET);
-    read(fd_bootblock, mbr.magic, 2);
+    lseek(fd_bootblock, sizeof(mbr) - sizeof(mbr.magic), SEEK_SET);
+    read(fd_bootblock, mbr.magic, sizeof(mbr.magic));
 
     close(fd_bootblock);
 
-    //allocate partition 0
-    mbr.partitions[0].flags = PART_ALLOCATED | PART_BOOTABLE;
-    mbr.partitions[0].type = FS_INODE;
-    mbr.partitions[0].offset = blocks_for_kernel + 1;
-    mbr.partitions[0].size = FSSIZE;
+    //allocate partitions
+    // mbr.partitions[0].flags = PART_ALLOCATED | PART_BOOTABLE;
+    // mbr.partitions[0].type = FS_INODE;
+    // mbr.partitions[0].offset = blocks_for_kernel + 1;
+    // mbr.partitions[0].size = FSSIZE;
 
     memset(&partitions, 0, sizeof(struct dpartition) * 4);
-    partitions[0].offset = blocks_for_kernel + 1;
-    partitions[1].offset = blocks_for_kernel + 1 + FSSIZE;
-    partitions[2].offset = blocks_for_kernel + 1 + FSSIZE * 2;
-    partitions[3].offset = blocks_for_kernel + 1 + FSSIZE * 3;
+    // partitions[0].offset = blocks_for_kernel + 1;
+    // partitions[1].offset = blocks_for_kernel + 1 + FSSIZE;
+    // partitions[2].offset = blocks_for_kernel + 1 + FSSIZE * 2;
+    // partitions[3].offset = blocks_for_kernel + 1 + FSSIZE * 3;
+
+    for (i = 0; i < NPARTITIONS; i++)
+    {
+        mbr.partitions[i].flags = i == 0 ? PART_ALLOCATED | PART_BOOTABLE : PART_ALLOCATED;
+        mbr.partitions[i].type = FS_INODE;
+        mbr.partitions[i].offset = i == 0 ? blocks_for_kernel + 1 : mbr.partitions[i - 1].offset + mbr.partitions[i - 1].size;
+        mbr.partitions[i].size = FSSIZE;
+        partitions[i].offset = mbr.partitions[i].offset;
+    }
 
     // initialize super blocks
     for (i = 0; i < NPARTITIONS; i++)
@@ -197,11 +207,19 @@ int main(int argc, char *argv[])
     memmove(buf, &mbr, sizeof(mbr));
     wsect(0, buf, 1);
 
-    // Mark the in-use blocks in the free block list;
+    // // Mark the in-use blocks in the free block list;
     sbs[current_partition].initusedblock = freeblock;
-    memset(buf, 0, sizeof(buf));
-    memmove(buf, &sbs[current_partition], sizeof(sbs[current_partition]));
-    wsect(0, buf, 0); //TODO: will write 4 superblocks.
+    // memset(buf, 0, sizeof(buf));
+    // memmove(buf, &sbs[current_partition], sizeof(sbs[current_partition]));
+    // wsect(0, buf, 0); //TODO: will write 4 superblocks.
+    for (i = 0; i < NPARTITIONS; i++)
+    {
+        memset(buf, 0, sizeof(buf));
+        memmove(buf, &sbs[i], sizeof(sbs[i]));
+        current_partition = i;
+        wsect(0, buf, 0);
+    }
+    current_partition = 0;
 
     // Copy the superblock struct into a zero'ed buf
     // and write it out as block 1

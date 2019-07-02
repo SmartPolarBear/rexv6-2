@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-26 23:01:12
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-30 00:26:00
+ * @ Modified time: 2019-07-02 17:48:46
  * @ Description:
  */
 
@@ -10,6 +10,8 @@
 //https://www.cs.bgu.ac.il/~os162/wiki.files/mbr.h
 #if !defined(__INCLUDE_XV6_MBR_H)
 #define __INCLUDE_XV6_MBR_H
+
+#include "xv6/types.h"
 
 #define BOOTSTRAP 		(446)
 
