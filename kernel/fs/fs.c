@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-02 17:18:55
+ * @ Modified time: 2019-07-02 17:26:39
  * @ Description:
  */
 
@@ -33,12 +33,13 @@
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 static void itrunc(struct inode *);
-// there should be one superblock per disk device, but we run with
-// only one device
-//struct superblock sb;
+
 mbr_t mbr;
+
 int boot_partition = -1;
 int current_partition = 0;
+
+// there should be one superblock per disk device
 struct superblock sbs[NPARTITIONS] = {{0, 0, 0, 0, 0, 0, 0},
                                       {0, 0, 0, 0, 0, 0, 0},
                                       {0, 0, 0, 0, 0, 0, 0},
