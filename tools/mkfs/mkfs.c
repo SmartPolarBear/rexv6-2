@@ -120,13 +120,6 @@ int main(int argc, char *argv[])
 
     //Setup mbr
     memset(&mbr, 0, sizeof(mbr));
-    // memset(&mbr.bootstrap[0], 0, sizeof(uchar[446]));
-    // memset(&mbr.partitions[0], 0, sizeof(dpartition_t[NPARTITIONS]));
-    // memset(&mbr.magic[0], 0, sizeof(uchar[2]));
-
-    // Fill the filesystem with zero'ed blocks
-    // for (i = 0; i < NPARTITIONS * FSSIZE; i++)
-    //     wsect(i, zeroes, 1);
 
     //write kernel to block 1
     fd_kernel = open(argv[4], O_RDONLY, 0666);
@@ -152,16 +145,7 @@ int main(int argc, char *argv[])
     close(fd_bootblock);
 
     //allocate partitions
-    // mbr.partitions[0].flags = PART_ALLOCATED | PART_BOOTABLE;
-    // mbr.partitions[0].type = FS_INODE;
-    // mbr.partitions[0].offset = blocks_for_kernel + 1;
-    // mbr.partitions[0].size = FSSIZE;
-
     memset(&partitions, 0, sizeof(struct dpartition) * 4);
-    // partitions[0].offset = blocks_for_kernel + 1;
-    // partitions[1].offset = blocks_for_kernel + 1 + FSSIZE;
-    // partitions[2].offset = blocks_for_kernel + 1 + FSSIZE * 2;
-    // partitions[3].offset = blocks_for_kernel + 1 + FSSIZE * 3;
 
     for (i = 0; i < NPARTITIONS; i++)
     {
@@ -187,18 +171,6 @@ int main(int argc, char *argv[])
 
     printf("Each partition has the following composition: nmeta %d (boot, super, log blocks %u inode blocks %u, bitmap blocks %u) blocks %d total %d\n", nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
 
-    // Set up the superblock
-    // sb.size = xint(FSSIZE);
-    // sb.nblocks = xint(nblocks);
-    // sb.ninodes = xint(NINODES);
-    // sb.nlog = xint(nlog);
-    // sb.logstart = xint(2);
-    // sb.inodestart = xint(2 + nlog);
-    // sb.bmapstart = xint(2 + nlog + ninodeblocks);
-
-    // printf("nmeta %d (boot, super, log blocks %u inode blocks %u, bitmap blocks %u) blocks %d total %d\n",
-    //        nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
-
     freeblock = nmeta; // The first free block that we can allocate
     master_freeblock = freeblock;
 
@@ -209,9 +181,6 @@ int main(int argc, char *argv[])
 
     // // Mark the in-use blocks in the free block list;
     sbs[current_partition].initusedblock = freeblock;
-    // memset(buf, 0, sizeof(buf));
-    // memmove(buf, &sbs[current_partition], sizeof(sbs[current_partition]));
-    // wsect(0, buf, 0); //TODO: will write 4 superblocks.
     for (i = 0; i < NPARTITIONS; i++)
     {
         memset(buf, 0, sizeof(buf));
@@ -220,12 +189,6 @@ int main(int argc, char *argv[])
         wsect(0, buf, 0);
     }
     current_partition = 0;
-
-    // Copy the superblock struct into a zero'ed buf
-    // and write it out as block 1
-    //memset(buf, 0, sizeof(buf));
-    //memmove(buf, &sb, sizeof(sb));
-    //wsect(1, buf);
 
     // Grab an i-node for the root directory
     rootino = ialloc(T_DIR, 0); // Epoch mtime for now
@@ -358,7 +321,6 @@ void iappend(uint inum, void *xp, int n)
 
     rinode(inum, &din);
     off = xint(din.size);
-    //printf("append inum %d at off %d sz %d\n", inum, off, n);
     while (n > 0)
     {
         fbn = off / BSIZE;
