@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-02 17:37:40
+ * @ Modified time: 2019-07-03 12:17:38
  * @ Description:
  */
 
@@ -549,7 +549,7 @@ struct inode *
 getmntin(struct inode *ip)
 {
     if (ip->type != T_DIR)
-        return ip;
+        return ip; 
     struct mountsw *mp;
     for (mp = mountsw; mp < mntswend; mp++)
         if (mp->dp == ip)
@@ -672,7 +672,7 @@ dirlookup(struct inode *dp, char *name, uint *poff)
     if (dp->type != T_DIR)
         panic("dirlookup not DIR");
 
-    //dp = getmntin(dp);
+    dp = getmntin(dp);
 
     for (off = 0; off < dp->size; off += sizeof(de))
     {
