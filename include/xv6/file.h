@@ -2,13 +2,14 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-30 00:22:38
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-03 23:12:46
+ * @ Modified time: 2019-07-04 18:26:02
  * @ Description:
  */
 
 #if !defined(__INCLUDE_XV6_FILE_H)
 #define __INCLUDE_XV6_FILE_H
 #include <xv6/mbr.h>
+#include <xv6/sleeplock.h>
 
 struct file {
   enum { FD_NONE, FD_PIPE, FD_INODE } type;
@@ -47,28 +48,10 @@ struct devsw {
   int (*write)(struct inode*, char*, int, int);
 };
 
+#include "xv6/devnum.h"
+
 extern struct devsw devsw[][MDEV];
 
-#define NDEVHDA  2
-#define MDEVHDA  1
-#define NDEVHDAINFO 2
-#define MDEVHDAINFO 2
-#define NCONSOLE 1
-#define MCONSOLE 1
-#define NDEVSOUND 1
-#define MDEVSOUND 2
-#define NDEVNULL 1
-#define MDEVNULL 3
-#define NDEVZERO 1
-#define MDEVZERO 4
-#define NDEVRANDOM 1
-#define MDEVRANDOM 5
-#define NDEVURANDOM 1
-#define MDEVURANDOM 6
-#define NDEVPERFCTR 1
-#define MDEVPERFCTR 7
-#define NDEVFULL 1
-#define MDEVFULL 8
 
 //PAGEBREAK!
 // Blank page.

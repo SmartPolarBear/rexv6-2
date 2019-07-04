@@ -2,10 +2,9 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-02 17:17:08
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-03 23:05:21
+ * @ Modified time: 2019-07-04 18:34:22
  * @ Description:
  */
-
 
 #include "xv6/types.h"
 #include "xv6/defs.h"
@@ -13,26 +12,25 @@
 #include "xv6/stat.h"
 #include "xv6/fs.h"
 #include "xv6/mount.h"
+#include "xv6/file.h"
 
 struct mountsw mountsw[NDEV];
 struct mountsw *mntswend;
 struct fstable fstable[NDEV];
 
-int
-regfs(int fsid, struct fstable *fs)
+int regfs(int fsid, struct fstable *fs)
 {
     fstable[fsid] = *fs;
     return 0;
 }
 
-struct fstable*
+struct fstable *
 getfs(int fsid)
 {
     return fstable + fsid;
 }
 
-int
-mount(int dev, char *path, int fs)
+int mountdev(int dev, char *path, int fs)
 {
     if (mntswend - mountsw >= NDEV)
         return -1;
@@ -43,24 +41,77 @@ mount(int dev, char *path, int fs)
     return 0;
 }
 
+int mountpart(char *path, uint partition_number)
+{
+    struct inode *ip;
+    if (partition_number < 0 || partition_number > 3)
+    {
+        cprintf("kernel: mount: partition number out of bounds\n");
+        return -1;
+    }
+    if ((ip = namei(path)) == 0)
+    {
+        cprintf("kernel: mount: path not found\n");
+        return -1;
+    }
+    return insert_mapping(ip, partition_number);
+}
+
+BOOL ispartition(struct inode *ip)
+{
+    if (ip->major != NDEVHDA)
+        return FALSE;
+
+    cprintf("fuck\n");
+    int part = ip->minor - 3;
+
+    return part >= 0 && part <= 3;
+}
+
+int mount(char *src, char *target, int fs)
+{
+    cprintf("mount.\n");
+    struct inode *ip = namei(src);
+    if (ip == 0)
+    {
+        return -1;
+    }
+    cprintf("inode:major=%d,minor=%d\n", (int)ip->major, (int)ip->minor);
+
+    if (ip->type == T_DEV)
+    {
+        if (ispartition(ip))
+        {
+            cprintf("ispartition\n");
+            mountpart(target, ip->minor - 3);
+        }
+        else
+        {
+            cprintf("not ispartition\n");
+            mountdev(ip->dev, target, fs);
+        }
+    }
+}
+
 int unmount(int dev)
 {
     struct mountsw *mp;
     for (mp = mountsw; mp != mntswend; mp++)
+    {
         if (mp->dev == dev)
         {
             *mp = *(--mntswend);
             return 0;
         }
+    }
     return -1;
 }
 
 //this mounts the root device
-void
-mountinit(void)
+void mountinit(void)
 {
     mntswend = mountsw;
-    struct fstable deffs = { deffsread, deffswrite };
+    struct fstable deffs = {deffsread, deffswrite};
     regfs(XV6FS, &deffs);
-    mount(ROOTDEV, "/", XV6FS);
+    mountdev(ROOTDEV, "/", XV6FS);
 }

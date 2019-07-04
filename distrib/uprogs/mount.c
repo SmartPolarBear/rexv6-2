@@ -7,11 +7,10 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        printf(2, "Usage: mount [dev] [path]\n");
+        printf(2, "Usage: mount [src] [target]\n");
         exit();
     }
-    int devid = atoi(argv[1]);
-    mkdir(argv[2]);
-    mount(devid, argv[2], XV6FS);
+    printf(1, "mount:%s->%s\n", argv[1], argv[2]);
+    mount(argv[1], argv[2], XV6FS);
     exit();
 }

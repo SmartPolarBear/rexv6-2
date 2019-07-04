@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-03 23:42:07
+ * @ Modified time: 2019-07-04 18:09:16
  * @ Description:
  */
 
@@ -883,21 +883,6 @@ int insert_mapping(struct inode *ip, int partition_number)
     return -1;
 }
 
-int mountpart(char *path, uint partition_number)
-{
-    struct inode *ip;
-    if (partition_number < 0 || partition_number > 3)
-    {
-        cprintf("kernel: mount: partition number out of bounds\n");
-        return -1;
-    }
-    if ((ip = namei(path)) == 0)
-    {
-        cprintf("kernel: mount: path not found\n");
-        return -1;
-    }
-    return insert_mapping(ip, partition_number);
-}
 
 void switch_partition(int partition)
 {

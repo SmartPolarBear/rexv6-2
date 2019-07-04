@@ -21,7 +21,9 @@
         "mbr.h": "c",
         "file.h": "c",
         "stdlib.h": "c",
-        "param.h": "c"
+        "param.h": "c",
+        "devnum.h": "c",
+        "sleeplock.h": "c"
     },
     "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
 

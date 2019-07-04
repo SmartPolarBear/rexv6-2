@@ -8,6 +8,7 @@ UPROGS = cat echo forktest grep init kill ln ls \
 		mount pwd reader stdtests jerry timetest vi bi \
 		semtest rwtest pthreadtest cp cmp testdev testsound\
 		signal_skel signal_test nulldereftest stacktest\
+		stat
 
 ULIB = $(OUTDIR)/../ulib/ulib.a
 LIBC = $(OUTDIR)/../libc/libc.a

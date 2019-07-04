@@ -13,7 +13,10 @@ struct fstable {
 extern struct mountsw mountsw[];
 extern struct mountsw *mntswend;
 
-int mount(int dev, char *path, int fs);
+int mountdev(int dev, char *path, int fs);
+int mountpart(char *path, uint partition_number);
+BOOL ispartition(struct inode *ip);
+int mount(char *src, char *target,int fs);
 int unmount(int dev);
 
 struct fstable *getfs(int fsid);
