@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-03 12:17:38
+ * @ Modified time: 2019-07-03 23:42:07
  * @ Description:
  */
 
@@ -37,6 +37,12 @@
 static void itrunc(struct inode *);
 
 mbr_t mbr;
+
+#define MAXNUMINODE 5000
+
+part_t imap[MAXNUMINODE * NPARTITIONS][2];
+int entry_lookup(uint inum, int partition);
+int insert_mapping(struct inode *ip, int partition_number);
 
 int boot_partition = DEFAULT_BOOTPARTITION;
 int current_partition = 0;
@@ -274,6 +280,8 @@ void iinit(int dev)
     nmeta = 1 + 1 + sbs[current_partition].nlog + (sbs[current_partition].ninodes / IPB + 1) + (sbs[current_partition].size / (BSIZE * 8) + 1);
     useable_capcity = (sbs[current_partition].size - nmeta) * BSIZE;
     used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
+
+    memset(&imap, 0, sizeof(imap));
 }
 
 static struct inode *iget(uint dev, uint inum);
@@ -299,7 +307,9 @@ ialloc(uint dev, short type)
             dip->type = type;
             log_write(bp); // mark it allocated on the disk
             brelse(bp);
-            return iget(dev, inum);
+            struct inode *ret = iget(dev, inum);
+            ret->part = current_partition;
+            return ret;
         }
         brelse(bp);
     }
@@ -311,7 +321,7 @@ void iupdate(struct inode *ip)
 {
     struct buf *bp;
     struct dinode *dip;
-    bp = bread(ip->dev, IBLOCK(ip->inum, sbs[current_partition]) + partitions[current_partition].offset);
+    bp = bread(ip->dev, IBLOCK(ip->inum, sbs[ip->part]) + partitions[ip->part].offset);
     dip = (struct dinode *)bp->data + ip->inum % IPB;
     dip->type = ip->type;
     dip->major = ip->major;
@@ -337,7 +347,7 @@ iget(uint dev, uint inum)
     empty = 0;
     for (ip = &icache.inode[0]; ip < &icache.inode[NINODE]; ip++)
     {
-        if (ip->ref > 0 && ip->dev == dev && ip->inum == inum)
+        if (ip->ref > 0 && ip->dev == dev && ip->inum == inum && ip->part == current_partition)
         {
             ip->ref++;
             release(&icache.lock);
@@ -354,9 +364,9 @@ iget(uint dev, uint inum)
     ip = empty;
     ip->dev = dev;
     ip->inum = inum;
-    ip->part = current_partition;
     ip->ref = 1;
     ip->flags = 0;
+    ip->part = current_partition;
     ip->partitions = partitions;
     release(&icache.lock);
 
@@ -388,7 +398,7 @@ void ilock(struct inode *ip)
 
     if (!(ip->flags & I_VALID))
     {
-        bp = bread(ip->dev, IBLOCK(ip->inum, sbs[current_partition]) + partitions[current_partition].offset);
+        bp = bread(ip->dev, IBLOCK(ip->inum, sbs[ip->part]) + partitions[ip->part].offset);
         dip = (struct dinode *)bp->data + ip->inum % IPB;
         ip->type = dip->type;
         ip->major = dip->major;
@@ -479,7 +489,7 @@ bmap(struct inode *ip, uint bn)
             //TODO: should be checked if balloc returns a relative bnumber
             ip->addrs[NDIRECT] = addr = balloc(ip->dev);
         }
-        bp = bread(ip->dev, addr + partitions[current_partition].offset);
+        bp = bread(ip->dev, addr + partitions[ip->part].offset);
         a = (uint *)bp->data;
         if ((addr = a[bn]) == 0)
         {
@@ -516,7 +526,7 @@ itrunc(struct inode *ip)
 
     if (ip->addrs[NDIRECT])
     {
-        bp = bread(ip->dev, ip->addrs[NDIRECT] + partitions[current_partition].offset);
+        bp = bread(ip->dev, ip->addrs[NDIRECT] + partitions[ip->part].offset);
         a = (uint *)bp->data;
         for (j = 0; j < NINDIRECT; j++)
         {
@@ -549,7 +559,7 @@ struct inode *
 getmntin(struct inode *ip)
 {
     if (ip->type != T_DIR)
-        return ip; 
+        return ip;
     struct mountsw *mp;
     for (mp = mountsw; mp < mntswend; mp++)
         if (mp->dp == ip)
@@ -601,7 +611,7 @@ int deffsread(struct inode *ip, char *dst, uint off, uint n)
 
     for (tot = 0; tot < n; tot += m, off += m, dst += m)
     {
-        bp = bread(ip->dev, bmap(ip, off / BSIZE) + partitions[current_partition].offset);
+        bp = bread(ip->dev, bmap(ip, off / BSIZE) + partitions[ip->part].offset);
         m = min(n - tot, BSIZE - off % BSIZE);
         /*
         cprintf("data off %d:\n", off);
@@ -638,7 +648,7 @@ int deffswrite(struct inode *ip, char *src, uint off, uint n)
 
     for (tot = 0; tot < n; tot += m, off += m, src += m)
     {
-        bp = bread(ip->dev, bmap(ip, off / BSIZE) + partitions[current_partition].offset);
+        bp = bread(ip->dev, bmap(ip, off / BSIZE) + partitions[ip->part].offset);
         m = min(n - tot, BSIZE - off % BSIZE);
         memmove(bp->data + off % BSIZE, src, m);
         log_write(bp);
@@ -668,6 +678,7 @@ dirlookup(struct inode *dp, char *name, uint *poff)
 {
     uint off, inum;
     struct dirent de;
+    int partition, old_partition;
 
     if (dp->type != T_DIR)
         panic("dirlookup not DIR");
@@ -686,6 +697,14 @@ dirlookup(struct inode *dp, char *name, uint *poff)
             if (poff)
                 *poff = off;
             inum = de.inum;
+            if ((partition = entry_lookup(inum, dp->part)) != -1)
+            {
+                old_partition = current_partition;
+                current_partition = partition;
+                dp = iget(ROOTDEV, ROOTINO);
+                current_partition = old_partition;
+                return dp;
+            }
             return iget(getmntin(dp)->dev, inum);
         }
     }
@@ -821,4 +840,66 @@ struct inode *
 nameiparent(char *path, char *name)
 {
     return namex(path, 1, name);
+}
+
+int entry_lookup(uint inum, int partition)
+{
+    for (int i = 0; i < NPARTITIONS * MAXNUMINODE; i++)
+    {
+        if (imap[i][0].inum == inum && imap[i][0].partition == partition)
+        {
+            return (int)imap[i][1].partition;
+        }
+    }
+    return -1;
+}
+
+//inserts a mapping to mapping
+//ip is the inode which is being mapped from, partition_number is the partition being mounted to
+int insert_mapping(struct inode *ip, int partition_number)
+{
+    int i;
+    for (i = 0; i < NPARTITIONS * MAXNUMINODE; i++)
+    {
+        if (imap[i][0].inum == ip->inum && imap[i][0].partition == ip->part)
+        {
+            imap[i][1].inum = ROOTINO;
+            imap[i][1].partition = partition_number;
+            return 0;
+        }
+    }
+    for (i = 0; i < NPARTITIONS * MAXNUMINODE; i++)
+    {
+        if (imap[i][0].inum == 0)
+        {
+            imap[i][0].inum = ip->inum;
+            imap[i][0].partition = ip->part;
+            imap[i][1].inum = ROOTINO;
+            imap[i][1].partition = partition_number;
+            return 0;
+        }
+    }
+    cprintf("kernel: insert_mapping failed\n");
+    return -1;
+}
+
+int mountpart(char *path, uint partition_number)
+{
+    struct inode *ip;
+    if (partition_number < 0 || partition_number > 3)
+    {
+        cprintf("kernel: mount: partition number out of bounds\n");
+        return -1;
+    }
+    if ((ip = namei(path)) == 0)
+    {
+        cprintf("kernel: mount: path not found\n");
+        return -1;
+    }
+    return insert_mapping(ip, partition_number);
+}
+
+void switch_partition(int partition)
+{
+    current_partition = partition;
 }

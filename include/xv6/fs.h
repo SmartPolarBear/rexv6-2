@@ -66,3 +66,9 @@ struct dirent
   ushort inum;
   char name[DIRSIZ];
 };
+
+typedef struct pair
+{
+  char inum;
+  char partition;
+} part_t;
