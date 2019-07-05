@@ -121,6 +121,9 @@ int main(int argc, char *argv[])
     //Setup mbr
     memset(&mbr, 0, sizeof(mbr));
 
+    for (i = 0; i < 2; i++)
+        wsect(i, zeroes, 1);
+
     //write kernel to block 1
     fd_kernel = open(argv[4], O_RDONLY, 0666);
     printf("kernel:%s\n", argv[4]);
@@ -179,6 +182,10 @@ int main(int argc, char *argv[])
     memmove(buf, &mbr, sizeof(mbr));
     wsect(0, buf, 1);
 
+    // allocate partitions
+    for (i = 0; i < FSSIZE * NPARTITIONS; i++)
+        wsect(i + 1 + blocks_for_kernel, zeroes, 1);
+
     // // Mark the in-use blocks in the free block list;
     sbs[current_partition].initusedblock = freeblock;
     for (i = 0; i < NPARTITIONS; i++)
@@ -190,15 +197,36 @@ int main(int argc, char *argv[])
     }
     current_partition = 0;
 
-    // Grab an i-node for the root directory
-    rootino = ialloc(T_DIR, 0); // Epoch mtime for now
-    assert(rootino == ROOTINO);
+    // allocate inode for root directory in each partition
+    for (i = 0; i < NPARTITIONS; i++, current_partition++, freeinode = 1)
+    {
+        // Grab an i-node for the root directory
+        rootino = ialloc(T_DIR, 0); // Epoch mtime for now
+        assert(rootino == ROOTINO);
 
-    // Set up the directory entry for . and add it to the root dir
-    // Set up the directory entry for .. and add it to the root dir
-    dappend(rootino, ".", rootino);
-    dappend(rootino, "..", rootino);
+        // Set up the directory entry for . and add it to the root dir
+        // Set up the directory entry for .. and add it to the root dir
+        dappend(rootino, ".", rootino);
+        dappend(rootino, "..", rootino);
+    }
+    current_partition = 0;
+    freeinode = 4;
 
+    // populate the blocks bitmap for partitions 1-3
+    for (i = 1; i < NPARTITIONS; i++)
+    {
+        current_partition = i;
+        // fix size of root inode dir
+        rinode(rootino, &din);
+        off = xint(din.size);
+        off = ((off / BSIZE) + 1) * BSIZE;
+        din.size = xint(off);
+        winode(rootino, &din);
+
+        balloc(freeblock);
+    }
+    current_partition = 0;
+    
     // Add the contents of the command-line directory to the root dir
     add_directory(rootino, argv[2]);
 
