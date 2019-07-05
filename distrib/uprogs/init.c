@@ -25,6 +25,7 @@ int main(void)
         mknod("console", NCONSOLE, MCONSOLE);
         open("console", O_RDWR);
     }
+    
     mknod("perfctr", NDEVPERFCTR, MDEVPERFCTR);
     mknod("sound", NDEVSOUND, MDEVSOUND);
     mknod("null", NDEVNULL, MDEVNULL);

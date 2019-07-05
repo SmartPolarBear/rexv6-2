@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-02 17:17:08
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-04 18:34:22
+ * @ Modified time: 2019-07-04 22:21:55
  * @ Description:
  */
 
@@ -44,17 +44,24 @@ int mountdev(int dev, char *path, int fs)
 int mountpart(char *path, uint partition_number)
 {
     struct inode *ip;
+    begin_op();
     if (partition_number < 0 || partition_number > 3)
     {
         cprintf("kernel: mount: partition number out of bounds\n");
+        end_op();
         return -1;
     }
     if ((ip = namei(path)) == 0)
     {
         cprintf("kernel: mount: path not found\n");
+        end_op();
         return -1;
     }
-    return insert_mapping(ip, partition_number);
+    ilock(ip);
+    int ret = insert_mapping(ip, partition_number);
+    iunlockput(ip);
+    end_op();
+    return ret;
 }
 
 BOOL ispartition(struct inode *ip)
@@ -62,7 +69,6 @@ BOOL ispartition(struct inode *ip)
     if (ip->major != NDEVHDA)
         return FALSE;
 
-    cprintf("fuck\n");
     int part = ip->minor - 3;
 
     return part >= 0 && part <= 3;
@@ -70,25 +76,30 @@ BOOL ispartition(struct inode *ip)
 
 int mount(char *src, char *target, int fs)
 {
-    cprintf("mount.\n");
+    begin_op();
     struct inode *ip = namei(src);
     if (ip == 0)
     {
+        end_op();
         return -1;
     }
-    cprintf("inode:major=%d,minor=%d\n", (int)ip->major, (int)ip->minor);
 
-    if (ip->type == T_DEV)
+    ilock(ip);
+    int type = ip->type, minor = ip->minor, dev = ip->dev;
+    iunlockput(ip);
+    end_op();
+
+    if (type == T_DEV)
     {
         if (ispartition(ip))
         {
             cprintf("ispartition\n");
-            mountpart(target, ip->minor - 3);
+            mountpart(target, minor - 3);
         }
         else
         {
             cprintf("not ispartition\n");
-            mountdev(ip->dev, target, fs);
+            mountdev(dev, target, fs);
         }
     }
 }
