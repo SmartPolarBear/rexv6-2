@@ -1,3 +1,12 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-07-06 00:10:55
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-07-06 00:11:02
+ * @ Description:
+ */
+
+
 #define NONKERNEL
 
 #include <sys/types.h>
@@ -226,7 +235,7 @@ int main(int argc, char *argv[])
         balloc(freeblock);
     }
     current_partition = 0;
-    
+
     // Add the contents of the command-line directory to the root dir
     add_directory(rootino, argv[2]);
 
