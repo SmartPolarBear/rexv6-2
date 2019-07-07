@@ -103,11 +103,18 @@ int sys_close(void)
 int sys_fstat(void)
 {
     struct file *f;
-    struct stat *st;
+    stat_t *st;
 
     if (argfd(0, 0, &f) < 0 || argptr(1, (void *)&st, sizeof(*st)) < 0)
         return -1;
-    return filestat(f, st);
+
+    int ret = filestat(f, st);
+    // cprintf("3-st:st is at 0x%x\n", st);
+    // cprintf("3-st:sizeof(stat_t)=%d\n", (int)sizeof(stat_t));
+
+    // cprintf("3-st:\n\ntype:%d\ndev:%d\nino:%d\nnlink:%d\nsize:%d\n",
+    //         (int)st->type, (int)st->dev, (int)st->ino, (int)st->nlink, (int)st->size);
+    return ret;
 }
 
 // Create the path new as a link to the same inode as old.

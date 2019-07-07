@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-05 23:56:14
+ * @ Modified time: 2019-07-07 23:18:27
  * @ Description:
  */
 
@@ -41,6 +41,7 @@ mbr_t mbr;
 #define MAXNUMINODE 5000
 
 part_t imap[MAXNUMINODE * NPARTITIONS][2];
+
 int entry_lookup(uint inum, int partition);
 int insert_mapping(struct inode *ip, int partition_number);
 
@@ -543,7 +544,7 @@ itrunc(struct inode *ip)
 }
 
 // Copy stat information from inode.
-void stati(struct inode *ip, struct stat *st)
+void stati(struct inode *ip, stat_t *st)
 {
     st->dev = ip->dev;
     st->ino = ip->inum;
@@ -882,7 +883,6 @@ int insert_mapping(struct inode *ip, int partition_number)
     cprintf("kernel: insert_mapping failed\n");
     return -1;
 }
-
 
 void switch_partition(int partition)
 {

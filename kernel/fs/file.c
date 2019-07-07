@@ -9,29 +9,31 @@
 #include "xv6/spinlock.h"
 #include "xv6/sleeplock.h"
 #include "xv6/file.h"
-
+#include "xv6/stat.h"
 
 struct devsw devsw[NDEV][MDEV];
-struct {
+struct
+{
     struct spinlock lock;
     struct file file[NFILE];
 } ftable;
 
-void
-fileinit(void)
+void fileinit(void)
 {
     initlock(&ftable.lock, "ftable");
 }
 
 // Allocate a file structure.
-struct file*
+struct file *
 filealloc(void)
 {
     struct file *f;
 
     acquire(&ftable.lock);
-    for (f = ftable.file; f < ftable.file + NFILE; f++) {
-        if (f->ref == 0) {
+    for (f = ftable.file; f < ftable.file + NFILE; f++)
+    {
+        if (f->ref == 0)
+        {
             f->ref = 1;
             release(&ftable.lock);
             return f;
@@ -42,7 +44,7 @@ filealloc(void)
 }
 
 // Increment ref count for file f.
-struct file*
+struct file *
 filedup(struct file *f)
 {
     acquire(&ftable.lock);
@@ -54,15 +56,15 @@ filedup(struct file *f)
 }
 
 // Close file f.  (Decrement ref count, close when reaches 0.)
-void
-fileclose(struct file *f)
+void fileclose(struct file *f)
 {
     struct file ff;
 
     acquire(&ftable.lock);
     if (f->ref < 1)
         panic("fileclose");
-    if (--f->ref > 0) {
+    if (--f->ref > 0)
+    {
         release(&ftable.lock);
         return;
     }
@@ -73,7 +75,8 @@ fileclose(struct file *f)
 
     if (ff.type == FD_PIPE)
         pipeclose(ff.pipe, ff.writable);
-    else if (ff.type == FD_INODE) {
+    else if (ff.type == FD_INODE)
+    {
         begin_op();
         iput(ff.ip);
         end_op();
@@ -81,21 +84,21 @@ fileclose(struct file *f)
 }
 
 // Get metadata about file f.
-int
-filestat(struct file *f, struct stat *st)
+int filestat(struct file *f, stat_t *st)
 {
-    if (f->type == FD_INODE) {
+    if (f->type == FD_INODE)
+    {
         ilock(f->ip);
         stati(f->ip, st);
         iunlock(f->ip);
+
         return 0;
     }
     return -1;
 }
 
 // Read from file f.
-int
-fileread(struct file *f, char *addr, int n)
+int fileread(struct file *f, char *addr, int n)
 {
     int r;
     mix_source_entropy();
@@ -103,7 +106,8 @@ fileread(struct file *f, char *addr, int n)
         return -1;
     if (f->type == FD_PIPE)
         return piperead(f->pipe, addr, n);
-    if (f->type == FD_INODE) {
+    if (f->type == FD_INODE)
+    {
         ilock(f->ip);
         if ((r = readi(f->ip, addr, f->off, n)) > 0)
             f->off += r;
@@ -115,8 +119,7 @@ fileread(struct file *f, char *addr, int n)
 
 //PAGEBREAK!
 // Write to file f.
-int
-filewrite(struct file *f, char *addr, int n)
+int filewrite(struct file *f, char *addr, int n)
 {
     int r;
     mix_source_entropy();
@@ -124,7 +127,8 @@ filewrite(struct file *f, char *addr, int n)
         return -1;
     if (f->type == FD_PIPE)
         return pipewrite(f->pipe, addr, n);
-    if (f->type == FD_INODE) {
+    if (f->type == FD_INODE)
+    {
         // write a few blocks at a time to avoid exceeding
         // the maximum log transaction size, including
         // i-node, indirect block, allocation blocks,
@@ -133,7 +137,8 @@ filewrite(struct file *f, char *addr, int n)
         // might be writing a device like the console.
         int max = ((LOGSIZE - 1 - 1 - 2) / 2) * 512;
         int i = 0;
-        while (i < n) {
+        while (i < n)
+        {
             int n1 = n - i;
             if (n1 > max)
                 n1 = max;

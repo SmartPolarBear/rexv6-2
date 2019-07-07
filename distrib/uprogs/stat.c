@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     char *fname = argv[1];
     printf(1, "file:%s\n", fname);
 
-    struct stat st;
+    stat_t st;
     int fd;
 
     if ((fd = open(fname, 0)) < 0)
@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
         printf(2, "stat: cannot stat %s\n", fname);
         exit();
     }
+
     printf(1, "type:%d\ndev:%d\nino:%d\nnlink:%d\nsize:%d\n", (int)st.type, (int)st.dev, (int)st.ino, (int)st.nlink, (int)st.size);
 
     close(fd);
