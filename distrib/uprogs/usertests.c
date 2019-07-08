@@ -1789,17 +1789,19 @@ void validateint(int *p)
 
 void validatetest(void)
 {
-    printf(1,"this test is temporarily disabled for unkown fault.\n");
-    return;
-    
+    // printf(1,"this test is temporarily disabled for unkown fault.\n");
+    // return;
+
     int hi, pid;
     uint p;
 
     printf(_stdout, "validate test\n");
-    hi = 1101 * 1024;
+    hi = 1100 * 1024;
 
     for (p = 0; p <= (uint)hi; p += 4096)
     {
+        printf(1, "addr=0x%x\n", (int *)p);
+
         if ((pid = fork()) == 0)
         {
             // try to crash the kernel by passing in a badly placed integer
@@ -1991,7 +1993,6 @@ void argptest()
 
 int main(int argc, char *argv[])
 {
-
     printf(1, "usertests starting\n");
 
     if (open("usertests.ran", 0) >= 0)
