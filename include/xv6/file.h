@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-30 00:22:38
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-04 18:26:02
+ * @ Modified time: 2019-07-10 23:27:22
  * @ Description:
  */
 
@@ -23,7 +23,7 @@ struct file {
 
 
 // in-memory copy of an inode
-struct inode {
+typedef struct inode {
   uint dev;           // Device number
   uint inum;          // Inode number
   int part;
@@ -38,7 +38,7 @@ struct inode {
   uint size;
   uint addrs[NDIRECT+1];
   partition_t *partitions;
-};
+}inode_t;
 #define I_VALID 0x2
 
 // table mapping major device number to
