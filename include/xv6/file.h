@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-30 00:22:38
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-10 23:27:22
+ * @ Modified time: 2019-07-10 23:33:41
  * @ Description:
  */
 
@@ -10,6 +10,7 @@
 #define __INCLUDE_XV6_FILE_H
 #include <xv6/mbr.h>
 #include <xv6/sleeplock.h>
+
 
 struct file {
   enum { FD_NONE, FD_PIPE, FD_INODE } type;
