@@ -3,13 +3,21 @@ include $(TOP_SRCDIR)/Makefile.common
 
 OUTDIR = $(BUILDDIR)/tools
 
+OBJS = mkfs.o \
+	sect.o \
+
+_OBJS = $(addprefix $(OUTDIR)/,$(OBJS))
+
 all: $(OUTDIR)/mkfs
 
-$(OUTDIR)/mkfs: mkfs.c | $(OUTDIR)
-	$(CC) -Wextra -Wall -O2 -o $@ $^ -iquote $(TOP_SRCDIR)/include
+$(OUTDIR)/%.o: %.c | $(OUTDIR)
+	$(CC) $^ -iquote $(TOP_SRCDIR)/include -Wextra -Wall -O2 -c -o $@
+
+$(OUTDIR)/mkfs: $(_OBJS)
+	$(CC) $(_OBJS) -o $@ 
 	
 clean:
-	rm -f $(OUTDIR)/mkfs
+	rm -f $(OUTDIR)/*
 
 $(OUTDIR):
 	mkdir -p $(OUTDIR)

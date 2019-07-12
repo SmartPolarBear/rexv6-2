@@ -2,10 +2,9 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-06 00:10:55
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-12 23:02:40
+ * @ Modified time: 2019-07-12 23:20:02
  * @ Description:
  */
-
 
 #define NONKERNEL
 
@@ -30,15 +29,6 @@
 #undef dirent
 #undef stat
 
-#ifndef xv6static_assert
-#define xv6static_assert(a, b) \
-    do                         \
-    {                          \
-        switch (0)             \
-        case 0:                \
-        case (a):;             \
-    } while (0)
-#endif
 
 #define NINODES 200
 
@@ -101,7 +91,7 @@ int main(int argc, char *argv[])
     char buf[BSIZE];
     struct dinode din;
 
-    xv6static_assert(sizeof(int) == 4, "Integers must be 4 bytes!");
+    _Static_assert(sizeof(int) == 4, "Integers must be 4 bytes!");
 
     if (argc != 5)
     {
@@ -168,6 +158,9 @@ int main(int argc, char *argv[])
         partitions[i].offset = mbr.partitions[i].offset;
     }
 
+    freeblock = nmeta; // The first free block that we can allocate
+    master_freeblock = freeblock;
+    
     // initialize super blocks
     for (i = 0; i < NPARTITIONS; i++)
     {
@@ -179,12 +172,11 @@ int main(int argc, char *argv[])
         sbs[i].inodestart = xint(1 + nlog);
         sbs[i].bmapstart = xint(1 + nlog + ninodeblocks);
         sbs[i].offset = partitions[i].offset;
+        sbs[i].initusedblock = freeblock;
     }
 
     printf("Each partition has the following composition: nmeta %d (boot, super, log blocks %u inode blocks %u, bitmap blocks %u) blocks %d total %d\n", nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
 
-    freeblock = nmeta; // The first free block that we can allocate
-    master_freeblock = freeblock;
 
     //write mbr
     memset(buf, 0, sizeof(buf));
@@ -204,8 +196,6 @@ int main(int argc, char *argv[])
         wsect(0, buf, 0);
     }
     current_partition = 0;
-    
-    sbs[current_partition].initusedblock = freeblock;
 
     // allocate inode for root directory in each partition
     for (i = 0; i < NPARTITIONS; i++, current_partition++, freeinode = 1)
