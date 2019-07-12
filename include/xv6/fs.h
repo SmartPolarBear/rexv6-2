@@ -1,3 +1,8 @@
+#if !defined(__INCLUDE_XV6_FS_H)
+#define __INCLUDE_XV6_FS_H
+
+#include "xv6/mbr.h"
+
 // On-disk file system format.
 // Both the kernel and user programs use this header file.
 
@@ -6,7 +11,8 @@
 #define KBSIZE 1000
 #define OFFSET (FSSIZE * current_partition)
 
-extern int used_capcity, useable_capcity;
+// extern int used_capcity, useable_capcity;
+
 // Disk layout:
 // [ boot block | super block | log | inode blocks |
 //                                          free bit map | data blocks]
@@ -72,3 +78,10 @@ typedef struct pair
   char inum;
   char partition;
 } part_t;
+
+
+extern int usablesizes[NPARTITIONS];
+extern int usedsizes[NPARTITIONS];
+
+#endif // __INCLUDE_XV6_FS_H
+

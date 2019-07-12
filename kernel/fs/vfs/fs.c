@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-07 23:18:27
+ * @ Modified time: 2019-07-12 23:09:10
  * @ Description:
  */
 
@@ -49,15 +49,9 @@ int boot_partition = DEFAULT_BOOTPARTITION;
 int current_partition = 0;
 
 // there should be one superblock per disk device
-struct superblock sbs[NPARTITIONS] = {{0, 0, 0, 0, 0, 0, 0},
-                                      {0, 0, 0, 0, 0, 0, 0},
-                                      {0, 0, 0, 0, 0, 0, 0},
-                                      {0, 0, 0, 0, 0, 0, 0}};
+struct superblock sbs[NPARTITIONS] = {};
 
-struct partition partitions[NPARTITIONS] = {{0, 0, 0, 0, 0},
-                                            {0, 0, 0, 0, 0},
-                                            {0, 0, 0, 0, 0},
-                                            {0, 0, 0, 0, 0}};
+struct partition partitions[NPARTITIONS] = {};
 
 int checkboot(int index)
 {
@@ -113,10 +107,10 @@ void readmbr(int dev, mbr_t *mbr)
         }
         current_partition = boot_partition;
     }
+
     brelse(bp);
 }
 
-extern int used_capcity, useable_capcity;
 // Read the super block.
 void readsb(int dev, struct superblock *sb)
 {
@@ -125,6 +119,7 @@ void readsb(int dev, struct superblock *sb)
     bp = bread(dev, mbr.partitions[current_partition].offset);
     memmove(sb, bp->data, sizeof(*sb));
     sb->offset = mbr.partitions[current_partition].offset;
+
     brelse(bp);
 }
 
@@ -137,6 +132,7 @@ bzero(int dev, int bno)
     bp = bread(dev, bno + partitions[current_partition].offset);
     memset(bp->data, 0, BSIZE);
     log_write(bp);
+
     brelse(bp);
 }
 
@@ -162,7 +158,8 @@ balloc(uint dev)
                 log_write(bp);
                 brelse(bp);
                 bzero(dev, b + bi);
-                used_capcity += BSIZE;
+                // used_capcity += BSIZE;
+                usedsizes[current_partition] += BSIZE;
                 //cprintf("2 used capcity : %d KB\n", used_capcity/KBSIZE);
                 return b + bi;
             }
@@ -188,7 +185,8 @@ bfree(int dev, uint b)
     bp->data[bi / 8] &= ~m;
     log_write(bp);
     brelse(bp);
-    used_capcity -= BSIZE;
+    // used_capcity -= BSIZE;
+    usedsizes[current_partition] -= BSIZE;
 }
 
 // Inodes.
@@ -259,28 +257,43 @@ struct
 
 void iinit(int dev)
 {
-    int i = 0;
+    //init data
+    memset(sbs, 0, sizeof(sbs));
+    memset(partitions, 0, sizeof(partitions));
 
     initlock(&icache.lock, "icache");
     readmbr(dev, &mbr);
 
-    for (i = 0; i < NINODE; i++)
+    for (int i = 0; i < NPARTITIONS; i++)
     {
         initsleeplock(&icache.inode[i].lock, "inode");
-    }
-    cprintf("Boot partition: size %d nblocks %d ninodes %d nlog %d logstart %d inodestart %d bmap start %d\n", sbs[boot_partition].size,
-            sbs[boot_partition].nblocks, sbs[boot_partition].ninodes, sbs[current_partition].nlog, sbs[boot_partition].logstart, sbs[boot_partition].inodestart, sbs[boot_partition].bmapstart);
-    // readsb(dev, &sb);
 
-    //     cprintf("sb: size %d nblocks %d ninodes %d nlog %d logstart %d\
-//  inodestart %d bmap start %d\n",
-    //             sb.size, sb.nblocks,
-    //             sb.ninodes, sb.nlog, sb.logstart, sb.inodestart,
-    //             sb.bmapstart);
-    uint nmeta; //nmeta Number of meta blocks (boot, sb, nlog, inode, bitmap)
-    nmeta = 1 + 1 + sbs[current_partition].nlog + (sbs[current_partition].ninodes / IPB + 1) + (sbs[current_partition].size / (BSIZE * 8) + 1);
-    useable_capcity = (sbs[current_partition].size - nmeta) * BSIZE;
-    used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
+        uint nmetai = 1 + 1 + sbs[i].nlog + (sbs[i].ninodes / IPB + 1) + (sbs[i].size / (BSIZE * 8) + 1);
+
+        usablesizes[i] = (sbs[i].size - nmetai) * BSIZE;
+        usedsizes[i] = (sbs[i].initusedblock - nmetai) * BSIZE;
+        cprintf("fuck:nmeta=%d,initusedblock=%d\n\n", nmetai, sbs[i].initusedblock);
+        cprintf("Partition %d: size %d nblocks %d ninodes %d nlog %d logstart %d inodestart %d bmap start %d\n"
+                "usedsize %d usablesize %d\n",
+                i,
+                sbs[i].size,
+                sbs[i].nblocks,
+                sbs[i].ninodes,
+                sbs[i].nlog,
+                sbs[i].logstart,
+                sbs[i].inodestart,
+                sbs[i].bmapstart,
+                usedsizes[i], usablesizes[i]);
+    }
+
+    // cprintf("Boot partition: size %d nblocks %d ninodes %d nlog %d logstart %d inodestart %d bmap start %d\n", sbs[boot_partition].size,
+    //         sbs[boot_partition].nblocks, sbs[boot_partition].ninodes, sbs[current_partition].nlog, sbs[boot_partition].logstart, sbs[boot_partition].inodestart, sbs[boot_partition].bmapstart);
+
+    // uint nmeta; //nmeta Number of meta blocks (boot, sb, nlog, inode, bitmap)
+    // nmeta = 1 + 1 + sbs[current_partition].nlog + (sbs[current_partition].ninodes / IPB + 1) + (sbs[current_partition].size / (BSIZE * 8) + 1);
+
+    // useable_capcity = (sbs[current_partition].size - nmeta) * BSIZE;
+    // used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
 
     memset(&imap, 0, sizeof(imap));
 }

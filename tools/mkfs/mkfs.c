@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-06 00:10:55
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-06 00:11:02
+ * @ Modified time: 2019-07-12 23:02:40
  * @ Description:
  */
 
@@ -196,7 +196,6 @@ int main(int argc, char *argv[])
         wsect(i + 1 + blocks_for_kernel, zeroes, 1);
 
     // // Mark the in-use blocks in the free block list;
-    sbs[current_partition].initusedblock = freeblock;
     for (i = 0; i < NPARTITIONS; i++)
     {
         memset(buf, 0, sizeof(buf));
@@ -205,6 +204,8 @@ int main(int argc, char *argv[])
         wsect(0, buf, 0);
     }
     current_partition = 0;
+    
+    sbs[current_partition].initusedblock = freeblock;
 
     // allocate inode for root directory in each partition
     for (i = 0; i < NPARTITIONS; i++, current_partition++, freeinode = 1)
