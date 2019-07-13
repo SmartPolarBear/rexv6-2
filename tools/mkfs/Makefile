@@ -5,6 +5,9 @@ OUTDIR = $(BUILDDIR)/tools
 
 OBJS = mkfs.o \
 	sect.o \
+	block.o \
+	inode.o \
+	dir.o \
 
 _OBJS = $(addprefix $(OUTDIR)/,$(OBJS))
 
