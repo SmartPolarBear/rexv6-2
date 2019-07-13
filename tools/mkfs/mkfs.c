@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-06 00:10:55
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-13 23:34:26
+ * @ Modified time: 2019-07-14 00:01:05
  * @ Description:
  */
 
@@ -11,9 +11,10 @@
 // Disk layout:
 // [ boot block | sb block | log | inode blocks | free bit map | data blocks ]
 
-int nbitmap = FSSIZE / (BSIZE * 8) + 1;
-int ninodeblocks = NINODES / IPB + 1;
-int nlog = LOGSIZE;
+const int nbitmap = FSSIZE / (BSIZE * 8) + 1;
+const int ninodeblocks = NINODES / IPB + 1;
+const int nlog = LOGSIZE;
+
 int nmeta;   // Number of meta blocks (boot, sb, nlog, inode, bitmap)
 int nblocks; // Number of data blocks
 
@@ -26,17 +27,6 @@ uint freeblock;
 uint master_freeblock;
 int current_partition = 0;
 dpartition_t partitions[4];
-
-void balloc(int);
-void wsect(uint, void *, int);
-void winode(uint, struct dinode *);
-void rinode(uint inum, struct dinode *ip);
-void rsect(uint sec, void *buf, int);
-uint ialloc(ushort type, int mtime);
-void iappend(uint inum, void *p, int n);
-void dappend(int dirino, char *name, int fileino);
-void add_directory(int dirino, char *localdir);
-int makdir(int dirino, char *newdir, struct stat *sb);
 
 // convert to intel byte order
 ushort
@@ -136,7 +126,7 @@ int main(int argc, char *argv[])
 
     freeblock = nmeta; // The first free block that we can allocate
     master_freeblock = freeblock;
-    
+
     // initialize super blocks
     for (i = 0; i < NPARTITIONS; i++)
     {
@@ -148,11 +138,10 @@ int main(int argc, char *argv[])
         sbs[i].inodestart = xint(1 + nlog);
         sbs[i].bmapstart = xint(1 + nlog + ninodeblocks);
         sbs[i].offset = partitions[i].offset;
-        sbs[i].initusedblock = freeblock;
+        sbs[i].initusedblock = freeblock + 1;
     }
 
     printf("Each partition has the following composition: nmeta %d (boot, super, log blocks %u inode blocks %u, bitmap blocks %u) blocks %d total %d\n", nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
-
 
     //write mbr
     memset(buf, 0, sizeof(buf));
@@ -215,8 +204,6 @@ int main(int argc, char *argv[])
     winode(rootino, &din);
 
     balloc(freeblock);
-
-    exit(0);
+    
+    return 0;
 }
-
-

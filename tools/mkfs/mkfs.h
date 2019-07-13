@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-13 23:26:01
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-13 23:32:12
+ * @ Modified time: 2019-07-14 00:01:40
  * @ Description:
  */
 
@@ -37,9 +37,10 @@
 // Disk layout:
 // [ boot block | sb block | log | inode blocks | free bit map | data blocks ]
 
-extern int nbitmap;
-extern int ninodeblocks;
-extern int nlog;
+extern const int nbitmap;
+extern const int ninodeblocks;
+extern const int nlog;
+
 extern int nmeta;   // Number of meta blocks (boot, sb, nlog, inode, bitmap)
 extern int nblocks; // Number of data blocks
 

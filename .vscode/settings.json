@@ -23,7 +23,8 @@
         "stdlib.h": "c",
         "param.h": "c",
         "devnum.h": "c",
-        "sleeplock.h": "c"
+        "sleeplock.h": "c",
+        "mkfs.h": "c"
     },
     "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
 
