@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-14 19:14:02
+ * @ Modified time: 2019-07-14 22:36:47
  * @ Description:
  */
 
@@ -224,9 +224,6 @@ void switchuvm(struct proc *);
 void switchkvm(void);
 int copyout(pde_t *, uint, void *, uint);
 void clearpteu(pde_t *pgdir, char *uva);
-int mmap(pde_t *pde, uint va, uint pa, uint flags);
-int unmap(pde_t *pde, uint va);
-uint getmapping(pde_t *pde, uint va, uint *pa);
 
 //threads
 int clone(int func, void *arg, void *stack);

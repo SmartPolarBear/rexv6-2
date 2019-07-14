@@ -109,36 +109,30 @@ int sys_fstat(void)
         return -1;
 
     int ret = filestat(f, st);
-    // cprintf("3-st:st is at 0x%x\n", st);
-    // cprintf("3-st:sizeof(stat_t)=%d\n", (int)sizeof(stat_t));
-
-    // cprintf("3-st:\n\ntype:%d\ndev:%d\nino:%d\nnlink:%d\nsize:%d\n",
-    //         (int)st->type, (int)st->dev, (int)st->ino, (int)st->nlink, (int)st->size);
-
     
-    do
-    {
-        int *c = kmalloc(sizeof(int));
-        cprintf("test alloc int.\n");
-        *c = 223;
-        cprintf("*c=%d\n", *c);
-        kmfree(c);
+    // do
+    // {
+    //     int *c = kmalloc(sizeof(int));
+    //     cprintf("test alloc int.\n");
+    //     *c = 223;
+    //     cprintf("*c=%d\n", *c);
+    //     kmfree(c);
 
-        int *arr = kmalloc(sizeof(int[101]));
-        cprintf("test alloc int array.\n");
-        for (int i = 0; i < 100; i+=10)
-        {
-            arr[i] = i + 1;
-        }
-        for (int i = 0; i < 100; i+=10)
-        {
-            cprintf("arr[%d]=%d\n", i, arr[i]);
-        }
-        kmfree(arr);
+    //     int *arr = kmalloc(sizeof(int[101]));
+    //     cprintf("test alloc int array.\n");
+    //     for (int i = 0; i < 100; i+=10)
+    //     {
+    //         arr[i] = i + 1;
+    //     }
+    //     for (int i = 0; i < 100; i+=10)
+    //     {
+    //         cprintf("arr[%d]=%d\n", i, arr[i]);
+    //     }
+    //     kmfree(arr);
 
-        cprintf("test free freed pointer\n");
-        kmfree(arr);
-    } while (0);
+    //     cprintf("test free freed pointer\n");
+    //     kmfree(arr);
+    // } while (0);
     return ret;
 }
 

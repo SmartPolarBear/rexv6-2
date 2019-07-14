@@ -51,7 +51,6 @@ OBJS = \
 	rand.o\
 	qsort.o\
 	sysmount.o \
-	kheap.o \
 
 _OBJS = $(addprefix $(OUTDIR)/,$(OBJS))
 
