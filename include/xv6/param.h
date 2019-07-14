@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-03 23:30:57
+ * @ Modified time: 2019-07-14 12:43:47
  * @ Description:
  */
 
@@ -41,6 +41,7 @@
 #endif // __ASSEMBLER__
 
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 
 #endif // __INCLUDE_XV6_PARAM_H

@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-30 00:22:38
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-10 23:36:57
+ * @ Modified time: 2019-07-14 12:42:13
  * @ Description:
  */
 
@@ -27,7 +27,7 @@ struct file {
 typedef struct inode {
   uint dev;           // Device number
   uint inum;          // Inode number
-  int part;
+  int partition;
   int ref;            // Reference count
   struct sleeplock lock;
   int flags;          // I_VALID
