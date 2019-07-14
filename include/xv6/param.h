@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-14 12:43:47
+ * @ Modified time: 2019-07-14 12:47:04
  * @ Description:
  */
 
@@ -42,6 +42,7 @@
 
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 
 #endif // __INCLUDE_XV6_PARAM_H

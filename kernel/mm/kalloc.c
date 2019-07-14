@@ -91,27 +91,3 @@ kalloc(void)
         release(&kmem.lock);
     return (char *)r;
 }
-
-#define COUNT_BLOCK(size) (((size) / (PGSIZE)) + (1))
-
-void *kmemalloc(int size)
-{
-    int blk_cnt = COUNT_BLOCK(size);
-    int first = kalloc();
-    for (int i = 1; i < blk_cnt; i++)
-    {
-        kalloc();
-    }
-
-    cprintf("allocate at 0x%x\n",first);
-    return first;
-}
-
-void kmemfree(void *mem, int size)
-{
-    int blk_cnt = COUNT_BLOCK(size);
-    for(int i=blk_cnt-1;i>=0;i--)
-    {
-        kfree(mem+(i*PGSIZE));
-    }
-}

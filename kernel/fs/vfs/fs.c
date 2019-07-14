@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-14 12:42:48
+ * @ Modified time: 2019-07-14 13:10:57
  * @ Description:
  */
 
@@ -35,13 +35,12 @@
 #define MAXNUMINODE 5000
 
 static void itrunc(struct inode *);
+int entry_lookup(uint inum, int partition);
+int insert_mapping(struct inode *ip, int partition_number);
 
 mbr_t mbr;
 
 part_t imap[MAXNUMINODE * NPARTITIONS][2];
-
-int entry_lookup(uint inum, int partition);
-int insert_mapping(struct inode *ip, int partition_number);
 
 int boot_partition = DEFAULT_BOOTPARTITION;
 int current_partition = 0;
@@ -291,7 +290,6 @@ void iinit(int dev)
 
     // useable_capcity = (sbs[current_partition].size - nmeta) * BSIZE;
     // used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
-
 }
 
 static struct inode *iget(uint dev, uint inum);

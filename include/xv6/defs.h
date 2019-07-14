@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-21 23:59:18
+ * @ Modified time: 2019-07-14 13:13:19
  * @ Description:
  */
 
@@ -96,8 +96,6 @@ void ioapicinit(void);
 // kalloc.c
 char *kalloc(void);
 void kfree(char *);
-void *kmemalloc(int size);
-void kmemfree(void *mem, int size);
 void kinit1(void *, void *);
 void kinit2(void *, void *);
 
