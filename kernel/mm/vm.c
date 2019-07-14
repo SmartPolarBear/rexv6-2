@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-21 23:26:54
+ * @ Modified time: 2019-07-14 21:10:34
  * @ Description:
  */
 
@@ -97,6 +97,44 @@ mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
         pa += PGSIZE;
     }
     return 0;
+}
+
+static int
+unmappages(pde_t *pgdir, void *va, uint size)
+{
+    char *a, *last;
+    pte_t *pte;
+
+    a = (char *)PGROUNDDOWN((uint)va);
+    last = (char *)PGROUNDDOWN(((uint)va) + size - 1);
+    for (;;)
+    {
+        if ((pte = walkpgdir(pgdir, a, 0)) == 0)
+            return -1;
+        if (!(*pte & PTE_P))
+            panic("unmap not present page");
+
+        *pte = 0;
+
+        if (a == last)
+            break;
+        a += PGSIZE;
+    }
+    return 0;
+}
+
+int mmap(pde_t *pde, uint va, uint pa, uint flags)
+{
+    int ret = mappages(pde, va, PGSIZE, pa, flags);
+    asm volatile ("invlpg (%0)" : : "a" (va));
+    return ret;
+}
+
+int unmap(pde_t *pde, uint va)
+{
+    int ret = unmappages(pde, va, PGSIZE);
+    asm volatile ("invlpg (%0)" : : "a" (va));
+    return ret;
 }
 
 // There is one page table per process, plus one that's used when
@@ -315,7 +353,6 @@ void freevm(pde_t *pgdir)
     kfree((char *)pgdir);
 }
 
-
 // Clear PTE_U on a page. Used to create an inaccessible
 // page beneath the user stack.
 void clearpteu(pde_t *pgdir, char *uva)
@@ -378,7 +415,6 @@ bad:
     return 0;
 }
 
-
 //PAGEBREAK!
 // Map user virtual address to kernel address.
 char *
@@ -416,6 +452,17 @@ int copyout(pde_t *pgdir, uint va, void *p, uint len)
         len -= n;
         buf += n;
         va = va0 + PGSIZE;
+    }
+    return 0;
+}
+
+uint getmapping(pde_t *pde, uint va, uint *pa)
+{
+    pte_t *pte = NULL;
+    if ((pte = walkpgdir(pde, va, 0)) && pa)
+    {
+        *pa = PTE_ADDR(pte);
+        return 1;
     }
     return 0;
 }

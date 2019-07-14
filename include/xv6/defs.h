@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-14 13:13:19
+ * @ Modified time: 2019-07-14 19:14:02
  * @ Description:
  */
 
@@ -224,6 +224,10 @@ void switchuvm(struct proc *);
 void switchkvm(void);
 int copyout(pde_t *, uint, void *, uint);
 void clearpteu(pde_t *pgdir, char *uva);
+int mmap(pde_t *pde, uint va, uint pa, uint flags);
+int unmap(pde_t *pde, uint va);
+uint getmapping(pde_t *pde, uint va, uint *pa);
+
 //threads
 int clone(int func, void *arg, void *stack);
 int join(int pid, void **stack, void **retval);
@@ -247,7 +251,8 @@ void invoke_sigret_end(void);
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x) / sizeof((x)[0]))
 
-#define MIN(x, y) ((x) >= (y) ? (y) : (x))
-#define MAX(x, y) ((x) >= (y) ? (x) : (y))
+//kheap.c
+void kmfree(void *p);
+void *kmalloc(uint len);
 
 #endif // __INCLUDE_XV6_DEFS_H

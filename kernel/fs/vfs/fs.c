@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-14 13:10:57
+ * @ Modified time: 2019-07-14 18:59:56
  * @ Description:
  */
 
@@ -290,6 +290,8 @@ void iinit(int dev)
 
     // useable_capcity = (sbs[current_partition].size - nmeta) * BSIZE;
     // used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
+
+    
 }
 
 static struct inode *iget(uint dev, uint inum);
