@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-14 18:59:56
+ * @ Modified time: 2019-07-15 22:51:00
  * @ Description:
  */
 
@@ -295,7 +295,7 @@ void iinit(int dev)
 }
 
 static struct inode *iget(uint dev, uint inum);
-
+ 
 //PAGEBREAK!
 // Allocate a new inode with the given type on device dev.
 // A free inode has a type of zero.
