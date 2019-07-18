@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-08 20:20:35
+ * @ Modified time: 2019-07-17 23:27:46
  * @ Description:
  */
 
@@ -14,6 +14,7 @@ typedef unsigned int   uint;
 typedef unsigned short ushort;
 typedef unsigned char  uchar;
 typedef uint pde_t;
+typedef uint offset_t;
 
 typedef int userlock;
 typedef int usersem;
