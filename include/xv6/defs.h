@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-14 22:36:47
+ * @ Modified time: 2019-07-19 23:09:31
  * @ Description:
  */
 
@@ -248,8 +248,8 @@ void invoke_sigret_end(void);
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x) / sizeof((x)[0]))
 
-//kheap.c
-void kmfree(void *p);
-void *kmalloc(uint len);
+//math.c
+float floor(float x);
+float ceil(float x);
 
 #endif // __INCLUDE_XV6_DEFS_H

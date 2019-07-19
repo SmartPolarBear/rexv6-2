@@ -69,6 +69,10 @@ void kinit2(void *vstart, void *vend)
     kmem.use_lock = TRUE;
 }
 
+#define LEFTCHILD(index) ((index)*2)
+#define RIGHTCHILD(index) ((index)*2 + 1)
+#define PARENT(index) (((index) == 0) ? (0) : (((int)(floor((((float)(index)) - 1.0) / 2.0)))))
+
 offset_t buddyalloc(uint size)
 {
     unsigned index = 0, nodeszie = 0, offset = 0;
@@ -81,14 +85,82 @@ offset_t buddyalloc(uint size)
         size = fixsize(size);
 
     if (kmem.buddy->longest[index] < size)
-        panic("insufficient mem.");
+        return -1;
 
-    
+    for (nodeszie = kmem.buddy->size; nodeszie != size; nodeszie /= 2)
+    {
+        index = kmem.buddy->longest[LEFTCHILD(index)] >= size
+                    ? LEFTCHILD(index)
+                    : RIGHTCHILD(index);
+    }
+
+    kmem.buddy->longest[index] = 0;
+    offset = (index + 1) * nodeszie - kmem.buddy->size;
+    while (index)
+    {
+        index = PARENT(index);
+        kmem.buddy->longest[index] =
+            MAX(kmem.buddy->longest[LEFTCHILD(index)], kmem.buddy->longest[RIGHTCHILD(index)]);
+    }
+
+    return offset;
 }
 
 void buddyfree(offset_t offset)
 {
+    unsigned node_size, index = 0;
+    unsigned left_longest, right_longest;
+
+    if(kmem.buddy==NULL||offset<0||offset>kmem.buddy->size)
+    {
+        panic("error free");
+    }
+
+    node_size = 1;
+    index = offset + kmem.buddy->size - 1;
+
+    for (; kmem.buddy->longest[index]; index = PARENT(index))
+    {
+        node_size *= 2;
+        if (index == 0)
+            return;
+    }
+
+    kmem.buddy->longest[index] = node_size;
+
+    while (index)
+    {
+        index = PARENT(index);
+        node_size *= 2;
+
+        left_longest = kmem.buddy->longest[LEFTCHILD(index)];
+        right_longest = kmem.buddy->longest[RIGHTCHILD(index)];
+
+        if (left_longest + right_longest == node_size)
+            kmem.buddy->longest[index] = node_size;
+        else
+            kmem.buddy->longest[index] = MAX(left_longest, right_longest);
+    }
 }
+
+
+//PAGEBREAK: 21
+// Free the page of physical memory pointed at by v,
+// which normally should have been returned by a
+// call to kalloc().  (The exception is when
+// initializing the allocator; see kinit above.)
+void kfree(char *v)
+{
+}
+
+// Allocate one 4096-byte page of physical memory.
+// Returns a pointer that the kernel can use.
+// Returns 0 if the memory cannot be allocated.
+char *
+kalloc(void)
+{
+}
+
 
 // void freerange(void *vstart, void *vend);
 
