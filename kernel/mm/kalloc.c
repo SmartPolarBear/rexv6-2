@@ -73,6 +73,18 @@ void kinit2(void *vstart, void *vend)
 #define RIGHTCHILD(index) ((index)*2 + 1)
 #define PARENT(index) (((index) == 0) ? (0) : (((int)(floor((((float)(index)) - 1.0) / 2.0)))))
 
+uint fixsize(uint size)
+{
+    unsigned int v = (unsigned int)size;
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v++;
+}
+
 offset_t buddyalloc(uint size)
 {
     unsigned index = 0, nodeszie = 0, offset = 0;
@@ -111,7 +123,7 @@ void buddyfree(offset_t offset)
     unsigned node_size, index = 0;
     unsigned left_longest, right_longest;
 
-    if(kmem.buddy==NULL||offset<0||offset>kmem.buddy->size)
+    if (kmem.buddy == NULL || offset < 0 || offset > kmem.buddy->size)
     {
         panic("error free");
     }
@@ -143,7 +155,6 @@ void buddyfree(offset_t offset)
     }
 }
 
-
 //PAGEBREAK: 21
 // Free the page of physical memory pointed at by v,
 // which normally should have been returned by a
@@ -160,7 +171,6 @@ char *
 kalloc(void)
 {
 }
-
 
 // void freerange(void *vstart, void *vend);
 
