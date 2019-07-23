@@ -14,7 +14,7 @@ RANLIB = ranlib
 QEMU = qemu-system-i386.exe
 
 CFLAGS += -nostdinc -fno-pic -fno-builtin -fno-stack-protector -std=gnu11 -Wall -Wextra -m32 -I$(INCLDIR)
-
+CFLAGS+=-fno-pie -fno-pic -static -fno-strict-aliasing -fno-omit-frame-pointer
 # don't optimize for most code in Debug mode
 #CFLAGS += -O2
 
