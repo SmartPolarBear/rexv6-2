@@ -1,5 +1,5 @@
-#ifndef STDINT_H
-#define STDINT_H
+#if !defined(__INCLUDE_STDINT_H)
+#define __INCLUDE_STDINT_H
 
 /* Explicitly-sized versions of integer types */
 typedef char int8_t;
@@ -22,5 +22,4 @@ typedef uint32_t uintptr_t;
 /* size_t is used for memory object sizes */
 typedef uintptr_t size_t;
 
-
-#endif
+#endif // __INCLUDE_STDINT_H

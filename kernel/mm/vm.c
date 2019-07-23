@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-22 23:28:33
+ * @ Modified time: 2019-07-23 19:55:01
  * @ Description:
  */
 
@@ -98,7 +98,6 @@ mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
     }
     return 0;
 }
-
 
 // There is one page table per process, plus one that's used when
 // a CPU is not running any process (kpgdir). The kernel uses the
