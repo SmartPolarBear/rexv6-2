@@ -30,7 +30,7 @@ struct
     struct spinlock lock;
     int use_lock;
     int type;
-    buddy_allocator_t *buddy;
+    buddy_list_bucket_t *buddy;
     struct run *freelist;
 } kmem;
 
@@ -50,9 +50,10 @@ void kinit1(void *vstart, void *vend)
 void kinit2(void *vstart, void *vend)
 {
     // stdfreerange(vstart, vend);
-    buddyinit(PGROUNDUP((uint)vstart), PGROUNDDOWN((uint)vend));
+    buddyinit(vstart, vend);
     kmem.use_lock = TRUE;
     kmem.type = BUDDY;
+    cprintf("switch to buddy.\n");
 }
 
 void stdfreerange(void *vstart, void *vend)
@@ -108,13 +109,32 @@ char *stdkalloc(void)
     return (char *)r;
 }
 
+int __log2(int v)
+{
+    int r = 0xFFFF - v >> 31 & 0x10;
+    v >>= r;
+    int shift = 0xFF - v >> 31 & 0x8;
+    v >>= shift;
+    r |= shift;
+    shift = 0xF - v >> 31 & 0x4;
+    v >>= shift;
+    r |= shift;
+    shift = 0x3 - v >> 31 & 0x2;
+    v >>= shift;
+    r |= shift;
+    r |= (v >> 1);
+    return r;
+}
+
 void buddyinit(void *bg, void *ed)
 {
     if (kmem.use_lock)
         acquire(&kmem.lock);
 
-    cprintf("init at 0x%x,end at 0x%x\n", (int)bg, (int)(ed));
-    kmem.buddy = buddy_create(bg, ed - bg);
+    unsigned size = ed - bg;
+    cprintf("init at 0x%x,end at 0x%x,size %d\n", (int)bg, (int)(ed), (int)size);
+
+    kmem.buddy = create_buddy_table(bg, __log2(size));
 
     if (kmem.use_lock)
         release(&kmem.lock);
@@ -128,7 +148,9 @@ char *kalloc(void)
     }
     else
     {
-        return stdkalloc();
+        void *p = buddy_alloc(kmem.buddy, PGSIZE);
+        cprintf("p is at 0x%x\n",(int)p);
+        return p;
     }
 }
 
@@ -140,6 +162,7 @@ void kfree(char *p)
     }
     else
     {
-        stdkfree(p);
+        cprintf("fuck2\n");
+        buddy_free(p);
     }
 }
