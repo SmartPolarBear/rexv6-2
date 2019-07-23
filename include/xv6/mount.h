@@ -15,7 +15,7 @@ extern struct mountsw *mntswend;
 
 int mountdev(int dev, char *path, int fs);
 int mountpart(char *path, uint partition_number);
-BOOL ispartition(struct inode *ip);
+_Bool ispartition(struct inode *ip);
 int mount(char *src, char *target,int fs);
 int unmount(int dev);
 

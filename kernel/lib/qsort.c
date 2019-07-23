@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-08 17:37:48
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-08 20:22:59
+ * @ Modified time: 2019-07-23 20:09:01
  * @ Description: Inspired by the version used by the klibc 1.5.20
  */
 
@@ -75,7 +75,7 @@ void qsort(void *base, size_t nmemb, size_t size, int (*cmp)(const void *, const
 {
     size_t gap = nmemb, i = 0, j = 0;
     char *p1 = NULL, *p2 = NULL;
-    BOOL swapped = FALSE;
+    bool swapped = false;
 
     if (!nmemb)
         return;
@@ -83,7 +83,7 @@ void qsort(void *base, size_t nmemb, size_t size, int (*cmp)(const void *, const
     do
     {
         gap = newgap(gap);
-        swapped = FALSE;
+        swapped = false;
 
         for (i = 0, p1 = base; i < nmemb - gap; i++, p1 += size)
         {
@@ -91,7 +91,7 @@ void qsort(void *base, size_t nmemb, size_t size, int (*cmp)(const void *, const
             if (cmp(p1, p2 = (char *)base + j * size) > 0)
             {
                 memswap(p1, p2, size);
-                swapped = TRUE;
+                swapped = true;
             }
         }
     } while (gap > 1 || swapped);

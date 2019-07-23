@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-01 20:35:10
+ * @ Modified time: 2019-07-23 20:07:47
  * @ Description:
  */
 
@@ -67,7 +67,7 @@ found:
     p->tickets = DEFAULT_TICKETS;
     //thread
     p->ustack = NULL;
-    p->isthread = TRUE;
+    p->isthread = true;
     p->joinedthread = NULL;
     p->retval = NULL;
     //mutex will be left uninitialized before fork is called.
@@ -104,11 +104,11 @@ found:
     p->cstack.head = 0;
     for (cstackframe_t *sig = p->cstack.frames; sig <= &p->cstack.frames[SIGNAL_COUNT - 1]; sig++)
     {
-        sig->used = FALSE;
+        sig->used = false;
     }
 
-    p->ignore_signals = FALSE;
-    p->sigpause_involked = FALSE;
+    p->ignore_signals = false;
+    p->sigpause_involked = false;
 
     p->starttime = ticks;
 
@@ -222,12 +222,12 @@ int fork(void)
     np->ustack = NULL;
     np->retval = NULL;
     np->joinedthread = NULL;
-    np->isthread = FALSE;
+    np->isthread = false;
 
     //mutex
     for (i = 0; i < 32; i++)
     {
-        np->mtable[i].isfree = TRUE;
+        np->mtable[i].isfree = true;
     }
     np->mtable_shared = np->mtable;
     initlock(&np->mlock, "mtable");
@@ -323,7 +323,7 @@ int wait(void)
                 p->killed = 0;
                 p->state = UNUSED;
                 //thread
-                p->isthread = FALSE;
+                p->isthread = false;
                 p->ustack = NULL;
                 p->retval = NULL;
                 p->joinedthread = NULL;
@@ -657,7 +657,7 @@ int cstk_push(cstack_t *cstack, int dest, int signum)
     cstackframe_t *newsig = NULL;
     for (newsig = cstack->frames; newsig < &cstack->frames[SIGNAL_MAX - SIGNAL_MIN]; newsig++)
     {
-        if (cas(&newsig->used, FALSE, TRUE))
+        if (cas(&newsig->used, false, true))
             goto found;
     }
     return 0;
@@ -727,7 +727,7 @@ found:
 void sigret(void)
 {
     memmove(proc->tf, &proc->oldtf, sizeof(struct trapframe));
-    proc->ignore_signals = FALSE;
+    proc->ignore_signals = false;
 }
 
 void sigpause(void)
@@ -739,7 +739,7 @@ void sigpause(void)
     if (proc->cstack.head == 0)
     {
         proc->chan = 0;
-        proc->sigpause_involked = TRUE;
+        proc->sigpause_involked = true;
         sched();
     }
     else
@@ -768,7 +768,7 @@ void handle_signals(struct trapframe *tf)
     if (proc->sighandlers[top->signum] == (sighandler_t)-1)
         return; // default signal handler, ignore the signal
 
-    proc->ignore_signals = TRUE;
+    proc->ignore_signals = true;
 
     memmove(&proc->oldtf, proc->tf, sizeof(struct trapframe)); //backing up trap frame
     proc->tf->esp -= (uint)&invoke_sigret_end - (uint)&invoke_sigret_start;
@@ -823,7 +823,7 @@ int clone(int func, void *arg, void *stack)
 
     //save the user stack for when join() is called
     np->ustack = stack;
-    np->isthread = TRUE;
+    np->isthread = true;
 
     // lock to force the compiler to emit the np->state write last.
     acquire(&ptable.lock);
@@ -881,7 +881,7 @@ void cleanthread(struct proc *p)
     p->joinedthread = NULL;
     p->ustack = NULL;
     p->retval = NULL;
-    p->isthread = FALSE;
+    p->isthread = false;
 }
 
 //mutex

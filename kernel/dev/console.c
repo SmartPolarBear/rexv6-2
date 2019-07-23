@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-06-08 20:18:31
+ * @ Modified time: 2019-07-23 20:09:29
  * @ Description:
  */
 
@@ -235,7 +235,7 @@ struct
 void consoleintr(int (*getc)(void))
 {
     int c, doprocdump = 0;
-    BOOL kill_proc = FALSE;
+    bool kill_proc = false;
 
     acquire(&cons.lock);
     while ((c = getc()) >= 0)
@@ -299,7 +299,7 @@ void consoleintr(int (*getc)(void))
         switch (c)
         {
         case C('C'): //kill proc
-            kill_proc = TRUE;
+            kill_proc = true;
             break;
         case C('P'): // Process listing.
             // procdump() locks cons.lock indirectly; invoke later

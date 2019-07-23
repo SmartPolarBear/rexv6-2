@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-02 17:15:31
+ * @ Modified time: 2019-07-23 20:03:22
  * @ Description:
  */
 
@@ -92,7 +92,7 @@ typedef struct cstackframe
 {
   int dest;
   int signum;
-  BOOL used;
+  _Bool used;
   struct cstackframe *next;
 } cstackframe_t;
 
@@ -137,7 +137,7 @@ struct proc
 
   // Multi-thread support
   void *ustack;  // Bottom of the user stack
-  BOOL isthread; // If non-zero, it's the main thread of a process
+  _Bool isthread; // If non-zero, it's the main thread of a process
   struct proc *joinedthread;
   void *retval;
 
@@ -150,9 +150,9 @@ struct proc
   //Signal
   sighandler_t sighandlers[SIGNAL_COUNT];
   cstack_t cstack;
-  BOOL ignore_signals;
+  _Bool ignore_signals;
   struct trapframe oldtf;
-  BOOL sigpause_involked;
+  _Bool sigpause_involked;
 };
 
 // Process memory is laid out contiguously, low addresses first:

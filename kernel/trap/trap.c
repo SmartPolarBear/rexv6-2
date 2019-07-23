@@ -41,7 +41,7 @@ void idtinit(void)
                 "eip 0x%x addr 0x%x--kill proc\n",                             \
                 proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip, \
                 rcr2());                                                       \
-        proc->killed = TRUE;                                                   \
+        proc->killed = true;                                                   \
     } while (0)
 
 //Call this when kernel run into trouble

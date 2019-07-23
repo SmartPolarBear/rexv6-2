@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-02 17:17:08
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-05 14:06:21
+ * @ Modified time: 2019-07-23 20:05:45
  * @ Description:
  */
 
@@ -59,10 +59,10 @@ int mountpart(char *path, uint partition_number)
     return insert_mapping(ip, partition_number);
 }
 
-BOOL ispartition(struct inode *ip)
+_Bool ispartition(struct inode *ip)
 {
     if (ip->major != NDEVHDA)
-        return FALSE;
+        return false;
 
     int part = ip->minor - 3;
 
