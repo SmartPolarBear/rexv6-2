@@ -9,19 +9,26 @@
 #include "xv6/mmu.h"
 #include "xv6/spinlock.h"
 
-void freerange(void *vstart, void *vend);
+#define offsetof(type, member) (size_t) & (((type *)0)->member)
+#define container_of(ptr, type, member) ({ \
+                const typeof( ((type *)0)->member ) *__mptr = (ptr); \
+                (type *)( (char *)__mptr - offsetof(type,member) ); })
+
 extern char end[]; // first address after kernel loaded from ELF file
 
-struct run
+void freerange(void *vstart, void *vend);
+
+typedef struct run
 {
     struct run *next;
-};
+    char block[0];
+} run_t;
 
 struct
 {
-    struct spinlock lock;
-    _Bool use_lock;
-    struct run *freelist;
+    spinlock_t lock;
+    run_t *freelist;
+    bool use_lock;
 } kmem;
 
 // Initialization happens in two phases.
@@ -32,14 +39,14 @@ struct
 void kinit1(void *vstart, void *vend)
 {
     initlock(&kmem.lock, "kmem");
-    kmem.use_lock = 0;
+    kmem.use_lock = false;
     freerange(vstart, vend);
 }
 
 void kinit2(void *vstart, void *vend)
 {
     freerange(vstart, vend);
-    kmem.use_lock = 1;
+    kmem.use_lock = true;
 }
 
 void freerange(void *vstart, void *vend)
@@ -58,7 +65,6 @@ void freerange(void *vstart, void *vend)
 void kfree(char *v)
 {
     struct run *r;
-
     if ((uint)v % PGSIZE || v < end || V2P(v) >= PHYSTOP)
         panic("kfree");
 
@@ -67,9 +73,11 @@ void kfree(char *v)
 
     if (kmem.use_lock)
         acquire(&kmem.lock);
-    r = (struct run *)v;
+
+    r = (run_t *)(v);
     r->next = kmem.freelist;
     kmem.freelist = r;
+
     if (kmem.use_lock)
         release(&kmem.lock);
 }
@@ -84,11 +92,13 @@ kalloc(void)
 
     if (kmem.use_lock)
         acquire(&kmem.lock);
+
     r = kmem.freelist;
     if (r)
         kmem.freelist = r->next;
 
     if (kmem.use_lock)
         release(&kmem.lock);
+
     return (char *)r;
 }
