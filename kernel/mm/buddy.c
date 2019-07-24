@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-24 15:26:18
+ * @ Modified time: 2019-07-24 15:30:35
  * @ Description:
  */
 
@@ -335,6 +335,17 @@ void free_page(void *v)
 void *alloc_page(void)
 {
     return kmalloc(PTE_SHIFT);
+}
+
+//TODO:implement these to alloc with size,free without size
+void kmalloc2(uint32_t size)
+{
+    
+}
+
+void kmfree2(void *v)
+{
+    
 }
 
 // round up power of 2, then get the order

@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:16:06
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-24 15:26:30
+ * @ Modified time: 2019-07-24 15:28:28
  * @ Description:
  */
 
@@ -50,7 +50,9 @@ void kinit1(void *vstart, void *vend)
     initlock(&kmem.lock, "kmem");
     kmem.type = FREELIST;
 
-    for (char *p = (char *)PGROUNDUP((uint)vstart); p + PGSIZE <= (char *)vend; p += PGSIZE)
+    for (char *p = (char *)PGROUNDUP((uint)vstart);
+         p + PGSIZE <= (char *)vend;
+         p += PGSIZE)
         kfree(p);
 }
 
