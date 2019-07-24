@@ -9,10 +9,6 @@
 #include "xv6/mmu.h"
 #include "xv6/spinlock.h"
 
-#define offsetof(type, member) (size_t) & (((type *)0)->member)
-#define container_of(ptr, type, member) ({ \
-                const typeof( ((type *)0)->member ) *__mptr = (ptr); \
-                (type *)( (char *)__mptr - offsetof(type,member) ); })
 
 extern char end[]; // first address after kernel loaded from ELF file
 
@@ -21,7 +17,6 @@ void freerange(void *vstart, void *vend);
 typedef struct run
 {
     struct run *next;
-    char block[0];
 } run_t;
 
 struct

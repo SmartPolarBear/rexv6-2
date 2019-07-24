@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-23 19:55:01
+ * @ Modified time: 2019-07-24 15:01:14
  * @ Description:
  */
 
@@ -224,7 +224,7 @@ int loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz)
             n = sz - i;
         else
             n = PGSIZE;
-        if (readi(ip, P2V(pa), offset + i, n) != n)
+        if ((uint)readi(ip, P2V(pa), offset + i, n) != n)
             return -1;
     }
     return 0;
