@@ -3,16 +3,15 @@
 
 #include "xv6/types.h"
 
-void            kmem_init (void);
-void            kmem_init2(void *vstart, void *vend);
+void buddy_init(void);
+void buddy_init2(void *vstart, void *vend);
 
-void*           kmalloc (int order);
-void            kmfree (void *mem, int order);
+void *kmalloc(int order);
+void kmfree(void *mem, int order);
 
-void            free_page(void *v);
-void*           alloc_page (void);
+void free_page(void *v);
+void *alloc_page(void);
 
-int             get_order (uint32_t v);
-
+int get_order(uint32_t v);
 
 #endif // __INCLUDE_xV6_BUDDY_H

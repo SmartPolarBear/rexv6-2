@@ -1,3 +1,11 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-07-24 15:16:06
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-07-24 15:21:50
+ * @ Description:
+ */
+
 // Physical memory allocator, intended to allocate
 // memory for user processes, kernel stacks, page table pages,
 // and pipe buffers. Allocates 4096-byte pages.
@@ -8,23 +16,31 @@
 #include "xv6/memlayout.h"
 #include "xv6/mmu.h"
 #include "xv6/spinlock.h"
-
+#include "xv6/buddy.h"
 
 extern char end[]; // first address after kernel loaded from ELF file
 
 void freerange(void *vstart, void *vend);
+
+typedef enum allocator_type
+{
+    FREELIST, //freelist
+    BUDDY     //buddy
+} allocator_type_t;
 
 typedef struct run
 {
     struct run *next;
 } run_t;
 
-struct
+typedef struct
 {
     spinlock_t lock;
     run_t *freelist;
-    bool use_lock;
-} kmem;
+    allocator_type_t type;
+} kmem_t;
+
+static kmem_t kmem;
 
 // Initialization happens in two phases.
 // 1. main() calls kinit1() while still using entrypgdir to place just
@@ -34,22 +50,44 @@ struct
 void kinit1(void *vstart, void *vend)
 {
     initlock(&kmem.lock, "kmem");
-    kmem.use_lock = false;
-    freerange(vstart, vend);
+    kmem.type = FREELIST;
+
+    for (char *p = (char *)PGROUNDUP((uint)vstart); p + PGSIZE <= (char *)vend; p += PGSIZE)
+        kfree(p);
 }
 
 void kinit2(void *vstart, void *vend)
 {
-    freerange(vstart, vend);
-    kmem.use_lock = true;
+    // freerange(vstart, vend);
+    buddy_init();
+    buddy_init2(vstart, vend);
+    kmem.type = BUDDY;
 }
 
-void freerange(void *vstart, void *vend)
+static void fl_free(char *v)
 {
-    char *p;
-    p = (char *)PGROUNDUP((uint)vstart);
-    for (; p + PGSIZE <= (char *)vend; p += PGSIZE)
-        kfree(p);
+
+    struct run *r;
+    if ((uint)v % PGSIZE || v < end || V2P(v) >= PHYSTOP)
+        panic("kfree");
+
+    // Fill with junk to catch dangling refs.
+    memset(v, 1, PGSIZE);
+
+    r = (run_t *)(v);
+    r->next = kmem.freelist;
+    kmem.freelist = r;
+}
+
+static char *fl_kalloc(void)
+{
+    struct run *r;
+
+    r = kmem.freelist;
+    if (r)
+        kmem.freelist = r->next;
+
+    return (char *)r;
 }
 
 //PAGEBREAK: 21
@@ -59,22 +97,14 @@ void freerange(void *vstart, void *vend)
 // initializing the allocator; see kinit above.)
 void kfree(char *v)
 {
-    struct run *r;
-    if ((uint)v % PGSIZE || v < end || V2P(v) >= PHYSTOP)
-        panic("kfree");
-
-    // Fill with junk to catch dangling refs.
-    memset(v, 1, PGSIZE);
-
-    if (kmem.use_lock)
-        acquire(&kmem.lock);
-
-    r = (run_t *)(v);
-    r->next = kmem.freelist;
-    kmem.freelist = r;
-
-    if (kmem.use_lock)
-        release(&kmem.lock);
+    if (kmem.type == BUDDY)
+    {
+        free_page(v);
+    }
+    else if (kmem.type == FREELIST)
+    {
+        fl_free(v);
+    }
 }
 
 // Allocate one 4096-byte page of physical memory.
@@ -83,17 +113,12 @@ void kfree(char *v)
 char *
 kalloc(void)
 {
-    struct run *r;
-
-    if (kmem.use_lock)
-        acquire(&kmem.lock);
-
-    r = kmem.freelist;
-    if (r)
-        kmem.freelist = r->next;
-
-    if (kmem.use_lock)
-        release(&kmem.lock);
-
-    return (char *)r;
+    if (kmem.type == BUDDY)
+    {
+        return alloc_page();
+    }
+    else if (kmem.type == FREELIST)
+    {
+        return fl_kalloc();
+    }
 }

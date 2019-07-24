@@ -2,12 +2,11 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-24 15:03:38
+ * @ Modified time: 2019-07-24 15:22:52
  * @ Description:
  */
 
 // Buddy memory allocator
-
 
 #include "xv6/types.h"
 #include "xv6/defs.h"
@@ -24,136 +23,151 @@
 // free blocks (for each order), thus allowing fast allocation. There is
 // about 8% overhead (maximum) for this structure.
 
-#define MAX_ORD      12
-#define MIN_ORD      6
-#define N_ORD        (MAX_ORD - MIN_ORD +1)
+#define MAX_ORD 12
+#define MIN_ORD 6
+#define N_ORD (MAX_ORD - MIN_ORD + 1)
 
-struct mark {
-    uint32_t  lnks;       // double links (actually indexes) 
-    uint32_t  bitmap;     // bitmap, whether the block is available (1=available)
+struct mark
+{
+    uint32_t lnks;   // double links (actually indexes)
+    uint32_t bitmap; // bitmap, whether the block is available (1=available)
 };
+
+// align_up/down: al must be of power of 2
+#define align_up(sz, al) (((uint)(sz) + (uint)(al)-1) & ~((uint)(al)-1))
+#define align_dn(sz, al) ((uint)(sz) & ~((uint)(al)-1))
 
 // lnks is a combination of previous link (index) and next link (index)
-#define PRE_LNK(lnks)   ((lnks) >> 16)
-#define NEXT_LNK(lnks)  ((lnks) & 0xFFFF)
-#define LNKS(pre, next) (((pre) << 16) | ((next) & 0xFFFF))
-#define NIL             ((uint16_t)0xFFFF)
+#define PRE_LNK(lnks) ((lnks) >> 16)
+#define NEXT_LNK(lnks) ((lnks)&0xFFFF)
+#define LNKS(pre, next) (((pre) << 16) | ((next)&0xFFFF))
+#define NIL ((uint16_t)0xFFFF)
 
-struct order {
-    uint32_t  head;       // the first non-empty mark
-    uint32_t  offset;     // the first mark
+struct order
+{
+    uint32_t head;   // the first non-empty mark
+    uint32_t offset; // the first mark
 };
 
-struct kmem {
+typedef struct
+{
     struct spinlock lock;
-    uint            start;             // start of memory for marks
-    uint            start_heap;        // start of allocatable memory
-    uint            end;
-    struct order    orders[N_ORD];  // orders used for buddy systems
-};
+    uint start;      // start of memory for marks
+    uint start_heap; // start of allocatable memory
+    uint end;
+    struct order orders[N_ORD]; // orders used for buddy systems
+}kmem_t;
 
-static struct kmem kmem;
+static kmem_t kmem;
 
 // coversion between block id to mark and memory address
-static inline struct mark* get_mark (int order, int idx)
+static inline struct mark *get_mark(int order, int idx)
 {
-    return (struct mark*)kmem.start + (kmem.orders[order - MIN_ORD].offset + idx);
+    return (struct mark *)kmem.start + (kmem.orders[order - MIN_ORD].offset + idx);
 }
 
-static inline void* blkid2mem (int order, int blkid)
+static inline void *blkid2mem(int order, int blkid)
 {
-    return (void*)(kmem.start_heap + (1 << order) * blkid);
+    return (void *)(kmem.start_heap + (1 << order) * blkid);
 }
 
-static inline int mem2blkid (int order, void *mem)
+static inline int mem2blkid(int order, void *mem)
 {
     return ((uint)mem - kmem.start_heap) >> order;
 }
 
-static inline int available (uint bitmap, int blk_id)
+static inline int available(uint bitmap, int blk_id)
 {
     return bitmap & (1 << (blk_id & 0x1F));
 }
 
-void kmem_init (void)
+void buddy_init(void)
 {
-    initlock(&kmem.lock, "kmem");
+    initlock(&kmem.lock, "buddy");
 }
 
-void kmem_init2(void *vstart, void *vend)
+void buddy_init2(void *vstart, void *vend)
 {
-    int             i, j;
-    uint32_t          total, n;
-    uint            len;
-    struct order    *ord;
-    struct mark     *mk;
-    
+    int i, j;
+    uint32_t total, n;
+    uint len;
+    struct order *ord;
+    struct mark *mk;
+
     kmem.start = (uint)vstart;
-    kmem.end   = (uint)vend;
+    kmem.end = (uint)vend;
     len = kmem.end - kmem.start;
 
     // reserved memory at vstart for an array of marks (for all the orders)
     n = (len >> (MAX_ORD + 5)) + 1; // estimated # of marks for max order
     total = 0;
-    
-    for (i = N_ORD - 1; i >= 0; i--) {
+
+    for (i = N_ORD - 1; i >= 0; i--)
+    {
         ord = kmem.orders + i;
         ord->offset = total;
         ord->head = NIL;
-        
+
         // set the bitmaps to mark all blocks not available
-        for (j = 0; j < n; j++) {
+        for (j = 0; j < n; j++)
+        {
             mk = get_mark(i + MIN_ORD, j);
             mk->lnks = LNKS(NIL, NIL);
             mk->bitmap = 0;
         }
 
         total += n;
-        n <<= 1;     // each order doubles required marks
+        n <<= 1; // each order doubles required marks
     }
 
     // add all available memory to the highest order bucket
     kmem.start_heap = align_up(kmem.start + total * sizeof(*mk), 1 << MAX_ORD);
-    
-    for (i = kmem.start_heap; i < kmem.end; i += (1 << MAX_ORD)){
-        kmfree ((void*)i, MAX_ORD);
+
+    for (i = kmem.start_heap; i < kmem.end; i += (1 << MAX_ORD))
+    {
+        kmfree((void *)i, MAX_ORD);
     }
 }
 
 // mark a block as unavailable
-static void unmark_blk (int order, int blk_id)
+static void unmark_blk(int order, int blk_id)
 {
-    struct mark     *mk, *p;
-    struct order    *ord;
-    int             prev, next;
+    struct mark *mk, *p;
+    struct order *ord;
+    int prev, next;
 
     ord = &kmem.orders[order - MIN_ORD];
-    mk  = get_mark (order, blk_id >> 5);
+    mk = get_mark(order, blk_id >> 5);
 
     // clear the bit in the bitmap
-    if (!available(mk->bitmap, blk_id)) {
-        panic ("double alloc\n");
+    if (!available(mk->bitmap, blk_id))
+    {
+        panic("double alloc\n");
     }
 
     mk->bitmap &= ~(1 << (blk_id & 0x1F));
-    
+
     // if it's the last block in the bitmap, delete from the list
-    if (mk->bitmap == 0) {
+    if (mk->bitmap == 0)
+    {
         blk_id >>= 5;
-        
+
         prev = PRE_LNK(mk->lnks);
         next = NEXT_LNK(mk->lnks);
 
-        if (prev != NIL) {
+        if (prev != NIL)
+        {
             p = get_mark(order, prev);
             p->lnks = LNKS(PRE_LNK(p->lnks), next);
-            
-        } else if (ord->head == blk_id) {
+        }
+        else if (ord->head == blk_id)
+        {
             // if we are the first in the link
             ord->head = next;
         }
 
-        if (next != NIL) {
+        if (next != NIL)
+        {
             p = get_mark(order, next);
             p->lnks = LNKS(prev, NEXT_LNK(p->lnks));
         }
@@ -163,42 +177,45 @@ static void unmark_blk (int order, int blk_id)
 }
 
 // mark a block as available
-static void mark_blk (int order, int blk_id)
+static void mark_blk(int order, int blk_id)
 {
-    struct mark     *mk, *p;
-    struct order    *ord;
-    int             insert;
-    
+    struct mark *mk, *p;
+    struct order *ord;
+    int insert;
+
     ord = &kmem.orders[order - MIN_ORD];
-    mk  = get_mark (order, blk_id >> 5);
+    mk = get_mark(order, blk_id >> 5);
 
     // whether we need to insert it into the list
     insert = (mk->bitmap == 0);
 
     // clear the bit map
-    if (available(mk->bitmap, blk_id)) {
-        panic ("double free\n");
+    if (available(mk->bitmap, blk_id))
+    {
+        panic("double free\n");
     }
-    
+
     mk->bitmap |= (1 << (blk_id & 0x1F));
-    
+
     // just insert it to the head, no need to keep the list ordered
-    if (insert) {
+    if (insert)
+    {
         blk_id >>= 5;
         mk->lnks = LNKS(NIL, ord->head);
 
         // fix the pre pointer of the next mark
-        if (ord->head != NIL) {
+        if (ord->head != NIL)
+        {
             p = get_mark(order, ord->head);
             p->lnks = LNKS(blk_id, NEXT_LNK(p->lnks));
         }
-        
+
         ord->head = blk_id;
     }
 }
 
 // get a block
-static void* get_blk (int order)
+static void *get_blk(int order)
 {
     struct mark *mk;
     int blk_id;
@@ -208,15 +225,18 @@ static void* get_blk (int order)
     ord = &kmem.orders[order - MIN_ORD];
     mk = get_mark(order, ord->head);
 
-    if (mk->bitmap == 0) {
-        panic ("empty mark in the list\n");
+    if (mk->bitmap == 0)
+    {
+        panic("empty mark in the list\n");
     }
 
-    for (i = 0; i < 32; i++) {
-        if (mk->bitmap & (1 << i)) {
+    for (i = 0; i < 32; i++)
+    {
+        if (mk->bitmap & (1 << i))
+        {
             blk_id = ord->head * 32 + i;
             unmark_blk(order, blk_id);
-            
+
             return blkid2mem(order, blk_id);
         }
     }
@@ -224,8 +244,7 @@ static void* get_blk (int order)
     return NULL;
 }
 
-
-static void __kfree (void *mem, int order)
+static void __kfree(void *mem, int order)
 {
     int blk_id, buddy_id;
     struct mark *mk;
@@ -233,38 +252,45 @@ static void __kfree (void *mem, int order)
     blk_id = mem2blkid(order, mem);
     mk = get_mark(order, blk_id >> 5);
 
-    if (available(mk->bitmap, blk_id)) {
-        panic ("kmfree: double free");
+    if (available(mk->bitmap, blk_id))
+    {
+        panic("kmfree: double free");
     }
 
     buddy_id = blk_id ^ 0x0001; // blk_id and buddy_id differs in the last bit
                                 // buddy must be in the same bit map
-    if (!available(mk->bitmap, buddy_id) || (order == MAX_ORD)) {
+    if (!available(mk->bitmap, buddy_id) || (order == MAX_ORD))
+    {
         mark_blk(order, blk_id);
-    } else {
+    }
+    else
+    {
         // our buddy is also free, merge it
-        unmark_blk (order, buddy_id);
-        __kfree (blkid2mem(order, blk_id & ~0x0001), order+1);
+        unmark_blk(order, buddy_id);
+        __kfree(blkid2mem(order, blk_id & ~0x0001), order + 1);
     }
 }
 
-static void *_kmalloc (int order)
+static void *_kmalloc(int order)
 {
     struct order *ord;
-    uint8_t        *up;
+    uint8_t *up;
 
     ord = &kmem.orders[order - MIN_ORD];
-    up  = NULL;
-    
-    if (ord->head != NIL) {
-        up = get_blk(order);
-        
-    } else if (order < MAX_ORD){
-        // if currently no block available, try to split a parent
-        up = _kmalloc (order + 1);
+    up = NULL;
 
-        if (up != NULL) {
-            __kfree (up + (1 << order), order);
+    if (ord->head != NIL)
+    {
+        up = get_blk(order);
+    }
+    else if (order < MAX_ORD)
+    {
+        // if currently no block available, try to split a parent
+        up = _kmalloc(order + 1);
+
+        if (up != NULL)
+        {
+            __kfree(up + (1 << order), order);
         }
     }
 
@@ -272,11 +298,12 @@ static void *_kmalloc (int order)
 }
 
 // allocate memory that has the size of (1 << order)
-void *kmalloc (int order)
+void *kmalloc(int order)
 {
-    uint8_t         *up;
+    uint8_t *up;
 
-    if ((order > MAX_ORD) || (order < MIN_ORD)) {
+    if ((order > MAX_ORD) || (order < MIN_ORD))
+    {
         panic("kmalloc: order out of range\n");
     }
 
@@ -287,12 +314,12 @@ void *kmalloc (int order)
     return up;
 }
 
-
 // free kernel memory, we require order parameter here to avoid
 // storing size info somewhere which might break the alignment
-void kmfree (void *mem, int order)
+void kmfree(void *mem, int order)
 {
-    if ((order > MAX_ORD) || (order < MIN_ORD) || (uint)mem & ((1<<order) -1)) {
+    if ((order > MAX_ORD) || (order < MIN_ORD) || (uint)mem & ((1 << order) - 1))
+    {
         panic("kmfree: order out of range or memory unaligned\n");
     }
 
@@ -305,21 +332,21 @@ void kmfree (void *mem, int order)
 // free a page
 void free_page(void *v)
 {
-    kmfree (v, PTE_SHIFT);
+    kmfree(v, PTE_SHIFT);
 }
 
 // allocate a page
-void* alloc_page (void)
+void *alloc_page(void)
 {
-    return kmalloc (PTE_SHIFT);
+    return kmalloc(PTE_SHIFT);
 }
 
 // round up power of 2, then get the order
 //   http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-int get_order (uint32_t v)
+int get_order(uint32_t v)
 {
     uint32_t ord;
-    
+
     v--;
     v |= v >> 1;
     v |= v >> 2;
@@ -328,19 +355,22 @@ int get_order (uint32_t v)
     v |= v >> 16;
     v++;
 
-    for (ord = 0; ord < 32; ord++) {
-        if (v & (1 << ord)) {
+    for (ord = 0; ord < 32; ord++)
+    {
+        if (v & (1 << ord))
+        {
             break;
         }
     }
-    
-    if (ord < MIN_ORD) {
+
+    if (ord < MIN_ORD)
+    {
         ord = MIN_ORD;
-    } else if (ord > MAX_ORD) {
-        panic ("order too big!");
     }
-    
+    else if (ord > MAX_ORD)
+    {
+        panic("order too big!");
+    }
+
     return ord;
-
 }
-

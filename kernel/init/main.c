@@ -24,7 +24,7 @@ int main(void)
     cprintf("\ncpu%d: starting xv6\n\n", cpunum());
     picinit();     // another interrupt controller
     ioapicinit();  // another interrupt controller
-    
+
     consoleinit(); // console hardware
     perfctrinit(); // performance counter device
     nullinit();    // /dev/null
