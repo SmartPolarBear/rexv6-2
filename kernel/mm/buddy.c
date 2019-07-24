@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-24 15:22:52
+ * @ Modified time: 2019-07-24 15:26:18
  * @ Description:
  */
 
@@ -23,19 +23,13 @@
 // free blocks (for each order), thus allowing fast allocation. There is
 // about 8% overhead (maximum) for this structure.
 
-#define MAX_ORD 12
-#define MIN_ORD 6
+#define MAX_ORD (12)
+#define MIN_ORD (6)
 #define N_ORD (MAX_ORD - MIN_ORD + 1)
 
-struct mark
-{
-    uint32_t lnks;   // double links (actually indexes)
-    uint32_t bitmap; // bitmap, whether the block is available (1=available)
-};
-
-// align_up/down: al must be of power of 2
-#define align_up(sz, al) (((uint)(sz) + (uint)(al)-1) & ~((uint)(al)-1))
-#define align_dn(sz, al) ((uint)(sz) & ~((uint)(al)-1))
+// ALIGN_UP/DOWN: al must be of power of 2
+#define ALIGN_UP(sz, al) (((uint)(sz) + (uint)(al)-1) & ~((uint)(al)-1))
+#define ALIGN_DOWN(sz, al) ((uint)(sz) & ~((uint)(al)-1))
 
 // lnks is a combination of previous link (index) and next link (index)
 #define PRE_LNK(lnks) ((lnks) >> 16)
@@ -43,22 +37,26 @@ struct mark
 #define LNKS(pre, next) (((pre) << 16) | ((next)&0xFFFF))
 #define NIL ((uint16_t)0xFFFF)
 
-struct order
+typedef struct mark
+{
+    uint32_t lnks;   // double links (actually indexes)
+    uint32_t bitmap; // bitmap, whether the block is available (1=available)
+} mark_t;
+
+typedef struct order
 {
     uint32_t head;   // the first non-empty mark
     uint32_t offset; // the first mark
-};
+} order_t;
 
-typedef struct
+static struct
 {
     struct spinlock lock;
     uint start;      // start of memory for marks
     uint start_heap; // start of allocatable memory
     uint end;
     struct order orders[N_ORD]; // orders used for buddy systems
-}kmem_t;
-
-static kmem_t kmem;
+} kmem;
 
 // coversion between block id to mark and memory address
 static inline struct mark *get_mark(int order, int idx)
@@ -81,13 +79,11 @@ static inline int available(uint bitmap, int blk_id)
     return bitmap & (1 << (blk_id & 0x1F));
 }
 
-void buddy_init(void)
+
+void buddy_init(void *vstart, void *vend)
 {
     initlock(&kmem.lock, "buddy");
-}
-
-void buddy_init2(void *vstart, void *vend)
-{
+    
     int i, j;
     uint32_t total, n;
     uint len;
@@ -121,7 +117,7 @@ void buddy_init2(void *vstart, void *vend)
     }
 
     // add all available memory to the highest order bucket
-    kmem.start_heap = align_up(kmem.start + total * sizeof(*mk), 1 << MAX_ORD);
+    kmem.start_heap = ALIGN_UP(kmem.start + total * sizeof(*mk), 1 << MAX_ORD);
 
     for (i = kmem.start_heap; i < kmem.end; i += (1 << MAX_ORD))
     {

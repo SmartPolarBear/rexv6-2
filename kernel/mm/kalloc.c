@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:16:06
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-24 15:21:50
+ * @ Modified time: 2019-07-24 15:26:30
  * @ Description:
  */
 
@@ -33,14 +33,12 @@ typedef struct run
     struct run *next;
 } run_t;
 
-typedef struct
+static struct
 {
     spinlock_t lock;
     run_t *freelist;
     allocator_type_t type;
-} kmem_t;
-
-static kmem_t kmem;
+} kmem;
 
 // Initialization happens in two phases.
 // 1. main() calls kinit1() while still using entrypgdir to place just
@@ -59,8 +57,7 @@ void kinit1(void *vstart, void *vend)
 void kinit2(void *vstart, void *vend)
 {
     // freerange(vstart, vend);
-    buddy_init();
-    buddy_init2(vstart, vend);
+    buddy_init(vstart, vend);
     kmem.type = BUDDY;
 }
 
