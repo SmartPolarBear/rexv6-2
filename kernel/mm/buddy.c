@@ -2,12 +2,9 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-24 23:53:17
- * @ Description:
+ * @ Modified time: 2019-07-25 00:05:12
+ * @ Description: Buddy memory allocator
  */
-
-// Buddy memory allocator
-
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
@@ -61,6 +58,7 @@ static struct
     uint start;      // start of memory for marks
     uint start_heap; // start of allocatable memory
     uint end;
+    bool initialized;           //whether kmem for buddy is initialized
     struct order orders[N_ORD]; // orders used for buddy systems
 } kmem;
 
@@ -128,6 +126,8 @@ void buddy_init(void *vstart, void *vend)
     {
         kmfree((void *)i, MAX_ORD);
     }
+
+    kmem.initialized = true;
 }
 
 // mark a block as unavailable
@@ -245,6 +245,8 @@ static void *get_blk(int order)
     return NULL;
 }
 
+/*when kmem.initialized is false, __kfree can still be called because
+  it its also used to initialize the buddy*/
 static void __kfree(void *mem, int order)
 {
     int blk_id, buddy_id;
@@ -272,8 +274,13 @@ static void __kfree(void *mem, int order)
     }
 }
 
-static void *_kmalloc(int order)
+static void *__kmalloc(int order)
 {
+    if (!kmem.initialized)
+    {
+        panic("__kmalloc:buddy-malloc before buddy init.");
+    }
+
     struct order *ord;
     uint8_t *up;
 
@@ -287,7 +294,7 @@ static void *_kmalloc(int order)
     else if (order < MAX_ORD)
     {
         // if currently no block available, try to split a parent
-        up = _kmalloc(order + 1);
+        up = __kmalloc(order + 1);
 
         if (up != NULL)
         {
@@ -309,7 +316,7 @@ void *kmalloc(int order)
     }
 
     acquire(&kmem.lock);
-    up = _kmalloc(order);
+    up = __kmalloc(order);
     release(&kmem.lock);
 
     return up;
@@ -387,7 +394,7 @@ int get_order(uint32_t v)
     }
     else if (ord > MAX_ORD)
     {
-        panic("order too big!");
+        panic("get_order: order too big!");
     }
 
     return ord;
