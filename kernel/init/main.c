@@ -22,8 +22,8 @@ int main(void)
     lapicinit();                       // interrupt controller
     seginit();                         // segment descriptors
     cprintf("\ncpu%d: starting xv6\n\n", cpunum());
-    picinit();     // another interrupt controller
-    ioapicinit();  // another interrupt controller
+    picinit();    // another interrupt controller
+    ioapicinit(); // another interrupt controller
 
     consoleinit(); // console hardware
     perfctrinit(); // performance counter device
@@ -42,14 +42,15 @@ int main(void)
     ideinit();     // disk
 
     if (!ismp)
-        timerinit();                            // uniprocessor timer
+        timerinit(); // uniprocessor timer
 
-    startothers();                              // start other processors
-    
+    startothers(); // start other processors
+
     kinit2(P2V(4 * 1024 * 1024), P2V(PHYSTOP)); // must come after startothers()
+
+    mountinit(); // first mount
+    userinit();  // first user process
     
-    mountinit();                                // first mount
-    userinit();                                 // first user process
     mpmain(); // finish this processor's setup
 }
 
