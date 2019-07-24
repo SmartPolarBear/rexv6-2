@@ -1,5 +1,5 @@
 #to complete a makefile for kernel itself
-include $(TOP_SRCDIR)/Makefile.common
+include $(TOP_SRCDIR)/rexv6.mk
 OUTDIR = $(BUILDDIR)/kernel
 
 _OBJS = $(addprefix $(OUTDIR)/,$(OBJS))

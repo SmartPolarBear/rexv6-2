@@ -1,5 +1,5 @@
 TOP_SRCDIR = .
-include $(TOP_SRCDIR)/Makefile.common
+include $(TOP_SRCDIR)/rexv6.mk
 
 all: build/xv6.img build/fs.img
 

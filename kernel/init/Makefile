@@ -6,4 +6,4 @@ OBJS = entryother \
 	entry.o \
 	main.o \
 	
-include $(KERN_SRCDIR)/Makefile.common
+include $(KERN_SRCDIR)/rexv6.kernel.mk

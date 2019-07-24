@@ -5,4 +5,4 @@ OBJS = kalloc.o \
 	vm.o \
 	buddy.o \
 
-include $(KERN_SRCDIR)/Makefile.common
+include $(KERN_SRCDIR)/rexv6.kernel.mk

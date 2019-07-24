@@ -1,5 +1,5 @@
 TOP_SRCDIR = ../..
-include $(TOP_SRCDIR)/Makefile.common
+include $(TOP_SRCDIR)/rexv6.mk
 
 OUTDIR = $(BUILDDIR)/distrib/uprogs
 
