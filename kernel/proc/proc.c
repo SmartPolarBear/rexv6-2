@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-23 20:07:47
+ * @ Modified time: 2019-07-24 23:59:08
  * @ Description:
  */
 
@@ -115,6 +115,7 @@ found:
     return p;
 }
 
+
 //PAGEBREAK: 32
 // Set up first user process.
 void userinit(void)
@@ -148,6 +149,7 @@ void userinit(void)
     acquire(&ptable.lock);
 
     p->state = RUNNABLE;
+
 
     release(&ptable.lock);
 }

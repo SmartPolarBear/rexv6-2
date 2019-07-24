@@ -8,7 +8,7 @@ void buddy_init(void *vstart, void *vend);
 void *kmalloc(int order);
 void kmfree(void *mem, int order);
 
-void kmalloc2(uint32_t size);
+void *kmalloc2(uint32_t size);
 void kmfree2(void *v);
 
 void free_page(void *v);

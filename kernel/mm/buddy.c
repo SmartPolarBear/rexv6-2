@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-24 15:30:35
+ * @ Modified time: 2019-07-24 23:53:17
  * @ Description:
  */
 
@@ -49,6 +49,12 @@ typedef struct order
     uint32_t offset; // the first mark
 } order_t;
 
+typedef struct mblock
+{
+    int order;
+    char blocks[0];
+} mblock_t;
+
 static struct
 {
     struct spinlock lock;
@@ -79,11 +85,10 @@ static inline int available(uint bitmap, int blk_id)
     return bitmap & (1 << (blk_id & 0x1F));
 }
 
-
 void buddy_init(void *vstart, void *vend)
 {
     initlock(&kmem.lock, "buddy");
-    
+
     int i, j;
     uint32_t total, n;
     uint len;
@@ -337,15 +342,21 @@ void *alloc_page(void)
     return kmalloc(PTE_SHIFT);
 }
 
-//TODO:implement these to alloc with size,free without size
-void kmalloc2(uint32_t size)
+//Implement these to alloc with size,free without size
+void *kmalloc2(uint32_t size)
 {
-    
+    int order = get_order(size + sizeof(mblock_t) + sizeof(char));
+    mblock_t *blk = (mblock_t *)kmalloc(order);
+    blk->order = order;
+    return (void *)blk->blocks;
 }
 
 void kmfree2(void *v)
 {
-    
+    char *pblock = (char *)v;
+    mblock_t *blk = (mblock_t *)container_of(pblock, mblock_t, blocks);
+    int order = blk->order;
+    kmfree(blk, order);
 }
 
 // round up power of 2, then get the order

@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-19 23:09:31
+ * @ Modified time: 2019-07-24 23:54:39
  * @ Description:
  */
 
@@ -245,11 +245,21 @@ int getcounter(struct semaphore *);
 void invoke_sigret_start(void);
 void invoke_sigret_end(void);
 
-// number of elements in fixed-size array
-#define NELEM(x) (sizeof(x) / sizeof((x)[0]))
-
 //math.c
 float floor(float x);
 float ceil(float x);
+
+//buddy.c
+#include "xv6/buddy.h"
+
+// number of elements in fixed-size array
+#define NELEM(x) (sizeof(x) / sizeof((x)[0]))
+
+#define offsetof(type, member) (size_t) & (((type *)0)->member)
+
+#define container_of(ptr, type, member) ({ \
+     const typeof( ((type *)0)->member ) *__mptr = (ptr); \
+     (type *)( (char *)__mptr - offsetof(type,member) ); })
+
 
 #endif // __INCLUDE_XV6_DEFS_H

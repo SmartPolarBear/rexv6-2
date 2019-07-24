@@ -27,7 +27,8 @@
         "mkfs.h": "c",
         "stdint.h": "c",
         "fheap.h": "c",
-        "buddy.h": "c"
+        "buddy.h": "c",
+        "type_traits": "c"
     },
     "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
 
