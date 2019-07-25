@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-25 16:25:22
+ * @ Modified time: 2019-07-25 16:34:05
  * @ Description: Buddy memory allocator
  */
 #include "xv6/types.h"
@@ -86,8 +86,7 @@ static inline int available(uint bitmap, int blk_id)
 void buddy_init(void *vstart, void *vend)
 {
     initlock(&kmem.lock, "buddy");
-    e820map_t *e820 = (e820map_t *)(0x8000 + KERNBASE);
-    cprintf("e820map count=%d\n", e820->nr_map);
+
 
     int i, j;
     uint32_t total, n;
