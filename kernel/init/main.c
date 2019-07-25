@@ -6,10 +6,11 @@
 #include "xv6/proc.h"
 #include "xv6/x86.h"
 
-static void startothers(void);
-static void mpmain(void) __attribute__((noreturn));
 extern pde_t *kpgdir;
 extern char end[]; // first address after kernel loaded from ELF file
+
+static void startothers(void);
+static void mpmain(void) __attribute__((noreturn));
 
 // Bootstrap processor starts running C code here.
 // Allocate a real stack and switch to it, first
@@ -42,7 +43,9 @@ int main(void)
     ideinit();     // disk
 
     if (!ismp)
+    {
         timerinit(); // uniprocessor timer
+    }
 
     startothers(); // start other processors
 
@@ -50,7 +53,7 @@ int main(void)
 
     mountinit(); // first mount
     userinit();  // first user process
-    
+
     mpmain(); // finish this processor's setup
 }
 

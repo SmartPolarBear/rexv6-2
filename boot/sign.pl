@@ -9,7 +9,7 @@ if($n > 446){
   exit 1;
 }
 
-print STDERR "boot block is $n bytes (max 510)\n";
+print STDERR "boot block is $n bytes (max 446)\n";
 
 $buf .= "\0" x (510-$n);
 $buf .= "\x55\xAA";
