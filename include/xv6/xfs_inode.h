@@ -47,25 +47,24 @@ struct xfs_dinode
   uint addrs[NDIRECT + 1]; // Data block addresses
 };
 
-
-
 // in-memory copy of an inode
-typedef struct xfs_inode {
-  uint dev;           // Device number
-  uint inum;          // Inode number
+typedef struct xfs_inode
+{
+  uint dev;  // Device number
+  uint inum; // Inode number
   int part;
-  int ref;            // Reference count
+  int ref; // Reference count
   struct sleeplock lock;
-  int flags;          // I_VALID
+  int flags; // I_VALID
 
-  short type;         // copy of disk inode
+  short type; // copy of disk inode
   short major;
   short minor;
   short nlink;
   uint size;
-  uint addrs[NDIRECT+1];
+  uint addrs[NDIRECT + 1];
   partition_t *partitions;
-}xfs_inode_t;
+} xfs_inode_t;
 
 // Inodes per block.
 #define IPB (BSIZE / sizeof(struct dinode))
@@ -94,23 +93,5 @@ typedef struct xfs_pair
   char partition;
 } part_t;
 
-
-// in-memory copy of an inode
-typedef struct xfs_inode {
-  uint dev;           // Device number
-  uint inum;          // Inode number
-  int part;
-  int ref;            // Reference count
-  struct sleeplock lock;
-  int flags;          // I_VALID
-
-  short type;         // copy of disk inode
-  short major;
-  short minor;
-  short nlink;
-  uint size;
-  uint addrs[NDIRECT+1];
-  partition_t *partitions;
-}inode_t;
 
 #endif // __INCLUDE_XV6_XFS_INODE_H

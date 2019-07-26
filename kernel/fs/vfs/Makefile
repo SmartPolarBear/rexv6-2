@@ -4,5 +4,6 @@ KERN_SRCDIR= ../..
 OBJS = fs.o \
 		mount.o \
 		vfs.o \
+		inode.o \
 
 include $(KERN_SRCDIR)/rexv6.kernel.mk
