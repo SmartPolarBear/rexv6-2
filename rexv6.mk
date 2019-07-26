@@ -28,4 +28,4 @@ GDBPORT = 26000
 
 # Emulation Settings
 CPUS = 4
-RAM = 2048
+RAM = 4096

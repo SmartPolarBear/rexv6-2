@@ -1,7 +1,15 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-07-26 15:11:12
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-07-26 23:29:00
+ * @ Description:
+ */
+
+
 #if !defined(__INCLUDE_XV6_INODE_H)
 #define __INCLUDE_XV6_INODE_H
 
-#include "xv6/xfs_inode.h"
 #include "xv6/spinlock.h"
 #include "xv6/param.h"
 
