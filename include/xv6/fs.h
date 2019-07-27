@@ -1,3 +1,12 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-07-26 23:39:12
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-07-26 23:39:45
+ * @ Description:
+ */
+
+
 #if !defined(__INCLUDE_XV6_FS_H)
 #define __INCLUDE_XV6_FS_H
 
@@ -19,7 +28,7 @@
 //
 // mkfs computes the super block and builds an initial file system. The
 // super block describes the disk layout:
-struct superblock
+typedef struct superblock
 {
   uint size;          // Size of file system image (blocks)
   uint nblocks;       // Number of data blocks
@@ -30,7 +39,7 @@ struct superblock
   uint bmapstart;     // Block number of first free map block
   uint initusedblock; // Block number of used  block
   uint offset;
-};
+} superblock_t;
 
 #define NDIRECT 12
 #define NINDIRECT (BSIZE / sizeof(uint))
@@ -77,11 +86,9 @@ typedef struct pair
 {
   char inum;
   char partition;
-} part_t;
-
+} pair_t;
 
 extern int usablesizes[NPARTITIONS];
 extern int usedsizes[NPARTITIONS];
 
 #endif // __INCLUDE_XV6_FS_H
-
