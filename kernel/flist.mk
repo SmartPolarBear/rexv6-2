@@ -14,7 +14,7 @@ OBJS = \
 	entry.o\
 	exec.o\
 	file.o\
-	fs.o\
+	xfs.o\
 	ide.o\
 	ioapic.o\
 	kalloc.o\
