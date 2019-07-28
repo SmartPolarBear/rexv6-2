@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-30 00:22:38
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 22:36:11
+ * @ Modified time: 2019-07-28 23:39:02
  * @ Description:
  */
 
@@ -54,17 +54,17 @@ typedef struct inode
 
 typedef enum devstate
 {
-  READY,
   NOTREADY,
+  READY,
 } devstate_t;
 
 // table mapping major device number to
 // device functions
 typedef struct devsw
 {
-  int (*read)(struct inode *, char *, int, int);
-  int (*write)(struct inode *, char *, int, int);
-  devstate_t (*getstate)(void);
+  int (*read)(inode_t *, char *, int, int);
+  int (*write)(inode_t *, char *, int, int);
+  devstate_t (*getstate)(int major,int minor);
 } devsw_t;
 
 #include "xv6/devnum.h"

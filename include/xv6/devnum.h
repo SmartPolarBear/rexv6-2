@@ -2,7 +2,13 @@
 #define __INCLUDE_XV6_DEVNUM_H
 
 #define NDEVHDA 2
-#define MDEVHDA 1
+#define MDEVHDA 4
+#define MDEVHDAP1 0
+#define MDEVHDAP2 1
+#define MDEVHDAP3 2
+#define MDEVHDAP4 3
+
+
 #define NDEVHDAINFO 2
 #define MDEVHDAINFO 2
 

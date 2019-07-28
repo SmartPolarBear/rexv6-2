@@ -25,7 +25,7 @@ build/fs/README: FORCE
 	mkdir -p build/fs
 	$(MAKE) -C distrib install
 	cp -u demo.basic build/fs/basic
-	cp -u ORIG-README $@
+	cp -u README.md $@
 	for i in $$(find build/fs -type f); do if [ $$i -nt $@ ]; then touch -r $$i $@; fi; done
 
 clean:

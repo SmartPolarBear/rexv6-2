@@ -59,7 +59,7 @@ The rexv6 project follows the same principle as the zircon kernel in using  C++ 
 > - Currently we have these for global data structures.
 >
 
-## XV6 License
+## XV6 Original Readme
 
 > xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 > Version 6 (v6).  xv6 loosely follows the structure and style of v6,

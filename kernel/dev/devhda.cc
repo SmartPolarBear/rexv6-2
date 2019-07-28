@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-28 21:52:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 23:06:48
+ * @ Modified time: 2019-07-28 23:43:05
  * @ Description: r/w for hda partitions
  */
 
@@ -22,10 +22,11 @@ static struct
   uint r;
 } cons;
 
-extern "C" int block_off;
-extern "C" struct superblock sbs[NPARTITIONS];
-extern "C" int current_partition;
-extern "C" mbr_t mbr; //xfs.c
+//defined in xfs.c
+extern int block_off;
+extern struct superblock sbs[NPARTITIONS];
+extern int current_partition;
+extern mbr_t mbr; 
 
 // int hdaread(struct inode *ip, char *dst, uint off, uint n)
 // {
@@ -98,12 +99,20 @@ extern "C" mbr_t mbr; //xfs.c
 //   return target - n;
 // }
 
+
 extern "C" void hdainit(void)
 {
   initlock(&cons.lock, "devhda");
   cprintf("hdainit.\n");
   // devsw[NDEVHDA][MDEVHDA].write = hdawrite;
   // devsw[NDEVHDA][MDEVHDA].read = hdaread;
+
+  for (int i = 0; i < NPARTITIONS; i++)
+  {
+    devsw[NDEVHDA][i + 3].getstate = [](int major, int minor) {
+      return (devstate_t)((mbr.partitions[minor].flags & PART_ALLOCATED) ? READY : NOTREADY);
+    };
+  }
 
   cons.locking = 1;
 }
