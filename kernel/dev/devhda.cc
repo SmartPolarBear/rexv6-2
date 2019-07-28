@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-28 21:52:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 22:37:20
+ * @ Modified time: 2019-07-28 23:06:48
  * @ Description: r/w for hda partitions
  */
 
@@ -97,9 +97,11 @@ extern "C" mbr_t mbr; //xfs.c
 //   ilock(ip);
 //   return target - n;
 // }
-void hdainit(void)
+
+extern "C" void hdainit(void)
 {
   initlock(&cons.lock, "devhda");
+  cprintf("hdainit.\n");
   // devsw[NDEVHDA][MDEVHDA].write = hdawrite;
   // devsw[NDEVHDA][MDEVHDA].read = hdaread;
 
