@@ -24,6 +24,41 @@ Toolchain version:
 >This is free software; see the source for copying conditions.  There is NO  
 >warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
+
+## Using C++
+The rexv6 project follows the same principle as the zircon kernel in using  C++ shown below.  
+> A subset of the C++14 language is used in the Zircon tree. This includes both the upper layers of the kernel (above the lk layer), as well as some userspace code. In particular, Zircon does not use the C++ standard library, and many language features are not used or allowed.
+>
+> Language features
+>
+> ​	 **Not allowed**
+>
+> - Exceptions
+> - RTTI and `dynamic_cast`
+> - Operator overloading
+> - Default parameters
+> - Virtual inheritance
+> - Statically constructed objects
+> - Trailing return type syntax
+> - Exception: when necessary for lambdas with otherwise unutterable return types
+> - Initializer lists
+> - `thread_local` in kernel code
+> **Allowed**
+> - Pure interface inheritance
+> - Lambdas
+> - `constexpr`
+> - `nullptr`
+> - `enum class`es
+> - `template`s
+> - Plain old classes
+> - `auto`
+> - Multiple implementation inheritance
+> - But be judicious. This is used widely for e.g. intrusive container mixins.
+> - Needs more ruling TODO(cpu)
+> - Global constructors
+> - Currently we have these for global data structures.
+>
+
 ## XV6 License
 
 > xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
