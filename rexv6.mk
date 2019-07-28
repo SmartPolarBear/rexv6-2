@@ -8,6 +8,7 @@ BUILDDIR=$(TOP_SRCDIR)/build
 
 CC = gcc
 CXX = g++
+LD = ld
 
 OBJCOPY = objcopy
 OBJDUMP = objdump
@@ -26,10 +27,11 @@ CFLAGS += $(COMMONCFLAGS)
 CFLAGS += -std=gnu11
 
 CXXFLAGS +=  $(COMMONCFLAGS)
-CXXFLAGS += -std=gnu++14
+CXXFLAGS += -std=gnu++14 -mno-sse -fno-exceptions -fno-rtti -ffreestanding -nostdlib -mno-red-zone 
+CXXFLAGS += -fno-builtin -Wall -m32 -nostdinc -fpermissive -fno-stack-protector -fpermissive 
 
 ASFLAGS += -g -m32 -Wa,-divide -nostdinc -I$(INCLDIR)
-LDFLAGS += -m elf_i386
+LDFLAGS += -m elf_i386 --omagic -nostdlib
 
 # Debug Settings
 GDBPORT = 26000

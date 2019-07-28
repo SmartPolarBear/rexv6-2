@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-30 00:22:38
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 21:59:10
+ * @ Modified time: 2019-07-28 22:36:11
  * @ Description:
  */
 
@@ -11,7 +11,10 @@
 #include <xv6/mbr.h>
 #include <xv6/sleeplock.h>
 #include <stdbool.h>
-
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 typedef struct file
 {
   enum
@@ -70,5 +73,9 @@ extern devsw_t devsw[][MDEV];
 
 //PAGEBREAK!
 // Blank page.
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif // __INCLUDE_XV6_FILE_H

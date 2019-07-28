@@ -29,7 +29,8 @@
         "fheap.h": "c",
         "buddy.h": "c",
         "type_traits": "c",
-        "inode.h": "c"
+        "inode.h": "c",
+        "stdbool.h": "c"
     },
     "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
 

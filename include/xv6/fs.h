@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-26 23:39:12
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-26 23:39:45
+ * @ Modified time: 2019-07-28 22:35:53
  * @ Description:
  */
 
@@ -11,7 +11,10 @@
 #define __INCLUDE_XV6_FS_H
 
 #include "xv6/mbr.h"
-
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 // On-disk file system format.
 // Both the kernel and user programs use this header file.
 
@@ -90,5 +93,9 @@ typedef struct pair
 
 extern int usablesizes[NPARTITIONS];
 extern int usedsizes[NPARTITIONS];
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif // __INCLUDE_XV6_FS_H

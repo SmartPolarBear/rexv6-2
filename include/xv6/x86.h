@@ -1,6 +1,10 @@
 #ifndef __INCLUDE_XV6_X86_H
 #define __INCLUDE_XV6_X86_H
 // Routines to let C code use special x86 instructions.
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 
 static inline uchar inb(ushort port)
 {
@@ -141,6 +145,10 @@ static inline int cas(volatile int * addr, int expected, int newval) {
                 : "memory");
   return ret;
 }
+
+#if defined(__cplusplus)
+}
+#endif
 
 //PAGEBREAK: 36
 // Layout of the trap frame built on the stack by the

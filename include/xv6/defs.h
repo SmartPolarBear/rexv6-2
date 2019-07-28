@@ -2,12 +2,19 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-24 23:54:39
+ * @ Modified time: 2019-07-28 22:34:43
  * @ Description:
  */
 
 #if !defined(__INCLUDE_XV6_DEFS_H)
 #define __INCLUDE_XV6_DEFS_H
+
+
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 
 struct buf;
 struct context;
@@ -248,6 +255,11 @@ void invoke_sigret_end(void);
 //math.c
 float floor(float x);
 float ceil(float x);
+
+
+#if defined(__cplusplus)
+}
+#endif
 
 //buddy.c
 #include "xv6/buddy.h"
