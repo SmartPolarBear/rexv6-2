@@ -1,16 +1,20 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-07-28 21:52:17
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-07-28 21:59:51
+ * @ Description: r/w for hda partitions
+ */
+
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
-#include "xv6/traps.h"
 #include "xv6/spinlock.h"
-#include "xv6/sleeplock.h"
 #include "xv6/fs.h"
 #include "xv6/file.h"
 #include "xv6/buf.h"
-#include "xv6/memlayout.h"
-#include "xv6/mmu.h"
-#include "xv6/proc.h"
 #include "xv6/x86.h"
+
 static struct
 {
   struct spinlock lock;
@@ -20,8 +24,8 @@ static struct
 extern int block_off;
 extern struct superblock sbs[NPARTITIONS];
 extern int current_partition;
-// extern struct superblock sb;
-struct superblock sb;
+extern mbr_t mbr; //xfs.c
+
 // int hdaread(struct inode *ip, char *dst, uint off, uint n)
 // {
 //   int target;
@@ -97,6 +101,6 @@ void hdainit(void)
   initlock(&cons.lock, "devhda");
   // devsw[NDEVHDA][MDEVHDA].write = hdawrite;
   // devsw[NDEVHDA][MDEVHDA].read = hdaread;
-  sb = sbs[current_partition];
+  
   cons.locking = 1;
 }

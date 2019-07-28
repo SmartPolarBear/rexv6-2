@@ -7,18 +7,26 @@ INCLDIR=$(TOP_SRCDIR)/include
 BUILDDIR=$(TOP_SRCDIR)/build
 
 CC = gcc
+CXX = g++
 
 OBJCOPY = objcopy
 OBJDUMP = objdump
 RANLIB = ranlib
 QEMU = qemu-system-i386.exe
 
-CFLAGS += -nostdinc -fno-pic -fno-builtin -fno-stack-protector -std=gnu11 -Wall -Wextra -m32 -I$(INCLDIR)
-CFLAGS += -fno-pie -static -fno-strict-aliasing -fno-omit-frame-pointer
-# don't optimize for most code in Debug mode
-#CFLAGS += -O2
+COMMONCFLAGS += -nostdinc -fno-pic -fno-builtin -fno-stack-protector -Wall -Wextra -m32 -I$(INCLDIR)
+COMMONCFLAGS += -fno-pie -static -fno-strict-aliasing -fno-omit-frame-pointer
+COMMONCFLAGS +=  -fvar-tracking-assignments -g -ggdb 
 
-CFLAGS +=  -fvar-tracking-assignments -g -ggdb 
+# don't optimize for most code in Debug mode
+#COMMONCFLAGS += -O2
+
+
+CFLAGS += $(COMMONCFLAGS)
+CFLAGS += -std=gnu11
+
+CXXFLAGS +=  $(COMMONCFLAGS)
+CXXFLAGS += -std=gnu++14
 
 ASFLAGS += -g -m32 -Wa,-divide -nostdinc -I$(INCLDIR)
 LDFLAGS += -m elf_i386

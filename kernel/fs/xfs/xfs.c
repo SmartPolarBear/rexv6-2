@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 17:58:46
+ * @ Modified time: 2019-07-28 21:54:17
  * @ Description:
  */
 
@@ -94,7 +94,7 @@ void readsb(int dev, struct superblock *sb)
 
     bp = bread(dev, mbr.partitions[current_partition].offset);
     memmove(sb, bp->data, sizeof(*sb));
-    
+
     sb->offset = mbr.partitions[current_partition].offset;
 
     brelse(bp);
@@ -250,17 +250,17 @@ void iinit(int dev)
 
         usablesizes[i] = (sbs[i].size - nmetai) * BSIZE;
         usedsizes[i] = (sbs[i].initusedblock - nmetai) * BSIZE;
-        cprintf("Partition %d: size %d nblocks %d ninodes %d nlog %d logstart %d inodestart %d bmap start %d\n"
-                "usedsize %d usablesize %d\n",
-                i,
-                sbs[i].size,
-                sbs[i].nblocks,
-                sbs[i].ninodes,
-                sbs[i].nlog,
-                sbs[i].logstart,
-                sbs[i].inodestart,
-                sbs[i].bmapstart,
-                usedsizes[i], usablesizes[i]);
+        // cprintf("Partition %d: size %d nblocks %d ninodes %d nlog %d logstart %d inodestart %d bmap start %d\n"
+        //         "usedsize %d usablesize %d\n",
+        //         i,
+        //         sbs[i].size,
+        //         sbs[i].nblocks,
+        //         sbs[i].ninodes,
+        //         sbs[i].nlog,
+        //         sbs[i].logstart,
+        //         sbs[i].inodestart,
+        //         sbs[i].bmapstart,
+        //         usedsizes[i], usablesizes[i]);
     }
 
     // cprintf("Boot partition: size %d nblocks %d ninodes %d nlog %d logstart %d inodestart %d bmap start %d\n", sbs[boot_partition].size,
@@ -271,12 +271,10 @@ void iinit(int dev)
 
     // useable_capcity = (sbs[current_partition].size - nmeta) * BSIZE;
     // used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
-
-    
 }
 
 static struct inode *iget(uint dev, uint inum);
- 
+
 //PAGEBREAK!
 // Allocate a new inode with the given type on device dev.
 // A free inode has a type of zero.
@@ -327,40 +325,43 @@ void iupdate(struct inode *ip)
 // Find the inode with number inum on device dev
 // and return the in-memory copy. Does not lock
 // the inode and does not read it from disk.
-static struct inode *
-iget(uint dev, uint inum)
+static struct inode *iget(uint dev, uint inum)
 {
-    struct inode *ip, *empty;
+    inode_t *empty = NULL;
 
     acquire(&icache.lock);
 
     // Is the inode already cached?
-    empty = 0;
-    for (ip = &icache.inode[0]; ip < &icache.inode[NINODE]; ip++)
+    for (inode_t *ip = &icache.inode[0]; ip < &icache.inode[NINODE]; ip++)
     {
         if (ip->ref > 0 && ip->dev == dev && ip->inum == inum && ip->partition == current_partition)
         {
             ip->ref++;
             release(&icache.lock);
-            return ip;
+            return ip; //cached, return
         }
-        if (empty == 0 && ip->ref == 0) // Remember empty slot.
-            empty = ip;
+
+        if (empty == 0 && ip->ref == 0)
+        {
+            empty = ip; // Remember empty slot.
+        }
     }
 
     // Recycle an inode cache entry.
     if (empty == 0)
-        panic("iget: no inodes");
+    {
+        panic("iget: no empty inodes");
+    }
 
-    ip = empty;
+    inode_t *ip = empty;
     ip->dev = dev;
     ip->inum = inum;
     ip->ref = 1;
     ip->flags = 0;
     ip->partition = current_partition;
     ip->partitions = partitions;
-    release(&icache.lock);
 
+    release(&icache.lock);
     return ip;
 }
 

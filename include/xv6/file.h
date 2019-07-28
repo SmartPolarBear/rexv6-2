@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-30 00:22:38
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-26 23:41:52
+ * @ Modified time: 2019-07-28 21:59:10
  * @ Description:
  */
 
@@ -10,8 +10,9 @@
 #define __INCLUDE_XV6_FILE_H
 #include <xv6/mbr.h>
 #include <xv6/sleeplock.h>
+#include <stdbool.h>
 
-struct file
+typedef struct file
 {
   enum
   {
@@ -25,7 +26,7 @@ struct file
   struct pipe *pipe;
   struct inode *ip;
   uint off;
-};
+} file_t;
 
 // in-memory copy of an inode
 typedef struct inode
@@ -45,19 +46,27 @@ typedef struct inode
   uint addrs[NDIRECT + 1];
   partition_t *partitions;
 } inode_t;
+
 #define I_VALID 0x2
+
+typedef enum devstate
+{
+  READY,
+  NOTREADY,
+} devstate_t;
 
 // table mapping major device number to
 // device functions
-struct devsw
+typedef struct devsw
 {
   int (*read)(struct inode *, char *, int, int);
   int (*write)(struct inode *, char *, int, int);
-};
+  devstate_t (*getstate)(void);
+} devsw_t;
 
 #include "xv6/devnum.h"
 
-extern struct devsw devsw[][MDEV];
+extern devsw_t devsw[][MDEV];
 
 //PAGEBREAK!
 // Blank page.
