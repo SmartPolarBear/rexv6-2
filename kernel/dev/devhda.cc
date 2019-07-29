@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-28 21:52:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 23:49:35
+ * @ Modified time: 2019-07-29 14:19:33
  * @ Description: r/w for hda partitions
  */
 
@@ -62,6 +62,7 @@ int hdaread(inode_t *ip, char *dst, int off, int n)
   //   cons.r = 0;
   // ilock(ip);
   // return target - n;
+
   return 0;
 }
 int hdawrite(inode_t *ip, char *cbuf, int off, int n)
@@ -105,14 +106,15 @@ extern "C" void hdainit(void)
 {
   initlock(&cons.lock, "devhda");
 
+  int minors[] = {MDEVHDAP1, MDEVHDAP2, MDEVHDAP3, MDEVHDAP4};
   for (int i = 0; i < NPARTITIONS; i++)
   {
-    devsw[NDEVHDA][i + 3].getstate = [](int major, int minor) {
+    devsw[NDEVHDA][minors[i]].getstate = [](int major, int minor) {
       return (devstate_t)((mbr.partitions[minor].flags & PART_ALLOCATED) ? READY : NOTREADY);
     };
 
-    devsw[NDEVHDA][i].write = hdawrite;
-    devsw[NDEVHDA][i].read = hdaread;
+    devsw[NDEVHDA][minors[i]].write = hdawrite;
+    devsw[NDEVHDA][minors[i]].read = hdaread;
   }
 
   cons.locking = true;

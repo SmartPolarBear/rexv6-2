@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-02 17:19:42
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-04 18:26:43
+ * @ Modified time: 2019-07-29 13:40:38
  * @ Description:
  */
 
@@ -19,6 +19,17 @@ int sys_mount(void)
     argstr(0, &src);
     argstr(1, &target);
     mount(src, target, XV6FS);
+    return 0;
+}
+
+int sys_mount2(void)
+{
+    int dev, fs;
+    char *path;
+    argint(0, &dev);
+    argstr(1, &path);
+    argint(2, &fs);
+    mountdev(dev, path, fs);
     return 0;
 }
 

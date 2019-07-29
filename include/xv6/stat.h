@@ -9,6 +9,8 @@
 typedef struct stat {
   int type;  // Type of file
   int dev;     // File system's disk device
+  int major;
+  int minor;
   int ino;    // Inode number
   int nlink; // Number of links to file
   int size;   // Size of file in bytes

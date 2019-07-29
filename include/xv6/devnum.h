@@ -1,3 +1,12 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-07-28 23:41:53
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-07-29 14:05:16
+ * @ Description: device numbers
+ */
+
+
 #if !defined(__INCLUDE_XV6_DEVNUM_H)
 #define __INCLUDE_XV6_DEVNUM_H
 
@@ -8,15 +17,8 @@
 #define MDEVHDAP3 2
 #define MDEVHDAP4 3
 
-
 #define NDEVHDAINFO 2
 #define MDEVHDAINFO 2
-
-#define MDEVHDAP0  3
-#define MDEVHDAP1  4
-#define MDEVHDAP2  5
-#define MDEVHDAP3  6
-
 
 #define NCONSOLE 1
 #define MCONSOLE 1

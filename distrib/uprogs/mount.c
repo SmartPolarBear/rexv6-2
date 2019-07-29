@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
         exit();
     }
     printf(1, "mount:%s->%s\n", argv[1], argv[2]);
-    mount(argv[1], argv[2], XV6FS);
+    // mount(argv[1], argv[2], XV6FS);
+    mount2(0, argv[2], XV6FS);
     exit();
 }

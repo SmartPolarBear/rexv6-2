@@ -27,7 +27,8 @@ int main(int argc, char *argv[])
         exit();
     }
 
-    printf(1, "type:%d\ndev:%d\nino:%d\nnlink:%d\nsize:%d\n", (int)st.type, (int)st.dev, (int)st.ino, (int)st.nlink, (int)st.size);
+    printf(1, "type:%d\ndev:%d\nmajor:%d\nminor:%d\nino:%d\nnlink:%d\nsize:%d\n",
+           (int)st.type, (int)st.dev, (int)st.major, (int)st.minor, (int)st.ino, (int)st.nlink, (int)st.size);
 
     close(fd);
 

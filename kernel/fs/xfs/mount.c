@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-02 17:17:08
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 18:02:47
+ * @ Modified time: 2019-07-29 14:02:45
  * @ Description:
  */
 
@@ -32,6 +32,7 @@ getfs(int fsid)
 
 int mountdev(int dev, char *path, int fs)
 {
+    cprintf("mountdev(%d,%s,XV6FS).\n", dev, path);
     if (mntswend - mountsw >= NDEV)
         return -1;
     mntswend->dev = dev;

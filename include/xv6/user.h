@@ -37,6 +37,7 @@ int unmount(int);
 int geteditstatus();
 int seteditstatus(int);
 int gettime(struct rtcdate *);
+int mount2(int, char *, int);
 
 // thread api
 int thread_create(void);

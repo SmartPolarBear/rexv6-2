@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 21:54:17
+ * @ Modified time: 2019-07-29 14:08:38
  * @ Description:
  */
 
@@ -542,6 +542,8 @@ void stati(struct inode *ip, stat_t *st)
     st->type = ip->type;
     st->nlink = ip->nlink;
     st->size = ip->size;
+    st->major = ip->major;
+    st->minor = ip->minor;
 }
 
 // Get the really device number.
@@ -566,8 +568,12 @@ int readi(struct inode *ip, char *dst, uint off, uint n)
     struct mountsw *mp;
     ip = getmntin(ip);
     for (mp = mountsw; mp < mntswend; mp++)
+    {
         if (mp->dev == ip->dev)
+        {
             return getfs(mp->fsid)->read(ip, dst, off, n);
+        }
+    }
 
     return -1;
 }
@@ -593,6 +599,7 @@ int deffsread(struct inode *ip, char *dst, uint off, uint n)
     {
         if (ip->major < 0 || ip->minor < 0 || ip->major >= NDEV || ip->minor >= MDEV || !devsw[ip->major][ip->minor].read)
             return -1;
+
         return devsw[ip->major][ip->minor].read(ip, dst, off, n);
     }
 
