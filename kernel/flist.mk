@@ -14,7 +14,6 @@ OBJS = \
 	entry.o\
 	exec.o\
 	file.o\
-	xfs.o\
 	ide.o\
 	ioapic.o\
 	kalloc.o\
@@ -22,7 +21,6 @@ OBJS = \
 	lapic.o\
 	log.o\
 	main.o\
-	mount.o\
 	mp.o\
 	picirq.o\
 	pipe.o\
@@ -49,5 +47,11 @@ OBJS = \
 	qsort.o\
 	sysmount.o \
 	buddy.o\
+	xfs.o\
+	xinode.o\
+	xmount.o\
+	xname.o\
+	xblock.o\
+	
 
 _OBJS = $(addprefix $(OUTDIR)/,$(OBJS))

@@ -52,6 +52,7 @@ struct log log;
 static void recover_from_log(void);
 static void commit();
 
+
 void initlog(int dev)
 {
     if (sizeof(struct logheader) >= BSIZE)

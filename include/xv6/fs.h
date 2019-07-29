@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-26 23:39:12
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 22:35:53
+ * @ Modified time: 2019-07-30 00:04:49
  * @ Description:
  */
 
@@ -22,6 +22,9 @@ extern "C"
 #define BSIZE 512 // block size
 #define KBSIZE 1000
 #define OFFSET (FSSIZE * current_partition)
+
+#define DEFAULT_BOOTPARTITION (-32767)
+#define MAXNUMINODE 5000
 
 // extern int used_capcity, useable_capcity;
 

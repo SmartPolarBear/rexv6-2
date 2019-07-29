@@ -1,6 +1,8 @@
 #if !defined(__INCLUDE_XV6_BUF_H)
 #define __INCLUDE_XV6_BUF_H
 
+#include "xv6/sleeplock.h"
+
 struct buf {
   int flags;
   uint dev;
