@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-29 21:07:38
+ * @ Modified time: 2019-07-29 23:50:45
  * @ Description:
  */
 
@@ -546,12 +546,11 @@ void stati(struct inode *ip, stat_t *st)
     st->minor = ip->minor;
 }
 
-
 //PAGEBREAK!
 // Read data from inode.
 int readi(struct inode *ip, char *dst, uint off, uint n)
 {
-     uint tot, m;
+    uint tot, m;
     struct buf *bp;
 
     if (ip->type == T_DEV)
@@ -589,7 +588,7 @@ int readi(struct inode *ip, char *dst, uint off, uint n)
 // Write data to inode.
 int writei(struct inode *ip, char *src, uint off, uint n)
 {
-      uint tot, m;
+    uint tot, m;
     struct buf *bp;
 
     if (ip->type == T_DEV)
@@ -812,8 +811,7 @@ int entry_lookup(uint inum, int partition)
 //ip is the inode which is being mapped from, partition_number is the partition being mounted to
 int insert_mapping(struct inode *ip, int partition_number)
 {
-    int i;
-    for (i = 0; i < NPARTITIONS * MAXNUMINODE; i++)
+    for (int i = 0; i < NPARTITIONS * MAXNUMINODE; i++)
     {
         if (imap[i][0].inum == ip->inum && imap[i][0].partition == ip->partition)
         {
@@ -822,7 +820,8 @@ int insert_mapping(struct inode *ip, int partition_number)
             return 0;
         }
     }
-    for (i = 0; i < NPARTITIONS * MAXNUMINODE; i++)
+
+    for (int i = 0; i < NPARTITIONS * MAXNUMINODE; i++)
     {
         if (imap[i][0].inum == 0)
         {
@@ -835,6 +834,20 @@ int insert_mapping(struct inode *ip, int partition_number)
     }
     cprintf("kernel: insert_mapping failed\n");
     return -1;
+}
+
+void remove_mapping(inode_t *ip)
+{
+    for (int i = 0; i < NPARTITIONS * MAXNUMINODE; i++)
+    {
+        if (imap[i][0].inum == ip->inum && imap[i][0].partition == ip->partition)
+        {
+            imap[i][1].inum = imap[i][0].inum = 0;
+            imap[i][1].partition = imap[i][0].partition = 0;
+            break;
+            ;
+        }
+    }
 }
 
 void switch_partition(int partition)

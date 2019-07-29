@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-02 17:17:08
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-29 21:18:35
+ * @ Modified time: 2019-07-29 23:55:03
  * @ Description:
  */
 
@@ -45,6 +45,21 @@ int mount(char *src, char *target, int fs)
     }
 }
 
-int unmount(int dev)
+int unmount(char *src)
 {
+    begin_op();
+    struct inode *ip = namei(src);
+    if (ip == 0)
+    {
+        end_op();
+        return -1;
+    }
+
+    ilock(ip);
+    int ret = remove_mapping(ip);
+    
+    iunlockput(ip);
+    end_op();
+
+    return ret;
 }

@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-28 21:52:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-29 20:28:00
+ * @ Modified time: 2019-07-29 23:51:45
  * @ Description: r/w for hda partitions
  */
 
@@ -106,7 +106,7 @@ extern "C" void hdainit(void)
 {
   initlock(&cons.lock, "devhda");
 
-  int minors[] = {MDEVHDAP1, MDEVHDAP2, MDEVHDAP3, MDEVHDAP4};
+  int minors[] = {MDEVHDAP0, MDEVHDAP1, MDEVHDAP2, MDEVHDAP3};
 
   for (int i = 0; i < NPARTITIONS; i++)
   {
