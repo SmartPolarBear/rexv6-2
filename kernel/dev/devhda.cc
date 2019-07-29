@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-28 21:52:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-29 14:19:33
+ * @ Modified time: 2019-07-29 20:28:00
  * @ Description: r/w for hda partitions
  */
 
@@ -26,44 +26,44 @@ static struct
 extern int block_off;
 extern struct superblock sbs[NPARTITIONS];
 extern int current_partition;
+extern partition_t partitions[NPARTITIONS];
 extern mbr_t mbr;
 
 int hdaread(inode_t *ip, char *dst, int off, int n)
 {
-  // int target;
-  // target = n;
-  // off = block_off;
-  // uint nmeta; //nmeta Number of meta blocks (boot, sb, nlog, inode, bitmap)
-  // nmeta = 1 + 1 + sb.nlog + (sb.ninodes / IPB + 1) + (sb.size / (BSIZE * 8) + 1);
-  // if (off <= nmeta || off > sb.size)
-  // {
-  //   cprintf("permission denied\n");
-  //   return 0;
-  // }
-  // iunlock(ip);
-  // if (cons.r == 0)
-  // {
-  //   cons.r = n;
-  //   struct buf *b;
-  //   uint i;
-  //   while (n > 0)
-  //   {
-  //     b = bread(ROOTDEV, off);
-  //     for (i = 0; i < BSIZE && n > 0; i++)
-  //     {
-  //       n--;
-  //       dst[i] = b->data[i];
-  //     }
-  //     brelse(b);
-  //   }
-  //   cprintf("read from block %d success\n", off);
-  // }
-  // else
-  //   cons.r = 0;
-  // ilock(ip);
-  // return target - n;
+  int target;
+  target = n;
+  off = block_off;
+  uint nmeta; //nmeta Number of meta blocks (boot, sb, nlog, inode, bitmap)
+  nmeta = 1 + 1 + sbs[ip->partition].nlog + (sbs[ip->partition].ninodes / IPB + 1) + (sbs[ip->partition].size / (BSIZE * 8) + 1);
+  if (off > sbs[ip->partition].size)
+  {
+    cprintf("permission denied\n");
+    return 0;
+  }
 
-  return 0;
+  iunlock(ip);
+  if (cons.r == 0)
+  {
+    cons.r = n;
+    struct buf *b;
+    uint i;
+    while (n > 0)
+    {
+      b = bread(ROOTDEV, off + partitions[ip->partition].offset);
+      for (i = 0; i < BSIZE && n > 0; i++)
+      {
+        n--;
+        dst[i] = b->data[i];
+      }
+      brelse(b);
+    }
+    cprintf("read from block %d success\n", off);
+  }
+  else
+    cons.r = 0;
+  ilock(ip);
+  return target - n;
 }
 int hdawrite(inode_t *ip, char *cbuf, int off, int n)
 {
@@ -107,6 +107,7 @@ extern "C" void hdainit(void)
   initlock(&cons.lock, "devhda");
 
   int minors[] = {MDEVHDAP1, MDEVHDAP2, MDEVHDAP3, MDEVHDAP4};
+
   for (int i = 0; i < NPARTITIONS; i++)
   {
     devsw[NDEVHDA][minors[i]].getstate = [](int major, int minor) {

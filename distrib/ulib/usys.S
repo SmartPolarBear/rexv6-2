@@ -78,4 +78,3 @@ SYSCALL(mutex_unlock)
 SYSCALL(nosound)
 SYSCALL(playsound)
 
-SYSCALL(mount2)

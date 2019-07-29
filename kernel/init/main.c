@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-28 23:04:52
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 23:51:31
+ * @ Modified time: 2019-07-29 21:08:03
  * @ Description:
  */
 
@@ -60,7 +60,7 @@ int main(void)
 
     kinit2(P2V(4 * 1024 * 1024), P2V(PHYSTOP)); // must come after startothers()
 
-    mountinit(); // first mount
+    // mountinit(); // first mount
     userinit();  // first user process
 
     mpmain(); // finish this processor's setup

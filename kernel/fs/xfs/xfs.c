@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-29 14:08:38
+ * @ Modified time: 2019-07-29 21:07:38
  * @ Description:
  */
 
@@ -546,53 +546,12 @@ void stati(struct inode *ip, stat_t *st)
     st->minor = ip->minor;
 }
 
-// Get the really device number.
-// If ip is a mounted directory, return device number of mounted device.
-// Otherwise return original one.
-struct inode *
-getmntin(struct inode *ip)
-{
-    if (ip->type != T_DIR)
-        return ip;
-    struct mountsw *mp;
-    for (mp = mountsw; mp < mntswend; mp++)
-        if (mp->dp == ip)
-            return iget(mp->dev, ROOTINO);
-    return ip;
-}
 
 //PAGEBREAK!
 // Read data from inode.
 int readi(struct inode *ip, char *dst, uint off, uint n)
 {
-    struct mountsw *mp;
-    ip = getmntin(ip);
-    for (mp = mountsw; mp < mntswend; mp++)
-    {
-        if (mp->dev == ip->dev)
-        {
-            return getfs(mp->fsid)->read(ip, dst, off, n);
-        }
-    }
-
-    return -1;
-}
-
-// PAGEBREAK!
-// Write data to inode.
-int writei(struct inode *ip, char *src, uint off, uint n)
-{
-    struct mountsw *mp;
-    ip = getmntin(ip);
-    for (mp = mountsw; mp < mntswend; mp++)
-        if (mp->dev == ip->dev)
-            return getfs(mp->fsid)->write(ip, src, off, n);
-    return -1;
-}
-
-int deffsread(struct inode *ip, char *dst, uint off, uint n)
-{
-    uint tot, m;
+     uint tot, m;
     struct buf *bp;
 
     if (ip->type == T_DEV)
@@ -628,9 +587,9 @@ int deffsread(struct inode *ip, char *dst, uint off, uint n)
 
 // PAGEBREAK!
 // Write data to inode.
-int deffswrite(struct inode *ip, char *src, uint off, uint n)
+int writei(struct inode *ip, char *src, uint off, uint n)
 {
-    uint tot, m;
+      uint tot, m;
     struct buf *bp;
 
     if (ip->type == T_DEV)
@@ -682,8 +641,6 @@ dirlookup(struct inode *dp, char *name, uint *poff)
     if (dp->type != T_DIR)
         panic("dirlookup not DIR");
 
-    dp = getmntin(dp);
-
     for (off = 0; off < dp->size; off += sizeof(de))
     {
         if (readi(dp, (char *)&de, off, sizeof(de)) != sizeof(de))
@@ -704,7 +661,7 @@ dirlookup(struct inode *dp, char *name, uint *poff)
                 current_partition = old_partition;
                 return dp;
             }
-            return iget(getmntin(dp)->dev, inum);
+            return iget(dp->dev, inum);
         }
     }
     return 0;
@@ -723,8 +680,6 @@ int dirlink(struct inode *dp, char *name, uint inum)
         iput(ip);
         return -1;
     }
-
-    dp = getmntin(dp);
 
     // Look for an empty dirent.
     for (off = 0; off < dp->size; off += sizeof(de))

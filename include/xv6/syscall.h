@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-29 13:41:33
+ * @ Modified time: 2019-07-29 21:12:32
  * @ Description:
  */
 
@@ -103,5 +103,4 @@
 #define SYS_mutex_lock (86)
 #define SYS_mutex_unlock (87)
 
-#define SYS_mount2 (88)
 #endif

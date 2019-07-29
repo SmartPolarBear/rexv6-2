@@ -14,11 +14,11 @@ int main(void)
     mkdir("dev");
     chdir("dev");
     mknod("hdainfo", NDEVHDAINFO, MDEVHDAINFO);
-    // mknod("hda", NDEVHDA, MDEVHDA);
-    mknod("hdap0", NDEVHDA, MDEVHDAP1);
-    mknod("hdap1", NDEVHDA, MDEVHDAP2);
-    mknod("hdap2", NDEVHDA, MDEVHDAP3);
-    mknod("hdap3", NDEVHDA, MDEVHDAP3);
+    mknod("hda", NDEVHDA, MDEVHDA);
+    mknod("hdap0", NDEVHDAP, MDEVHDAP1);
+    mknod("hdap1", NDEVHDAP, MDEVHDAP2);
+    mknod("hdap2", NDEVHDAP, MDEVHDAP3);
+    mknod("hdap3", NDEVHDAP, MDEVHDAP3);
 
     if (open("console", O_RDWR) < 0)
     {

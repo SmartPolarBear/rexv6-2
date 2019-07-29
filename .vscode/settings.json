@@ -30,7 +30,8 @@
         "buddy.h": "c",
         "type_traits": "c",
         "inode.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "mount.h": "c"
     },
     "terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
 

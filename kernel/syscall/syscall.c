@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-29 13:44:32
+ * @ Modified time: 2019-07-29 21:13:40
  * @ Description:
  */
 
@@ -180,7 +180,6 @@ extern int sys_mutex_destroy(void);
 extern int sys_mutex_lock(void);
 extern int sys_mutex_unlock(void);
 
-extern int sys_mount2(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -248,7 +247,6 @@ static int (*syscalls[])(void) = {
     [SYS_mutex_lock] sys_mutex_lock,
     [SYS_mutex_unlock] sys_mutex_unlock,
 
-    [SYS_mount2] sys_mount2,
 };
 
 void syscall(void)

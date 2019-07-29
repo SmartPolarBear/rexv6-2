@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-28 23:41:53
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-29 14:05:16
+ * @ Modified time: 2019-07-29 21:15:14
  * @ Description: device numbers
  */
 
@@ -12,10 +12,12 @@
 
 #define NDEVHDA 2
 #define MDEVHDA 4
-#define MDEVHDAP1 0
-#define MDEVHDAP2 1
-#define MDEVHDAP3 2
-#define MDEVHDAP4 3
+
+#define NDEVHDAP  4
+#define MDEVHDAP0 0
+#define MDEVHDAP1 1
+#define MDEVHDAP2 2
+#define MDEVHDAP3 3
 
 #define NDEVHDAINFO 2
 #define MDEVHDAINFO 2

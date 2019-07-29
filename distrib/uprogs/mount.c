@@ -8,10 +8,9 @@ int main(int argc, char *argv[])
     if (argc < 2)
     {
         printf(2, "Usage: mount [src] [target]\n");
-        exit();
+        return 0;
     }
     printf(1, "mount:%s->%s\n", argv[1], argv[2]);
-    // mount(argv[1], argv[2], XV6FS);
-    mount2(0, argv[2], XV6FS);
-    exit();
+    mount(argv[1], argv[2], XV6FS);
+    return 0;
 }
