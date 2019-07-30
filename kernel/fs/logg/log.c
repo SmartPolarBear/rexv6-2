@@ -52,6 +52,7 @@ struct log log;
 static void recover_from_log(void);
 static void commit();
 
+extern int boot_partition; //xfs.c
 
 void initlog(int dev)
 {
@@ -60,7 +61,7 @@ void initlog(int dev)
 
     struct superblock sb;
     initlock(&log.lock, "log");
-    readsb(dev, &sb);
+    readsb(dev, &sb, boot_partition);
     log.start = sb.logstart + sb.offset;
     log.size = sb.nlog;
     log.dev = dev;
@@ -68,8 +69,7 @@ void initlog(int dev)
 }
 
 // Copy committed blocks from log to their home location
-static void
-install_trans(void)
+static void install_trans(void)
 {
     int tail;
 

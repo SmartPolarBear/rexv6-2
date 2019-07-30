@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-02 17:17:08
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-29 23:55:03
+ * @ Modified time: 2019-07-30 14:05:18
  * @ Description:
  */
 
@@ -57,7 +57,7 @@ int unmount(char *src)
 
     ilock(ip);
     int ret = remove_mapping(ip);
-    
+
     iunlockput(ip);
     end_op();
 

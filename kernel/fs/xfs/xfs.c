@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-30 00:20:26
+ * @ Modified time: 2019-07-30 14:05:29
  * @ Description:
  * File system implementation.  Five layers:
     + Blocks: allocator for raw disk blocks.
@@ -16,15 +16,13 @@
     are in sysfile.c.
  */
 
+#include "common.h"
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
 #include "xv6/stat.h"
 #include "xv6/spinlock.h"
-#include "xv6/fs.h"
-#include "xv6/buf.h"
-#include "xv6/file.h"
-#include "xv6/mbr.h"
+
 
 mbr_t mbr;
 
@@ -67,7 +65,7 @@ void readmbr(int dev, mbr_t *mbr)
             partitions[i].offset = mbr->partitions[i].offset;
             partitions[i].size = mbr->partitions[i].size;
 
-            readsb(dev, &sbs[i]);
+            readsb(dev, &sbs[i],current_partition);
         }
         current_partition = boot_partition;
     }

@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-30 00:22:38
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 23:39:02
+ * @ Modified time: 2019-07-30 14:04:36
  * @ Description:
  */
 
@@ -10,7 +10,9 @@
 #define __INCLUDE_XV6_FILE_H
 #include <xv6/mbr.h>
 #include <xv6/sleeplock.h>
+#include <xv6/param.h>
 #include <stdbool.h>
+
 #if defined(__cplusplus)
 extern "C"
 {

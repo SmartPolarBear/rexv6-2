@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-01 23:56:40
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-28 22:34:43
+ * @ Modified time: 2019-07-30 14:00:40
  * @ Description:
  */
 
@@ -71,24 +71,24 @@ int filestat(struct file *, struct stat *);
 int filewrite(struct file *, char *, int n);
 
 // fs.c
-void readsb(int dev, struct superblock *sb);
-int dirlink(struct inode *, char *, uint);
-struct inode *dirlookup(struct inode *, char *, uint *);
-struct inode *getmntin(struct inode *);
-struct inode *ialloc(uint, short);
-struct inode *idup(struct inode *);
-void iinit(int dev);
-void ilock(struct inode *);
-void iput(struct inode *);
-void iunlock(struct inode *);
-void iunlockput(struct inode *);
-void iupdate(struct inode *);
-int namecmp(const char *, const char *);
-struct inode *namei(char *);
-struct inode *nameiparent(char *, char *);
-int readi(struct inode *, char *, uint, uint);
-void stati(struct inode *, struct stat *);
-int writei(struct inode *, char *, uint, uint);
+  void readsb(int dev, struct superblock *sb, int partition);
+  int dirlink(struct inode *, char *, uint);
+  struct inode *dirlookup(struct inode *, char *, uint *);
+  struct inode *getmntin(struct inode *);
+  struct inode *ialloc(uint, short);
+  struct inode *idup(struct inode *);
+  void iinit(int dev);
+  void ilock(struct inode *);
+  void iput(struct inode *);
+  void iunlock(struct inode *);
+  void iunlockput(struct inode *);
+  void iupdate(struct inode *);
+  int namecmp(const char *, const char *);
+  struct inode *namei(char *);
+  struct inode *nameiparent(char *, char *);
+  int readi(struct inode *, char *, uint, uint);
+  void stati(struct inode *, struct stat *);
+  int writei(struct inode *, char *, uint, uint);
 
 // ide.c
 void ideinit(void);

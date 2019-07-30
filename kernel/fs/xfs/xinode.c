@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-30 00:07:05
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-30 00:18:04
+ * @ Modified time: 2019-07-30 14:58:20
  * @ Description:
  * Inodes.
     An inode describes a single unnamed file.
@@ -64,24 +64,16 @@
     multi-step atomic operations.
  */
 
-
+#include "common.h"
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
 #include "xv6/stat.h"
 #include "xv6/spinlock.h"
-#include "xv6/fs.h"
-#include "xv6/buf.h"
-#include "xv6/file.h"
-#include "xv6/mbr.h"
 
-extern mbr_t mbr;
+#include "xblock.h"
 
 extern int current_partition;
-
-extern superblock_t sbs[NPARTITIONS];
-
-extern partition_t partitions[NPARTITIONS];
 
 extern pair_t imap[MAXNUMINODE * NPARTITIONS][2];
 
@@ -132,7 +124,7 @@ void iinit(int dev)
     // used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
 }
 
- struct inode *iget(uint dev, uint inum);
+struct inode *iget(uint dev, uint inum);
 
 //PAGEBREAK!
 // Allocate a new inode with the given type on device dev.
@@ -184,7 +176,7 @@ void iupdate(struct inode *ip)
 // Find the inode with number inum on device dev
 // and return the in-memory copy. Does not lock
 // the inode and does not read it from disk.
- struct inode *iget(uint dev, uint inum)
+struct inode *iget(uint dev, uint inum)
 {
     inode_t *empty = NULL;
 
@@ -318,8 +310,7 @@ void iunlockput(struct inode *ip)
 
 // Return the disk block address of the nth block in inode ip.
 // If there is no such block, bmap allocates one.
- uint
-bmap(struct inode *ip, uint bn)
+uint bmap(struct inode *ip, uint bn)
 {
     uint addr, *a;
     struct buf *bp;
@@ -327,7 +318,7 @@ bmap(struct inode *ip, uint bn)
     if (bn < NDIRECT)
     {
         if ((addr = ip->addrs[bn]) == 0)
-            ip->addrs[bn] = addr = balloc(ip->dev);
+            ip->addrs[bn] = addr = balloc(ip->dev, current_partition);
         return addr;
     }
     bn -= NDIRECT;
@@ -338,13 +329,13 @@ bmap(struct inode *ip, uint bn)
         if ((addr = ip->addrs[NDIRECT]) == 0)
         {
             //TODO: should be checked if balloc returns a relative bnumber
-            ip->addrs[NDIRECT] = addr = balloc(ip->dev);
+            ip->addrs[NDIRECT] = addr = balloc(ip->dev, current_partition);
         }
         bp = bread(ip->dev, addr + partitions[ip->partition].offset);
         a = (uint *)bp->data;
         if ((addr = a[bn]) == 0)
         {
-            a[bn] = addr = balloc(ip->dev);
+            a[bn] = addr = balloc(ip->dev, current_partition);
             log_write(bp);
         }
         brelse(bp);
@@ -359,8 +350,7 @@ bmap(struct inode *ip, uint bn)
 // to it (no directory entries referring to it)
 // and has no in-memory reference to it (is
 // not an open file or current directory).
- void
-itrunc(struct inode *ip)
+void itrunc(struct inode *ip)
 {
     uint i, j;
     struct buf *bp;
@@ -370,7 +360,7 @@ itrunc(struct inode *ip)
     {
         if (ip->addrs[i])
         {
-            bfree(ip->dev, ip->addrs[i]);
+            bfree(ip->dev, ip->addrs[i], current_partition);
             ip->addrs[i] = 0;
         }
     }
@@ -382,10 +372,10 @@ itrunc(struct inode *ip)
         for (j = 0; j < NINDIRECT; j++)
         {
             if (a[j])
-                bfree(ip->dev, a[j]);
+                bfree(ip->dev, a[j], current_partition);
         }
         brelse(bp);
-        bfree(ip->dev, ip->addrs[NDIRECT]);
+        bfree(ip->dev, ip->addrs[NDIRECT], current_partition);
         ip->addrs[NDIRECT] = 0;
     }
 
