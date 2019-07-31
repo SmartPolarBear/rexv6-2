@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-30 00:07:05
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-30 14:58:20
+ * @ Modified time: 2019-07-31 13:41:34
  * @ Description:
  * Inodes.
     An inode describes a single unnamed file.
@@ -72,6 +72,7 @@
 #include "xv6/spinlock.h"
 
 #include "xblock.h"
+#include "xinode.h"
 
 extern int current_partition;
 
@@ -124,7 +125,7 @@ void iinit(int dev)
     // used_capcity = (sbs[current_partition].initusedblock - nmeta) * BSIZE;
 }
 
-struct inode *iget(uint dev, uint inum);
+
 
 //PAGEBREAK!
 // Allocate a new inode with the given type on device dev.
@@ -147,7 +148,7 @@ ialloc(uint dev, short type)
             dip->type = type;
             log_write(bp); // mark it allocated on the disk
             brelse(bp);
-            struct inode *ret = iget(dev, inum);
+            struct inode *ret = iget(dev, inum,current_partition);
             ret->partition = current_partition;
             return ret;
         }
@@ -176,7 +177,7 @@ void iupdate(struct inode *ip)
 // Find the inode with number inum on device dev
 // and return the in-memory copy. Does not lock
 // the inode and does not read it from disk.
-struct inode *iget(uint dev, uint inum)
+inode_t *iget(uint dev, uint inum,int partition)
 {
     inode_t *empty = NULL;
 
@@ -185,7 +186,7 @@ struct inode *iget(uint dev, uint inum)
     // Is the inode already cached?
     for (inode_t *ip = &icache.inode[0]; ip < &icache.inode[NINODE]; ip++)
     {
-        if (ip->ref > 0 && ip->dev == dev && ip->inum == inum && ip->partition == current_partition)
+        if (ip->ref > 0 && ip->dev == dev && ip->inum == inum && ip->partition == partition)
         {
             ip->ref++;
             release(&icache.lock);
@@ -209,7 +210,7 @@ struct inode *iget(uint dev, uint inum)
     ip->inum = inum;
     ip->ref = 1;
     ip->flags = 0;
-    ip->partition = current_partition;
+    ip->partition = partition;
     ip->partitions = partitions;
 
     release(&icache.lock);

@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-06-23 20:53:03
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-30 14:05:29
+ * @ Modified time: 2019-07-31 13:39:30
  * @ Description:
  * File system implementation.  Five layers:
     + Blocks: allocator for raw disk blocks.
@@ -126,9 +126,4 @@ void remove_mapping(inode_t *ip)
             ;
         }
     }
-}
-
-void switch_partition(int partition)
-{
-    current_partition = partition;
 }

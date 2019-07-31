@@ -2,28 +2,22 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-30 00:08:54
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-07-30 13:53:55
+ * @ Modified time: 2019-07-31 13:44:44
  * @ Description:
  */
 
+#include "common.h"
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
 #include "xv6/stat.h"
-#include "xv6/spinlock.h"
-#include "xv6/fs.h"
-#include "xv6/buf.h"
-#include "xv6/file.h"
-#include "xv6/mbr.h"
 #include "xv6/proc.h"
+#include "xv6/spinlock.h"
 
-extern mbr_t mbr;
+#include "xinode.h"
+#include "xblock.h"
 
 extern int current_partition;
-
-extern superblock_t sbs[NPARTITIONS];
-
-extern partition_t partitions[NPARTITIONS];
 
 //PAGEBREAK!
 // Directories
@@ -59,13 +53,13 @@ dirlookup(struct inode *dp, char *name, uint *poff)
             inum = de.inum;
             if ((partition = entry_lookup(inum, dp->partition)) != -1)
             {
-                old_partition = current_partition;
-                current_partition = partition;
-                dp = iget(ROOTDEV, ROOTINO);
-                current_partition = old_partition;
+                // old_partition = current_partition;
+                // current_partition = partition;
+                dp = iget(ROOTDEV, ROOTINO, partition);
+                // current_partition = old_partition;
                 return dp;
             }
-            return iget(dp->dev, inum);
+            return iget(dp->dev, inum, current_partition);
         }
     }
     return 0;
@@ -153,7 +147,7 @@ namex(char *path, int nameiparent, char *name)
     struct inode *ip, *next;
 
     if (*path == '/')
-        ip = iget(ROOTDEV, ROOTINO);
+        ip = iget(ROOTDEV, ROOTINO, current_partition);
     else
         ip = idup(proc->cwd);
 

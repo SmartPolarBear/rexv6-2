@@ -23,13 +23,13 @@ $(OUTDIR)/vectors.o: vectors.pl | $(OUTDIR)
 	$(CC) $(OUTDIR)/vectors.S $(CFLAGS) -c -o $@
 
 $(OUTDIR)/%.o: %.c | $(OUTDIR)
-	$(CC) $< $(CFLAGS) -c -o $@
+	($(CC) $< $(CFLAGS) -c -o $@) || exit
 
 $(OUTDIR)/%.o: %.cc | $(OUTDIR)
-	$(CXX) $< $(CXXFLAGS) -c -o $@
+	($(CXX) $< $(CXXFLAGS) -c -o $@) || exit
 
 $(OUTDIR)/%.o: %.S | $(OUTDIR)
-	$(CC) $< $(CFLAGS) -c -o $@
+	($(CC) $< $(CFLAGS) -c -o $@) || exit
 
 $(OUTDIR):
 	mkdir -p $@
