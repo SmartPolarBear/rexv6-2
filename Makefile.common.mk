@@ -1,0 +1,14 @@
+#This file shouldn't be included without OUTDIR
+
+$(OUTDIR)/%.o: %.c | $(OUTDIR)
+	@echo "[CC]" $< "->" $@
+	@($(CC) $< $(CFLAGS) -c -o $@)
+
+$(OUTDIR)/%.o: %.S | $(OUTDIR)
+	@echo "[CC]" $< "->" $@
+	@($(CC) $< $(CFLAGS) -c -o $@)
+
+$(OUTDIR):
+	@echo "MKDIR" $@
+	@mkdir -p $@
+
