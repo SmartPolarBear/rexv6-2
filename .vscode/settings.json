@@ -12,6 +12,7 @@
         "mp.h": "c",
         "buf.h": "c",
         "file.h": "c",
-        "user.h": "c"
+        "user.h": "c",
+        "fcntl.h": "c"
     }
 }

@@ -1,7 +1,7 @@
 TOP_SRCDIR = ../..
 LIB_SRCDIR= ..
 
-OUTDIR=$(BUILDDIR)/lib/ulibc
+OUTDIR=$(BUILDDIR)/lib/ulib
 
 OBJS = ulib.o usys.o
 
