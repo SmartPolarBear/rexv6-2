@@ -1,0 +1,15 @@
+{
+    "terminal.integrated.fontFamily": "Meslo LG M DZ for Powerline",
+    "terminal.integrated.shell.linux": "/usr/bin/zsh",
+    "terminal.integrated.fontSize": 12,
+    "files.associations": {
+        "types.h": "c",
+        "traps.h": "c",
+        "x86.h": "c",
+        "mmu.h": "c",
+        "memlayout.h": "c",
+        "proc.h": "c",
+        "mp.h": "c",
+        "buf.h": "c"
+    }
+}
