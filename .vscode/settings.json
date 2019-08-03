@@ -11,6 +11,7 @@
         "proc.h": "c",
         "mp.h": "c",
         "buf.h": "c",
-        "file.h": "c"
+        "file.h": "c",
+        "user.h": "c"
     }
 }
