@@ -40,7 +40,7 @@ $(OUTDIR)/%.o: %.S | $(OUTDIR)
 	@($(CC) $< $(CFLAGS) -c -o $@)
 
 $(OUTDIR):
-	"MKDIR" $@
+	@echo "MKDIR" $@
 	@mkdir -p $@
 
 clean:

@@ -13,6 +13,7 @@
         "buf.h": "c",
         "file.h": "c",
         "user.h": "c",
-        "fcntl.h": "c"
+        "fcntl.h": "c",
+        "string.h": "c"
     }
 }
