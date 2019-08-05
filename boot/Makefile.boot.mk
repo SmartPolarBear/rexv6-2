@@ -11,4 +11,4 @@ $(OUTDIR):
 clean:
 	rm -f $(OUTDIR)/*
 
-.PHONY: all clean
+.PHONY: all clean fuck

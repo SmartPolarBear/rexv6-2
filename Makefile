@@ -1,43 +1,27 @@
 TOP_SRCDIR = .
 include $(TOP_SRCDIR)/Makefile.mk	
-OBJS = \
-	bio.o\
-	console.o\
-	exec.o\
-	file.o\
-	fs.o\
-	ide.o\
-	ioapic.o\
-	kalloc.o\
-	kbd.o\
-	lapic.o\
-	log.o\
-	main.o\
-	mp.o\
-	picirq.o\
-	pipe.o\
-	proc.o\
-	sleeplock.o\
-	spinlock.o\
-	string.o\
-	swtch.o\
-	syscall.o\
-	sysfile.o\
-	sysproc.o\
-	trapasm.o\
-	trap.o\
-	uart.o\
-	vectors.o\
-	vm.o\
+SETSDIR=$(TOP_SRCDIR)/distrib/sets
 
+SUBDIRS = tools lib kern fs drivers boot bin
 
-tags: $(OBJS) entryother.S _init
+BASELIST = $(shell cat $(SETSDIR)/base.list)
+OBJS =  $(addprefix $(BUILDDIR)/,$(BASELIST))
+
+BASEBINLIST = $(shell cat $(SETSDIR)/base-bin.list)
+BINOBJS =  $(addprefix $(BUILDDIR)/,$(BASEBINLIST))
+
+$(BUILDDIR)/kernel: $(SUBDIRS) $(OBJS) $(BINOBJS) kern/kernel.ld
+	$(LD) $(LDFLAGS) -T kern/kernel.ld -o $@ $(OBJS) -b binary $(BINOBJS)
+	$(OBJDUMP) -S $@ > $(BUILDDIR)/kernel.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BUILDDIR)/kernel.sym
+
+.PHONY: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -C $@ $(MFLAGS) all
+
+tags: $(OBJS) kern/init/entryother.S bin/init/init
 	etags *.S *.c
-
-kernel: $(OBJS) entry.o entryother initcode kernel.ld
-	$(LD) $(LDFLAGS) -T kernel.ld -o kernel entry.o $(OBJS) -b binary initcode entryother
-	$(OBJDUMP) -S kernel > kernel.asm
-	$(OBJDUMP) -t kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
 # kernelmemfs is a copy of kernel that maintains the
 # disk image in memory instead of writing to a disk.
@@ -52,7 +36,7 @@ kernelmemfs: $(MEMFSOBJS) entry.o entryother initcode kernel.ld fs.img
 	$(OBJDUMP) -t kernelmemfs | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernelmemfs.sym
 
 
-xv6.img: $(BUILDDIR)/boot/bootblock $(BUILDDIR)/kern/kernel
+xv6.img:  /boot/bootblock $(BUILDDIR)/kern/kernel
 	dd if=/dev/zero of=xv6.img count=10000
 	dd if=bootblock of=xv6.img conv=notrunc
 	dd if=kernel of=xv6.img seek=1 conv=notrunc

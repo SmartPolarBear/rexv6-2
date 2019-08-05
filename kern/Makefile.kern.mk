@@ -3,7 +3,7 @@ ifndef TOP_SRCDIR
 endif
 include $(TOP_SRCDIR)/Makefile.mk
 
-OUTDIR=$(BUILDDIR)/kernel
+OUTDIR=$(BUILDDIR)/kern
 
 _OBJS = $(addprefix $(OUTDIR)/,$(OBJS))
 
@@ -23,25 +23,14 @@ $(OUTDIR)/initcode: initcode.S | $(OUTDIR)
 	@$(OBJCOPY) -S -O binary $(OUTDIR)/initcode.out $(OUTDIR)/initcode
 	@$(OBJDUMP) -S $(OUTDIR)/initcode.o > $(OUTDIR)/initcode.asm
 
-vectors.S: vectors.pl
-	"[vectors.pl]" $< "->" $@
-	./vectors.pl > vectors.S
+$(OUTDIR)/vectors.S: vectors.pl
+	@echo "[vectors.pl]" $< "->" $@
+	./vectors.pl > $@
 
-$(OUTDIR)/vectors.o: vectors.S | $(OUTDIR)
-	echo "[CC]" $< "->" $@
+$(OUTDIR)/vectors.o: $(OUTDIR)/vectors.S | $(OUTDIR)
+	@echo "[CC]" $< "->" $@
 	@$(CC) $(OUTDIR)/vectors.S $(CFLAGS) -c -o $@
 
-$(OUTDIR)/%.o: %.c | $(OUTDIR)
-	@echo "[CC]" $< "->" $@
-	@($(CC) $< $(CFLAGS) -c -o $@)
-
-$(OUTDIR)/%.o: %.S | $(OUTDIR)
-	@echo "[CC]" $< "->" $@
-	@($(CC) $< $(CFLAGS) -c -o $@)
-
-$(OUTDIR):
-	@echo "MKDIR" $@
-	@mkdir -p $@
 
 clean:
 	@for o in $(_OBJS); do echo "REMOVE" $$o; rm -f $$o; done
@@ -52,3 +41,5 @@ clean:
 
 
 .PHONY: all clean
+
+include $(TOP_SRCDIR)/Makefile.common.mk

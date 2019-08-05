@@ -65,4 +65,10 @@ SECTIONS
 	/DISCARD/ : {
 		*(.eh_frame .note.GNU-stack)
 	}
+
+	/*wrapping symbols: the generated symbol changes with the directory.*/
+	PROVIDE(_binary_entryother_start = _binary___build_kern_entryother_start);
+	PROVIDE(_binary_entryother_size = _binary___build_kern_entryother_size);
+	PROVIDE(_binary_initcode_start = _binary___build_kern_initcode_start);
+	PROVIDE(_binary_initcode_size = _binary___build_kern_initcode_size);
 }
