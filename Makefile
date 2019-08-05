@@ -5,13 +5,16 @@ SETSDIR=$(TOP_SRCDIR)/distrib/sets
 SUBDIRS = tools lib kern fs drivers boot bin
 
 BASELIST = $(shell cat $(SETSDIR)/base.list)
-OBJS =  $(addprefix $(BUILDDIR)/,$(BASELIST))
+OBJS = $(addprefix $(BUILDDIR)/,$(BASELIST))
 
 BASEBINLIST = $(shell cat $(SETSDIR)/base-bin.list)
-BINOBJS =  $(addprefix $(BUILDDIR)/,$(BASEBINLIST))
+BASEBINOBJS = $(addprefix $(BUILDDIR)/,$(BASEBINLIST))
 
-$(BUILDDIR)/kernel: $(SUBDIRS) $(OBJS) $(BINOBJS) kern/kernel.ld
-	$(LD) $(LDFLAGS) -T kern/kernel.ld -o $@ $(OBJS) -b binary $(BINOBJS)
+BINLIST = $(shell cat $(SETSDIR)/bin.list)
+BINOBJS =  $(addprefix $(BUILDDIR)/bin/,$(BINLIST))
+
+$(BUILDDIR)/kernel: $(SUBDIRS) $(OBJS) $(BASEBINOBJS) kern/kernel.ld
+	$(LD) $(LDFLAGS) -T kern/kernel.ld -o $@ $(OBJS) -b binary $(BASEBINOBJS)
 	$(OBJDUMP) -S $@ > $(BUILDDIR)/kernel.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BUILDDIR)/kernel.sym
 
@@ -29,28 +32,23 @@ tags: $(OBJS) kern/init/entryother.S bin/init/init
 # exploring disk buffering implementations, but it is
 # great for testing the kernel on real hardware without
 # needing a scratch disk.
-MEMFSOBJS = $(filter-out ide.o,$(OBJS)) memide.o
-kernelmemfs: $(MEMFSOBJS) entry.o entryother initcode kernel.ld fs.img
-	$(LD) $(LDFLAGS) -T kernel.ld -o kernelmemfs entry.o  $(MEMFSOBJS) -b binary initcode entryother fs.img
-	$(OBJDUMP) -S kernelmemfs > kernelmemfs.asm
-	$(OBJDUMP) -t kernelmemfs | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernelmemfs.sym
+MEMFSOBJS = $(filter-out $(BUILDDIR)/drivers/ide.o,$(OBJS)) $(BUILDDIR)/drivers/memide.o
+$(BUILDDIR)/kernelmemfs: $(MEMFSOBJS) $(BASEBINOBJS) kern/kernel.ld fs.img
+	$(LD) $(LDFLAGS) -T kernel.ld -o $ $(MEMFSOBJS) -b binary $(BASEBINOBJS) fs.img
+	$(OBJDUMP) -S $(BUILDDIR)/kernelmemfs > $(BUILDDIR)/kernelmemfs.asm
+	$(OBJDUMP) -t $(BUILDDIR)/kernelmemfs | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BUILDDIR)/kernelmemfs.sym
 
 
-xv6.img:  /boot/bootblock $(BUILDDIR)/kern/kernel
+xv6.img:  $(BUILDDIR)/boot/bootblock $(BUILDDIR)/kernel
 	dd if=/dev/zero of=xv6.img count=10000
-	dd if=bootblock of=xv6.img conv=notrunc
-	dd if=kernel of=xv6.img seek=1 conv=notrunc
+	dd if=$(BUILDDIR)/boot/bootblock of=xv6.img conv=notrunc
+	dd if=$(BUILDDIR)/kernel of=xv6.img seek=1 conv=notrunc
 
 xv6memfs.img: $(BUILDDIR)/bootblock  $(BUILDDIR)/kernelmemfs
 	dd if=/dev/zero of=xv6memfs.img count=10000
-	dd if=bootblock of=xv6memfs.img conv=notrunc
-	dd if=kernelmemfs of=xv6memfs.img seek=1 conv=notrunc
+	dd if=$(BUILDDIR)/bootblock of=xv6memfs.img conv=notrunc
+	dd if= $(BUILDDIR)/kernelmemfs of=xv6memfs.img seek=1 conv=notrunc
 
-$(BUILDDIR)/boot/bootblock: 
-	$(MAKE) -C boot all
-
-$(BUILDDIR)/kern/kernel:
-	$(MAKE) -C kern all
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.  More
@@ -58,25 +56,8 @@ $(BUILDDIR)/kern/kernel:
 # http://www.gnu.org/software/make/manual/html_node/Chained-Rules.html
 # .PRECIOUS: %.o
 
-UPROGS=\
-	_cat\
-	_echo\
-	_forktest\
-	_grep\
-	_init\
-	_kill\
-	_ln\
-	_ls\
-	_mkdir\
-	_rm\
-	_sh\
-	_stressfs\
-	_usertests\
-	_wc\
-	_zombie\
-
-fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS)
+fs.img: $(BUILDDIR)/tools/mkfs/mkfs README $(BINOBJS)
+	./$< fs.img README $(BINOBJS)
 
 -include *.d
 
@@ -85,7 +66,7 @@ clean:
 	*.o *.d *.asm *.sym vectors.S bootblock entryother \
 	initcode initcode.out kernel xv6.img fs.img kernelmemfs \
 	xv6memfs.img mkfs .gdbinit \
-	$(UPROGS)
+	$(BINOBJS)
 
 # make a printout
 FILES = $(shell grep -v '^\#' $(MISCDIR)/runoff.list)

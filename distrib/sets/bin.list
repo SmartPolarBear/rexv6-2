@@ -1,0 +1,15 @@
+cat/cat
+echo/echo
+forktest/forktest
+grep/grep
+init/init
+kill/kill
+ln/ln
+ls/ls
+mkdir/mkdir
+rm/rm
+sh/sh
+stressfs/stressfs
+usertests/usertests
+wc/wc
+zombie/zombie
