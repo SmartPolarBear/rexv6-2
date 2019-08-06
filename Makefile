@@ -56,7 +56,7 @@ xv6memfs.img: $(BUILDDIR)/bootblock  $(BUILDDIR)/kernelmemfs
 # http://www.gnu.org/software/make/manual/html_node/Chained-Rules.html
 # .PRECIOUS: %.o
 
-fs.img: $(BUILDDIR)/tools/mkfs/mkfs README $(BINOBJS)
+fs.img: $(BUILDDIR)/tools/mkfs/mkfs $(BINOBJS) README
 	./$< fs.img README $(BINOBJS)
 
 -include *.d

@@ -13,11 +13,15 @@ all: $(TARGET)
 
 $(TARGET): $(_OBJS)
 	@echo "[GCC LINKER]" $< "->" $@
-	@gcc $(_OBJS) -o $@
+	@$(HOST_CXX) $(_OBJS) -o $@
 
 $(OUTDIR)/%.o: %.c | $(OUTDIR)
 	@echo "[HOST CC]" $< "->" $@
 	@($(HOST_CC) $< $(HOST_CFLAGS) -c -o $@)
+
+$(OUTDIR)/%.o: %.cc | $(OUTDIR)
+	@echo "[HOST CXX]" $< "->" $@
+	@($(HOST_CXX) $< $(HOST_CXXFLAGS) -c -o $@)
 
 clean: 
 	@for o in $(_OBJS); do echo "REMOVE" $$o; rm -f $$o; done
