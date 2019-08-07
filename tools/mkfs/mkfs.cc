@@ -26,15 +26,16 @@ extern "C"
 // Disk layout:
 // [ boot block | sb block | log | inode blocks | free bit map | data blocks ]
 
-int nbitmap = FSSIZE / (BSIZE * 8) + 1;
-int ninodeblocks = NINODES / IPB + 1;
-int nlog = LOGSIZE;
+constexpr int nbitmap = FSSIZE / (BSIZE * 8) + 1;
+constexpr int ninodeblocks = NINODES / IPB + 1;
+constexpr int nlog = LOGSIZE;
+
 int nmeta;   // Number of meta blocks (boot, sb, nlog, inode, bitmap)
 int nblocks; // Number of data blocks
 
 int fsfd;
 struct superblock sb;
-char zeroes[BSIZE];
+char zeroes[BSIZE] = {0};
 uint freeinode = 1;
 uint freeblock;
 
@@ -68,32 +69,8 @@ uint xint(uint x)
   return y;
 }
 
-int main(int argc, char *argv[])
+void initialize_superblock()
 {
-  int i, cc, fd;
-  uint rootino, inum, off;
-  struct dirent de;
-  char buf[BSIZE];
-  struct dinode din;
-
-  static_assert(sizeof(int) == 4, "Integers must be 4 bytes!");
-
-  if (argc < 2)
-  {
-    fprintf(stderr, "Usage: mkfs fs.img files...\n");
-    exit(1);
-  }
-
-  assert((BSIZE % sizeof(struct dinode)) == 0);
-  assert((BSIZE % sizeof(struct dirent)) == 0);
-
-  fsfd = open(argv[1], O_RDWR | O_CREAT | O_TRUNC, 0666);
-  if (fsfd < 0)
-  {
-    perror(argv[1]);
-    exit(1);
-  }
-
   // 1 fs block = 1 disk sector
   nmeta = 2 + nlog + ninodeblocks + nbitmap;
   nblocks = FSSIZE - nmeta;
@@ -111,72 +88,126 @@ int main(int argc, char *argv[])
 
   freeblock = nmeta; // the first free block that we can allocate
 
-  for (i = 0; i < FSSIZE; i++)
+  for (int i = 0; i < FSSIZE; i++)
+  {
     wsect(i, zeroes);
+  }
 
+  char buf[BSIZE];
   memset(buf, 0, sizeof(buf));
   memmove(buf, &sb, sizeof(sb));
   wsect(1, buf);
+}
 
-  rootino = ialloc(T_DIR);
+decltype(auto) initialize_rootino()
+{
+  using std::begin;
+  using std::end;
+  using std::fill;
+
+  auto rootino = (ushort)ialloc(T_DIR);
   assert(rootino == ROOTINO);
 
-  bzero(&de, sizeof(de));
-  de.inum = xshort(rootino);
-  strcpy(de.name, ".");
-  iappend(rootino, &de, sizeof(de));
+  dirent root = {xshort(rootino)}, root_prev = {xshort(rootino)};
 
-  bzero(&de, sizeof(de));
-  de.inum = xshort(rootino);
-  strcpy(de.name, "..");
-  iappend(rootino, &de, sizeof(de));
+  //dir entry "."
+  fill(begin(root.name), end(root.name), '\0');
+  strcpy(root.name, ".");
+  iappend(rootino, &root, sizeof(root));
 
-  for (i = 2; i < argc; i++)
+  fill(begin(root_prev.name), end(root_prev.name), '\0');
+  strcpy(root_prev.name, "..");
+  iappend(rootino, &root_prev, sizeof(root_prev));
+
+  return rootino;
+}
+
+void add_file(const char *file, int rootino)
+{
+  using std::begin;
+  using std::end;
+  using std::fill;
+
+  auto fd = open(file, 0);
+  if (fd < 0)
   {
-
-    if ((fd = open(argv[i], 0)) < 0)
-    {
-      perror(argv[i]);
-      exit(1);
-    }
-
-    //[Deprecated] the name now never statrs with '_'
-    //
-    // Skip leading _ in name when writing to file system.
-    // The binaries are named _rm, _cat, etc. to keep the
-    // build operating system from trying to execute them
-    // in place of system binaries like rm and cat.
-    // if (argv[i][0] == '_')
-    //   ++argv[i];
-
-    //skip the path for the file
-    auto dispname = strrchr(argv[i], '/');
-    dispname = !dispname ? argv[i] : dispname + 1; //skip the '/' char
-    assert(index(dispname, '/') == 0);
-
-    inum = ialloc(T_FILE);
-
-    bzero(&de, sizeof(de));
-    de.inum = xshort(inum);
-    strncpy(de.name, dispname, DIRSIZ);
-    iappend(rootino, &de, sizeof(de));
-
-    while ((cc = read(fd, buf, sizeof(buf))) > 0)
-      iappend(inum, buf, cc);
-
-    close(fd);
+    perror(file);
+    exit(1);
   }
+
+  //[Deprecated] the name now never statrs with '_'
+  //
+  // Skip leading _ in name when writing to file system.
+  // The binaries are named _rm, _cat, etc. to keep the
+  // build operating system from trying to execute them
+  // in place of system binaries like rm and cat.
+  // if (argv[i][0] == '_')
+  //   ++argv[i];
+
+  //skip the path for the file
+  auto dispname = strrchr(file, '/');
+  dispname = !dispname ? const_cast<char *>(file) : dispname + 1; //skip the '/' char
+  assert(index(dispname, '/') == 0);
+
+  auto inum = (ushort)ialloc(T_FILE);
+
+  dirent de = {xshort(inum)};
+  fill(begin(de.name), end(de.name), '\0');
+  strncpy(de.name, dispname, DIRSIZ);
+  iappend(rootino, &de, sizeof(de));
+
+  int cc = 0;
+  char buf[BSIZE] = {0};
+  while ((cc = read(fd, buf, sizeof(buf))) > 0)
+  {
+    iappend(inum, buf, cc);
+  }
+
+  close(fd);
+}
+
+int main(int argc, char *argv[])
+{
+  static_assert(sizeof(int) == 4, "Integers must be 4 bytes!");
+
+  if (argc < 2)
+  {
+    fprintf(stderr, "Usage: mkfs fs.img files...\n");
+    return 1;
+  }
+
+  assert((BSIZE % sizeof(struct dinode)) == 0);
+  assert((BSIZE % sizeof(struct dirent)) == 0);
+
+  fsfd = open(argv[1], O_RDWR | O_CREAT | O_TRUNC, 0666);
+
+  if (fsfd < 0)
+  {
+    perror(argv[1]);
+    return 1;
+  }
+
+  initialize_superblock();
+
+  auto rootino = initialize_rootino();
+
+  for (int i = 2; i < argc; i++)
+  {
+    add_file(argv[i], rootino);
+  }
+
+  struct dinode din;
 
   // fix size of root inode dir
   rinode(rootino, &din);
-  off = xint(din.size);
+  int off = xint(din.size);
   off = ((off / BSIZE) + 1) * BSIZE;
   din.size = xint(off);
   winode(rootino, &din);
 
   balloc(freeblock);
 
-  exit(0);
+  return 0;
 }
 
 void wsect(uint sec, void *buf)
