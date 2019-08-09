@@ -62,10 +62,9 @@ fs.img: $(BUILDDIR)/tools/mkfs/mkfs $(BINOBJS) README
 -include *.d
 
 clean: 
-	rm -f *.tex *.dvi *.idx *.aux *.log *.ind *.ilg \
-	*.o *.d *.asm *.sym vectors.S bootblock entryother \
-	initcode initcode.out kernel xv6.img fs.img kernelmemfs \
-	xv6memfs.img mkfs .gdbinit \
+	rm -f xv6.img fs.img \
+	xv6memfs.img .gdbinit \
+	rm -rf $(BUILDDIR)
 	$(BINOBJS)
 
 # make a printout
