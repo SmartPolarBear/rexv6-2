@@ -7,19 +7,16 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "common.h"
+#include "byte_order.h"
+
 using std::cin;
 using std::cout;
 using std::endl;
 using std::min;
 
-#define stat xv6_stat // avoid clash with host struct stat
-extern "C"
-{
-#include "xv6/types.h"
-#include "xv6/fs.h"
-#include "xv6/stat.h"
-#include "xv6/param.h"
-}
+using byte_order_intel::xint;
+using byte_order_intel::xshort;
 
 #define NINODES 200
 
@@ -30,14 +27,14 @@ constexpr int nbitmap = FSSIZE / (BSIZE * 8) + 1;
 constexpr int ninodeblocks = NINODES / IPB + 1;
 constexpr int nlog = LOGSIZE;
 
-int nmeta;   // Number of meta blocks (boot, sb, nlog, inode, bitmap)
-int nblocks; // Number of data blocks
+int nmeta = 0;   // Number of meta blocks (boot, sb, nlog, inode, bitmap)
+int nblocks = 0; // Number of data blocks
 
-int fsfd;
-struct superblock sb;
+int fsfd = -1;
+struct superblock sb = {};
 char zeroes[BSIZE] = {0};
 uint freeinode = 1;
-uint freeblock;
+uint freeblock = 0;
 
 void balloc(int);
 void wsect(uint, void *);
@@ -47,26 +44,56 @@ void rsect(uint sec, void *buf);
 uint ialloc(ushort type);
 void iappend(uint inum, void *p, int n);
 
-// convert to intel byte order
-ushort
-xshort(ushort x)
-{
-  ushort y;
-  uchar *a = (uchar *)&y;
-  a[0] = x;
-  a[1] = x >> 8;
-  return y;
-}
+void initialize_superblock();
+ushort initialize_rootino();
+int add_file(const char *file, int rootino);
 
-uint xint(uint x)
+int main(int argc, char *argv[])
 {
-  uint y;
-  uchar *a = (uchar *)&y;
-  a[0] = x;
-  a[1] = x >> 8;
-  a[2] = x >> 16;
-  a[3] = x >> 24;
-  return y;
+  static_assert(sizeof(int) == 4, "Integers must be 4 bytes!");
+
+  if (argc < 2)
+  {
+    fprintf(stderr, "Usage: mkfs fs.img files...\n");
+    return 1;
+  }
+
+  assert((BSIZE % sizeof(struct dinode)) == 0);
+  assert((BSIZE % sizeof(struct dirent)) == 0);
+
+  fsfd = open(argv[1], O_RDWR | O_CREAT | O_TRUNC, 0666);
+
+  if (fsfd < 0)
+  {
+    perror(argv[1]);
+    return 1;
+  }
+
+  initialize_superblock();
+
+  auto rootino = initialize_rootino();
+
+  for (int i = 2; i < argc; i++)
+  {
+    auto ret = add_file(argv[i], rootino);
+    if (ret != 0)
+    {
+      fprintf(stderr, "Errors occur in writting file %s.", argv[i]);
+      return 1;
+    }
+  }
+
+  struct dinode din = {};
+  // fix size of root inode dir
+  rinode(rootino, &din);
+  int off = xint(din.size);
+  off = ((off / BSIZE) + 1) * BSIZE;
+  din.size = xint(off);
+  winode(rootino, &din);
+
+  balloc(freeblock);
+
+  return 0;
 }
 
 void initialize_superblock()
@@ -99,7 +126,7 @@ void initialize_superblock()
   wsect(1, buf);
 }
 
-decltype(auto) initialize_rootino()
+ushort initialize_rootino()
 {
   using std::begin;
   using std::end;
@@ -122,7 +149,7 @@ decltype(auto) initialize_rootino()
   return rootino;
 }
 
-void add_file(const char *file, int rootino)
+int add_file(const char *file, int rootino)
 {
   using std::begin;
   using std::end;
@@ -132,7 +159,7 @@ void add_file(const char *file, int rootino)
   if (fd < 0)
   {
     perror(file);
-    exit(1);
+    return 1;
   }
 
   //[Deprecated] the name now never statrs with '_'
@@ -164,49 +191,6 @@ void add_file(const char *file, int rootino)
   }
 
   close(fd);
-}
-
-int main(int argc, char *argv[])
-{
-  static_assert(sizeof(int) == 4, "Integers must be 4 bytes!");
-
-  if (argc < 2)
-  {
-    fprintf(stderr, "Usage: mkfs fs.img files...\n");
-    return 1;
-  }
-
-  assert((BSIZE % sizeof(struct dinode)) == 0);
-  assert((BSIZE % sizeof(struct dirent)) == 0);
-
-  fsfd = open(argv[1], O_RDWR | O_CREAT | O_TRUNC, 0666);
-
-  if (fsfd < 0)
-  {
-    perror(argv[1]);
-    return 1;
-  }
-
-  initialize_superblock();
-
-  auto rootino = initialize_rootino();
-
-  for (int i = 2; i < argc; i++)
-  {
-    add_file(argv[i], rootino);
-  }
-
-  struct dinode din;
-
-  // fix size of root inode dir
-  rinode(rootino, &din);
-  int off = xint(din.size);
-  off = ((off / BSIZE) + 1) * BSIZE;
-  din.size = xint(off);
-  winode(rootino, &din);
-
-  balloc(freeblock);
-
   return 0;
 }
 

@@ -6,13 +6,13 @@ OUTDIR=$(BUILDDIR)/tools/mkfs
 TARGETNAME=mkfs
 TARGET=$(OUTDIR)/$(TARGETNAME)
 
-OBJS = mkfs.o
+OBJS = mkfs.o byte_order.o block.o inode.o sect.o
 _OBJS = $(addprefix $(OUTDIR)/,$(OBJS))
 
 all: $(TARGET)
 
 $(TARGET): $(_OBJS)
-	@echo "[GCC LINKER]" $< "->" $@
+	@echo "[GCC LINKER]" $^ "->" $@
 	@$(HOST_CXX) $(_OBJS) -o $@
 
 $(OUTDIR)/%.o: %.c | $(OUTDIR)
