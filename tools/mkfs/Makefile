@@ -6,7 +6,7 @@ OUTDIR=$(BUILDDIR)/tools/mkfs
 TARGETNAME=mkfs
 TARGET=$(OUTDIR)/$(TARGETNAME)
 
-OBJS = mkfs.o byte_order.o block.o inode.o sect.o
+OBJS = mkfs.o byte_order.o
 _OBJS = $(addprefix $(OUTDIR)/,$(OBJS))
 
 all: $(TARGET)

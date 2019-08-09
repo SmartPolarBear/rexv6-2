@@ -1,6 +1,5 @@
 #if !defined(__TOOLS_MKFS_COMMON_H)
 #define __TOOLS_MKFS_COMMON_H
-#include <fcntl.h>
 
 extern "C"
 {
