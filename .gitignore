@@ -16,8 +16,9 @@ build
 build/*
 kern
 .gdbinit
-build/bin/*
+build/bin
 build/kern/*
+
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

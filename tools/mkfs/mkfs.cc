@@ -1,3 +1,11 @@
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-08-09 23:05:12
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-08-09 23:05:41
+ * @ Description: This tool makes fs.img with sfs file system
+ */
+
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
