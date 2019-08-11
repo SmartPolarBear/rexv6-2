@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_PROC_H)
+#define __INCLUDE_XV6_PROC_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -56,3 +62,7 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_PROC_H

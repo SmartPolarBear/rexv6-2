@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_TRAPS_H)
+#define __INCLUDE_XV6_TRAPS_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 // x86 trap and interrupt constants.
 
 // Processor-defined:
@@ -36,3 +42,7 @@
 #define IRQ_ERROR       19
 #define IRQ_SPURIOUS    31
 
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_TRAPS_H

@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_X86_H)
+#define __INCLUDE_XV6_X86_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 // Routines to let C code use special x86 instructions.
 
 static inline uchar
@@ -181,3 +187,7 @@ struct trapframe {
   ushort ss;
   ushort padding6;
 };
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_X86_H

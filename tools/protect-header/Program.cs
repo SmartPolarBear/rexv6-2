@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace protect_header
 {
-    class Program
+    public static class PathHelper
     {
         /// <summary>
         /// Creates a relative path from one file or folder to another.
@@ -58,6 +58,10 @@ namespace protect_header
 
             return path;
         }
+    }
+
+    class Program
+    {
 
         static string GetProtectHeaderMacro(string pathname)
         {
@@ -66,22 +70,23 @@ namespace protect_header
 
         static void Main(string[] args)
         {
-            string cwd = args[0];
-            Console.WriteLine($"Working dir:{cwd}");
+            string topd = Path.GetFullPath(args[0]), cwd = Directory.GetCurrentDirectory();
+            Console.WriteLine($"Working dir:{topd}");
             for (int i = 1; i < args.Count(); i++)
             {
                 var arg = args[i];
+                arg = Path.GetFullPath(Path.Combine(cwd, arg));
 
                 Console.WriteLine("Adding protection header for :");
                 Console.Write(arg);
                 Console.WriteLine(string.Empty);
-                if (!File.Exists(arg))
+                if (!File.Exists(Path.GetFullPath(Path.Combine(cwd, arg))))
                 {
                     Console.WriteLine($"File {arg} does not exist.");
                     continue;
                 }
 
-                var relativePath = GetRelativePath(cwd,arg);
+                var relativePath = PathHelper.GetRelativePath(topd, arg);
                 string protectionHeader = GetProtectHeaderMacro(relativePath);
                 List<string> allLines = new List<string>();
                 allLines.Add($"#if !defined({protectionHeader})");

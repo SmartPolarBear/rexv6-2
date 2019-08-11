@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_MEMLAYOUT_H)
+#define __INCLUDE_XV6_MEMLAYOUT_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 // Memory layout
 
 #define EXTMEM  0x100000            // Start of extended memory
@@ -13,3 +19,7 @@
 
 #define V2P_WO(x) ((x) - KERNBASE)    // same as V2P, but without casts
 #define P2V_WO(x) ((x) + KERNBASE)    // same as P2V, but without casts
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_MEMLAYOUT_H

@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_FS_H)
+#define __INCLUDE_XV6_FS_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 // On-disk file system format.
 // Both the kernel and user programs use this header file.
 
@@ -55,3 +61,7 @@ struct dirent {
   char name[DIRSIZ];
 };
 
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_FS_H

@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_ASM_H)
+#define __INCLUDE_XV6_ASM_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 //
 // assembler macros to create x86 segments
 //
@@ -16,3 +22,7 @@
 #define STA_X     0x8       // Executable segment
 #define STA_W     0x2       // Writeable (non-executable segments)
 #define STA_R     0x2       // Readable (executable segments)
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_ASM_H

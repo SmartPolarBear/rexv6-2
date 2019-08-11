@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_USER_H)
+#define __INCLUDE_XV6_USER_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 struct stat;
 struct rtcdate;
 
@@ -37,3 +43,7 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_USER_H

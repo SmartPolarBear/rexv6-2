@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_FILE_H)
+#define __INCLUDE_XV6_FILE_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 struct file {
   enum { FD_NONE, FD_PIPE, FD_INODE } type;
   int ref; // reference count
@@ -35,3 +41,7 @@ struct devsw {
 extern struct devsw devsw[];
 
 #define CONSOLE 1
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_FILE_H

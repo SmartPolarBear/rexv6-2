@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_MP_H)
+#define __INCLUDE_XV6_MP_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 // See MultiProcessor Specification Version 1.[14]
 
 struct mp {             // floating pointer
@@ -54,3 +60,7 @@ struct mpioapic {       // I/O APIC table entry
 
 //PAGEBREAK!
 // Blank page.
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_MP_H

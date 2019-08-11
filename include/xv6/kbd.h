@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_KBD_H)
+#define __INCLUDE_XV6_KBD_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 // PC keyboard interface constants
 
 #define KBSTATP         0x64    // kbd controller status port(I)
@@ -110,3 +116,7 @@ static uchar ctlmap[256] =
   [0xD2] KEY_INS,   [0xD3] KEY_DEL
 };
 
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_KBD_H

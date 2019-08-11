@@ -1,3 +1,9 @@
+#if !defined(__INCLUDE_XV6_SPINLOCK_H)
+#define __INCLUDE_XV6_SPINLOCK_H
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 // Mutual exclusion lock.
 struct spinlock {
   uint locked;       // Is the lock held?
@@ -9,3 +15,7 @@ struct spinlock {
                      // that locked the lock.
 };
 
+#if defined(__cplusplus)
+}
+#endif
+#endif // __INCLUDE_XV6_SPINLOCK_H
