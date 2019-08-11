@@ -19,6 +19,9 @@ kern
 build/bin
 build/kern/*
 
+tools/protect-header/bin
+tools/protect-header/obj
+
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
