@@ -10,5 +10,7 @@ $(SUBDIRS):
 
 clean: 
 	for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
+	rm -rf pheader/bin
+	rm -rf pheader/obj
 
 .PHONY: all clean

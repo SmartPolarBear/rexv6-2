@@ -39,12 +39,12 @@ $(BUILDDIR)/kernelmemfs: $(MEMFSOBJS) $(BASEBINOBJS) kern/kernel.ld fs.img
 	$(OBJDUMP) -t $(BUILDDIR)/kernelmemfs | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BUILDDIR)/kernelmemfs.sym
 
 
-xv6.img:  $(BUILDDIR)/boot/bootblock $(BUILDDIR)/kernel
+xv6.img: $(BUILDDIR)/kernel $(BUILDDIR)/boot/bootblock
 	dd if=/dev/zero of=xv6.img count=10000
 	dd if=$(BUILDDIR)/boot/bootblock of=xv6.img conv=notrunc
 	dd if=$(BUILDDIR)/kernel of=xv6.img seek=1 conv=notrunc
 
-xv6memfs.img: $(BUILDDIR)/bootblock  $(BUILDDIR)/kernelmemfs
+xv6memfs.img: $(BUILDDIR)/kernelmemfs $(BUILDDIR)/bootblock
 	dd if=/dev/zero of=xv6memfs.img count=10000
 	dd if=$(BUILDDIR)/bootblock of=xv6memfs.img conv=notrunc
 	dd if= $(BUILDDIR)/kernelmemfs of=xv6memfs.img seek=1 conv=notrunc
@@ -56,8 +56,8 @@ xv6memfs.img: $(BUILDDIR)/bootblock  $(BUILDDIR)/kernelmemfs
 # http://www.gnu.org/software/make/manual/html_node/Chained-Rules.html
 # .PRECIOUS: %.o
 
-fs.img: $(BUILDDIR)/tools/mkfs/mkfs $(BINOBJS) README
-	./$< fs.img README $(BINOBJS)
+fs.img: $(SUBDIRS) $(BINOBJS) README
+	./$(BUILDDIR)/tools/mkfs/mkfs fs.img README $(BINOBJS)
 
 -include *.d
 
@@ -65,7 +65,7 @@ clean:
 	rm -f xv6.img fs.img \
 	xv6memfs.img .gdbinit \
 	rm -rf $(BUILDDIR)
-	$(BINOBJS)
+
 
 # make a printout
 FILES = $(shell grep -v '^\#' $(MISCDIR)/runoff.list)

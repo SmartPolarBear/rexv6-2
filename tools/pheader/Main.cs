@@ -1,4 +1,15 @@
-﻿using System;
+﻿/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-08-11 13:50:25
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-08-11 14:06:34
+ * @ Description: 
+    A tool to add protection macro and extern "C"s to headers.
+    Usage : dotnet run $(pwd)/../../ $(find ../../include/xv6)
+ */
+
+
+using System;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
@@ -70,6 +81,12 @@ namespace protect_header
 
         static void Main(string[] args)
         {
+            if(args.Count()==0)
+            {
+                Console.WriteLine("Usage : dotnet run $(pwd)/../../ $(find ../../include/xv6)");
+                return;
+            }
+
             string topd = Path.GetFullPath(args[0]), cwd = Directory.GetCurrentDirectory();
             Console.WriteLine($"Working dir:{topd}");
             for (int i = 1; i < args.Count(); i++)

@@ -1,0 +1,11 @@
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/bin/Debug/netcoreapp2.2/protect-header.deps.json
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/bin/Debug/netcoreapp2.2/protect-header.runtimeconfig.json
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/bin/Debug/netcoreapp2.2/protect-header.runtimeconfig.dev.json
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/bin/Debug/netcoreapp2.2/protect-header.dll
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/bin/Debug/netcoreapp2.2/protect-header.pdb
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/obj/Debug/netcoreapp2.2/protect-header.csprojAssemblyReference.cache
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/obj/Debug/netcoreapp2.2/protect-header.csproj.CoreCompileInputs.cache
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/obj/Debug/netcoreapp2.2/protect-header.AssemblyInfoInputs.cache
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/obj/Debug/netcoreapp2.2/protect-header.AssemblyInfo.cs
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/obj/Debug/netcoreapp2.2/protect-header.dll
+/mnt/c/Users/Bear/source/repos/rexv6-clangdev/tools/pheader/obj/Debug/netcoreapp2.2/protect-header.pdb
