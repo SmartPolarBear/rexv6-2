@@ -51,17 +51,26 @@ QEMU = $(shell if which qemu > /dev/null; \
 endif
 
 CC = $(TOOLPREFIX)gcc
+CXX = $(TOOLPREFIX)g++
 AS = $(TOOLPREFIX)gcc
 LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
-CFLAGS = -std=gnu18 -fno-pic -static -fno-builtin -fno-strict-aliasing -Wall -MD -ggdb -m32 -fno-omit-frame-pointer -I$(INCDIR)
-CFLAGS += -Werror -O2
-CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
 # FreeBSD ld wants ``elf_i386_fbsd''
 LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
 
+COMMONCFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Wall -MD -ggdb -m32 -fno-omit-frame-pointer -I$(INCDIR)
+COMMONCFLAGS += -O2
+
+CFLAGS += $(COMMONCFLAGS)
+CFLAGS += -std=gnu18
+CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
+
+CXXFLAGS +=  $(COMMONCFLAGS)
+CXXFLAGS += -std=gnu++17 -mno-sse -fno-exceptions -fno-rtti -ffreestanding -nostdlib -mno-red-zone 
+CXXFLAGS += -fno-builtin -Wall -m32 -nostdinc -fpermissive -fno-stack-protector -fpermissive 
+CXXFLAGS += $(shell $(CXX) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 
 HOST_CC = gcc
 HOST_CXX = g++

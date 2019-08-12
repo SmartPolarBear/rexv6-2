@@ -1,5 +1,6 @@
 #if !defined(__TOOLS_MKFS_COMMON_H)
 #define __TOOLS_MKFS_COMMON_H
+#define NONKERNEL
 
 #include "xv6/types.h"
 

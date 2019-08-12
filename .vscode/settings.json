@@ -48,7 +48,10 @@
         "sstream": "cpp",
         "tuple": "cpp",
         "utility": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "param.h": "c",
+        "defs.h": "c",
+        "kalloc.h": "c"
     },
     "autoHeader": {
         "format": {

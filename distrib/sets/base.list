@@ -23,6 +23,8 @@ kern/syscall.o
 kern/sysfile.o
 kern/sysproc.o
 kern/trap.o
+kern/buddy.o
+kern/freelist.o
 kern/trapasm.o
 kern/vectors.o
 kern/vm.o

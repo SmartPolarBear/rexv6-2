@@ -13,11 +13,8 @@ initcode.out
 kernel
 kernelmemfs
 build
-build/*
-kern
+
 .gdbinit
-build/bin
-build/kern/*
 
 .vscode/*
 !.vscode/settings.json
