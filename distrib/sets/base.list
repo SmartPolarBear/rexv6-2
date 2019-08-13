@@ -6,6 +6,7 @@ drivers/lapic.o
 drivers/mp.o
 drivers/picirq.o
 drivers/uart.o
+drivers/timer.o
 fs/pipe.o
 fs/sfs/bio.o
 fs/sfs/file.o

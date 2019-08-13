@@ -36,8 +36,6 @@ void switch_allocator(allocator_id_t id)
 
 void initmem(void *vstart, void *vend)
 {
-  cprintf("vstart=%d,vend=%d\n", (int)vstart, (int)vstart);
-
   allocators[current_allocator].init(vstart, vend);
 }
 

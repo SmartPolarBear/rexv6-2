@@ -1,6 +1,6 @@
 TOP_SRCDIR = ..
 
-SUBDIRS = apic console cpu ide kbd pic uart
+SUBDIRS = apic console cpu ide kbd pic uart timer
 
 all: $(SUBDIRS)
 

@@ -18,7 +18,7 @@ int main(void)
 {
   switch_allocator(FREELIST);
   initmem(end, P2V(4 * 1024 * 1024)); // phys page allocator
-  
+
   kvmalloc();                         // kernel page table
   mpinit();                           // detect other processors
   lapicinit();                        // interrupt controller
@@ -36,8 +36,7 @@ int main(void)
 
   switch_allocator(BUDDY);
   initmem(P2V(4 * 1024 * 1024), P2V(PHYSTOP)); // must come after startothers()
-
-  cprintf("fuck.");
+ 
   userinit(); // first user process
   mpmain();   // finish this processor's setup
 }
