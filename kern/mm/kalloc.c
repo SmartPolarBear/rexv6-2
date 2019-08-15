@@ -1,6 +1,13 @@
-// Physical memory allocator, intended to allocate
-// memory for user processes, kernel stacks, page table pages,
-// and pipe buffers. Allocates 4096-byte pages.
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-08-15 23:17:49
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-08-15 23:18:37
+ * @ Description:
+ * Physical memory allocator, intended to allocate
+ * memory for user processes, kernel stacks, page table pages,
+ * and pipe buffers. Allocates 4096-byte pages.
+ */
 
 #include "xv6/types.h"
 #include "xv6/defs.h"

@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-08-15 23:12:37
+ * @ Modified time: 2019-08-15 23:25:10
  * @ Description: Buddy memory allocator
  * 
  *  this file implement the buddy memory allocator. Each order divides
