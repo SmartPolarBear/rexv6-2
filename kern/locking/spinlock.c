@@ -1,4 +1,15 @@
-// Mutual exclusion spin locks.
+/**
+ * @ Author: SmartPolarBear
+ * @ Create Time: 2019-08-15 23:06:05
+ * @ Modified by: SmartPolarBear
+ * @ Modified time: 2019-08-15 23:08:38
+ * @ Description:Mutual exclusion spin locks.
+ * it's really really really fucking slow compared to the master brench.
+ * This problem is yet to be looked into.
+ *  WHAT TO CHECK:
+ *    mycpu() calls
+ *    holding() calls
+ */
 
 #include "xv6/types.h"
 #include "xv6/defs.h"

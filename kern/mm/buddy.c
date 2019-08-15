@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-08-13 23:39:53
+ * @ Modified time: 2019-08-13 23:41:45
  * @ Description: Buddy memory allocator
  * 
  *  this file implement the buddy memory allocator. Each order divides
@@ -87,28 +87,23 @@ void buddy_init(void *vstart, void *vend)
 {
     initlock(&kmem.lock, "buddy");
 
-    uint32_t total, n;
-    uint len;
-    struct order *ord;
-    struct mark *mk;
-
     kmem.start = (uint)vstart;
     kmem.end = (uint)vend;
-    len = kmem.end - kmem.start;
+    uint len = kmem.end - kmem.start;
 
     // reserved memory at vstart for an array of marks (for all the orders)
-    n = (len >> (MAX_ORD + 5)) + 1; // estimated # of marks for max order
-    total = 0;
+    uint n = (len >> (MAX_ORD + 5)) + 1; // estimated # of marks for max order
+    uint total = 0;
     for (int i = N_ORD - 1; i >= 0; i--)
     {
-        ord = kmem.orders + i;
+        order_t *ord = kmem.orders + i;
         ord->offset = total;
         ord->head = NIL;
 
         // set the bitmaps to mark all blocks not available
         for (uint j = 0; j < n; j++)
         {
-            mk = get_mark(i + MIN_ORD, j);
+            mark_t *mk = get_mark(i + MIN_ORD, j);
             mk->lnks = LNKS(NIL, NIL);
             mk->bitmap = 0;
         }
@@ -118,15 +113,13 @@ void buddy_init(void *vstart, void *vend)
     }
 
     // add all available memory to the highest order bucket
-    kmem.start_heap = ALIGN_UP(kmem.start + total * sizeof(*mk), 1 << MAX_ORD);
+    kmem.start_heap = ALIGN_UP(kmem.start + total * sizeof(mark_t), 1 << MAX_ORD);
 
-    cprintf("1(%d).\n", kmem.end - kmem.start_heap);
     for (uint i = kmem.start_heap; i < kmem.end; i += (1 << MAX_ORD))
     {
         //TODO: FIX aquiring lock makes this really slow.
         buddy_kmfree((void *)i, MAX_ORD);
     }
-    cprintf("2.\n");
 
     kmem.initialized = 1;
 }
@@ -254,7 +247,6 @@ static void __kfree(void *mem, int order)
     struct mark *mk;
     blk_id = mem2blkid(order, mem);
     mk = get_mark(order, blk_id >> 5);
-
 
     if (available(mk->bitmap, blk_id))
     {
