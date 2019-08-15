@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-08-13 23:41:45
+ * @ Modified time: 2019-08-15 23:12:37
  * @ Description: Buddy memory allocator
  * 
  *  this file implement the buddy memory allocator. Each order divides
@@ -12,6 +12,7 @@
  *  free blocks (for each order), thus allowing fast allocation. There is
  *  about 8% overhead (maximum) for this structure.
  */
+
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
@@ -33,6 +34,9 @@
 #define NEXT_LNK(lnks) ((lnks)&0xFFFF)
 #define LNKS(pre, next) (((pre) << 16) | ((next)&0xFFFF))
 #define NIL ((uint16_t)0xFFFF)
+
+//the order for a page-sized block.
+#define PGSIZE_ORDER (12)
 
 typedef struct mark
 {
@@ -82,6 +86,22 @@ static inline int available(uint bitmap, int blk_id)
 {
     return bitmap & (1 << (blk_id & 0x1F));
 }
+
+// round up power of 2, then get the order
+//   http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+static inline uint32_t roundup_powerof2(uint32_t v)
+{
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v++;
+
+    return v;
+}
+
 
 void buddy_init(void *vstart, void *vend)
 {
@@ -239,9 +259,9 @@ static void *get_blk(int order)
     return NULL;
 }
 
-/*when kmem.initialized is false, __kfree can still be called because
+/*when kmem.initialized is false, __internal_kfree can still be called because
   it its also used to initialize the buddy*/
-static void __kfree(void *mem, int order)
+static void __internal_kfree(void *mem, int order)
 {
     int blk_id, buddy_id;
     struct mark *mk;
@@ -263,15 +283,15 @@ static void __kfree(void *mem, int order)
     {
         // our buddy is also free, merge it
         unmark_blk(order, buddy_id);
-        __kfree(blkid2mem(order, blk_id & ~0x0001), order + 1);
+        __internal_kfree(blkid2mem(order, blk_id & ~0x0001), order + 1);
     }
 }
 
-static void *__kmalloc(int order)
+static void *__internal_kmalloc(int order)
 {
     if (!kmem.initialized)
     {
-        panic("__kmalloc:buddy-malloc before buddy init.");
+        panic("__internal_kmalloc:buddy-malloc before buddy init.");
     }
 
     struct order *ord;
@@ -287,11 +307,11 @@ static void *__kmalloc(int order)
     else if (order < MAX_ORD)
     {
         // if currently no block available, try to split a parent
-        up = __kmalloc(order + 1);
+        up = __internal_kmalloc(order + 1);
 
         if (up != NULL)
         {
-            __kfree(up + (1 << order), order);
+            __internal_kfree(up + (1 << order), order);
         }
     }
 
@@ -309,7 +329,7 @@ void *buddy_kmalloc(int order)
     }
 
     acquire(&kmem.lock);
-    up = __kmalloc(order);
+    up = __internal_kmalloc(order);
     release(&kmem.lock);
 
     return up;
@@ -325,21 +345,20 @@ void buddy_kmfree(void *mem, int order)
     }
 
     acquire(&kmem.lock);
-    __kfree(mem, order);
+    __internal_kfree(mem, order);
     release(&kmem.lock);
 }
 
-#define PTE_SHIFT (12)
 // free a page
 void buddy_free_page(char *v)
 {
-    buddy_kmfree(v, PTE_SHIFT);
+    buddy_kmfree(v, PGSIZE_ORDER);
 }
 
 // allocate a page
 char *buddy_alloc_page(void)
 {
-    return buddy_kmalloc(PTE_SHIFT);
+    return buddy_kmalloc(PGSIZE_ORDER);
 }
 
 //Implement these to alloc with size,free without size
@@ -359,20 +378,11 @@ void buddy_kmfree2(void *v)
     buddy_kmfree(blk, order);
 }
 
-// round up power of 2, then get the order
-//   http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
 int buddy_get_order(uint32_t v)
 {
-    uint32_t ord;
+    v = roundup_powerof2(v);
 
-    v--;
-    v |= v >> 1;
-    v |= v >> 2;
-    v |= v >> 4;
-    v |= v >> 8;
-    v |= v >> 16;
-    v++;
-
+    uint32_t ord = 0;
     for (ord = 0; ord < 32; ord++)
     {
         if (v & (1 << ord))
