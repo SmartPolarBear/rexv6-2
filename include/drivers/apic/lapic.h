@@ -34,22 +34,15 @@ extern "C"
     };
 #define ICRHI (0x0310 / 4) // Interrupt Command [63:32]
 #define TIMER (0x0320 / 4) // Local Vector Table 0 (TIMER)
-    enum TIMER_FLAGS
-    {
-        X1 = 0x0000000B,       // divide counts by 1
-        PERIODIC = 0x00020000, // Periodic
-    };
 #define PCINT (0x0340 / 4) // Performance Counter LVT
 #define LINT0 (0x0350 / 4) // Local Vector Table 1 (LINT0)
 #define LINT1 (0x0360 / 4) // Local Vector Table 2 (LINT1)
 #define ERROR (0x0370 / 4) // Local Vector Table 3 (ERROR)
-    enum LINT_FLAGS
+    enum ICRHI_FLAGS
     {
         MASKED = 0x00010000, // Interrupt masked
     };
-#define TICR (0x0380 / 4) // Timer Initial Count
-#define TCCR (0x0390 / 4) // Timer Current Count
-#define TDCR (0x03E0 / 4) // Timer Divide Configuration
+
 
     // lapic.c
     void cmostime(struct rtcdate *r);
@@ -59,6 +52,8 @@ extern "C"
     void lapicinit(void);
     void lapicstartap(uchar, uint);
     void microdelay(int);
+
+    void lapicw(int index, int value);
 
 #if defined(__cplusplus)
 }

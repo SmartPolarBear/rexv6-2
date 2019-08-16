@@ -51,7 +51,8 @@
         "algorithm": "cpp",
         "param.h": "c",
         "defs.h": "c",
-        "kalloc.h": "c"
+        "kalloc.h": "c",
+        "lapic.h": "c"
     },
     "autoHeader": {
         "format": {
