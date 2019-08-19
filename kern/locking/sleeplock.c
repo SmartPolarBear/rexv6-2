@@ -3,7 +3,7 @@
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
-#include "xv6/x86.h"
+#include "arch/x86/x86.h"
 #include "xv6/memlayout.h"
 #include "xv6/mmu.h"
 #include "xv6/proc.h"

@@ -1,5 +1,6 @@
 TOP_SRCDIR = .
 include $(TOP_SRCDIR)/Makefile.mk	
+include $(TOP_SRCDIR)/Makefile.qemu.mk
 SETSDIR=$(TOP_SRCDIR)/distrib/sets
 
 SUBDIRS = tools lib kern fs drivers boot bin
@@ -80,8 +81,8 @@ print: xv6.pdf
 # run in emulators
 
 bochs : fs.img xv6.img
-	if [ ! -e .bochsrc ]; then ln -s dot-bochsrc .bochsrc; fi
-	bochs -q
+	if [ ! -e .bochsrc ]; then ln -s misc/dot-bochsrc .bochsrc; fi
+	bochs.exe -q
 
 qemu: fs.img xv6.img
 	$(QEMU) -serial mon:stdio $(QEMUOPTS)

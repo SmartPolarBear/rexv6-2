@@ -8,7 +8,7 @@
 #include "xv6/memlayout.h"
 #include "xv6/traps.h"
 #include "xv6/mmu.h"
-#include "xv6/x86.h"
+#include "arch/x86/x86.h"
 
 #include "drivers/apic/lapic.h"
 #include "drivers/timer/timer.h"

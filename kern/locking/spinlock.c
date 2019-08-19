@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-08-15 23:06:05
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-08-15 23:08:38
+ * @ Modified time: 2019-08-19 22:51:07
  * @ Description:Mutual exclusion spin locks.
  * it's really really really fucking slow compared to the master brench.
  * This problem is yet to be looked into.
@@ -14,7 +14,7 @@
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/param.h"
-#include "xv6/x86.h"
+#include "arch/x86/x86.h"
 #include "xv6/memlayout.h"
 #include "xv6/mmu.h"
 #include "xv6/proc.h"

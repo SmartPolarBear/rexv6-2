@@ -13,7 +13,7 @@
 #include "xv6/memlayout.h"
 #include "xv6/mmu.h"
 #include "xv6/proc.h"
-#include "xv6/x86.h"
+#include "arch/x86/x86.h"
 
 static void consputc(int);
 

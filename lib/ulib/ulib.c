@@ -2,7 +2,7 @@
 #include "xv6/stat.h"
 #include "xv6/fcntl.h"
 #include "xv6/user.h"
-#include "xv6/x86.h"
+#include "arch/x86/x86.h"
 
 char*
 strcpy(char *s, const char *t)

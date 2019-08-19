@@ -7,7 +7,7 @@
 
 #include "xv6/types.h"
 #include "xv6/elf.h"
-#include "xv6/x86.h"
+#include "arch/x86/x86.h"
 #include "xv6/memlayout.h"
 
 #define SECTSIZE  512

@@ -42,7 +42,7 @@ extern "C"
     {
         MASKED = 0x00010000, // Interrupt masked
     };
-
+#define IA32_TSC_DEADLINE_MSR 
 
     // lapic.c
     void cmostime(struct rtcdate *r);

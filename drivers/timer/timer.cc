@@ -1,4 +1,6 @@
 #include "xv6/traps.h"
+#include "arch/x86/x86.h"
+#include "xv6/defs.h"
 #include "drivers/timer/timer.h"
 
 //Divide configuration register
@@ -14,7 +16,6 @@
 // 101: Divide by 64
 // 110: Divide by 128
 // 111: Divide by 1
-
 enum class DIVISION : uint
 {
     X1 = 0b1011, // divide counts by 1
@@ -40,6 +41,16 @@ enum class TIMER_MODE : uint
 #define TCCR (0x0390 / 4) // Timer Current Count
 #define TDCR (0x03E0 / 4) // Timer Divide Configuration
 
+void init_periodic(void);
+void init_tsc_deadline(void);
+
+static bool tsc_deadline_support(void)
+{
+    uint cpuid[4] = {0, 0, 0, 0};
+    asmcpuid_string(1, cpuid);
+    return cpuid[2] & (1 << 24); //ECX:BITS24
+}
+
 extern "C" void lapictimer_init(void)
 {
     // OLD IMPLEMENTATION
@@ -51,7 +62,24 @@ extern "C" void lapictimer_init(void)
     //          lapicw(TIMER, static_cast<uint>(TIMER_MODE::PERIODIC) | (T_IRQ0 + IRQ_TIMER));
     //          lapicw(TICR, 10000000);
 
+    if (tsc_deadline_support())
+    {
+        init_tsc_deadline();
+    }
+    else
+    {
+        init_periodic();
+    }
+}
+
+void init_periodic(void)
+{
     lapicw(TDCR, static_cast<uint>(DIVISION::X1));
     lapicw(TIMER, static_cast<uint>(TIMER_MODE::PERIODIC) | (T_IRQ0 + IRQ_TIMER));
     lapicw(TICR, 10000000);
+}
+
+void init_tsc_deadline(void)
+{
+    //TODO:Implement after finding the suitable VPC that support tsc-deadline mode
 }
