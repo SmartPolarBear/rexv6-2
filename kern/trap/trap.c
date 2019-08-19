@@ -5,14 +5,12 @@
 #include "xv6/mmu.h"
 #include "xv6/proc.h"
 #include "arch/x86/x86.h"
-#include "arch/x86/atomic.h"
 #include "xv6/traps.h"
 #include "xv6/spinlock.h"
 
 // Interrupt descriptor table (shared by all CPUs).
 struct gatedesc idt[256];
 extern uint vectors[]; // in vectors.S: array of 256 entry pointers
-// struct spinlock tickslock;
 uint ticks __attribute__((aligned(4)));
 
 void tvinit(void)
@@ -23,7 +21,6 @@ void tvinit(void)
     SETGATE(idt[i], 0, SEG_KCODE << 3, vectors[i], 0);
   SETGATE(idt[T_SYSCALL], 1, SEG_KCODE << 3, vectors[T_SYSCALL], DPL_USER);
 
-  // initlock(&tickslock, "time");
 }
 
 void idtinit(void)
