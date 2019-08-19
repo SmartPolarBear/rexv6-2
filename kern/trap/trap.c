@@ -8,10 +8,13 @@
 #include "xv6/traps.h"
 #include "xv6/spinlock.h"
 
+#include "drivers/timer/timer.h"
+
 // Interrupt descriptor table (shared by all CPUs).
 struct gatedesc idt[256];
-extern uint vectors[]; // in vectors.S: array of 256 entry pointers
-uint ticks __attribute__((aligned(4)));
+extern uint vectors[];                  // in vectors.S: array of 256 entry pointers
+
+uint ticks __attribute__((aligned(4))); //atomic granteed
 
 void tvinit(void)
 {
@@ -20,7 +23,6 @@ void tvinit(void)
   for (i = 0; i < 256; i++)
     SETGATE(idt[i], 0, SEG_KCODE << 3, vectors[i], 0);
   SETGATE(idt[T_SYSCALL], 1, SEG_KCODE << 3, vectors[T_SYSCALL], DPL_USER);
-
 }
 
 void idtinit(void)
@@ -45,13 +47,8 @@ void trap(struct trapframe *tf)
   switch (tf->trapno)
   {
   case T_IRQ0 + IRQ_TIMER:
-    if (cpuid() == 0)
+    if(timerintr())
     {
-      // acquire(&tickslock);
-      // ticks++;
-      // wakeup(&ticks);
-      // release(&tickslock);
-      atom_inc((int *)&ticks);
       wakeup(&ticks);
     }
     lapiceoi();

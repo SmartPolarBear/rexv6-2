@@ -158,7 +158,6 @@ extern "C"
 
     // trap.c
     void idtinit(void);
-    extern uint ticks;
     void tvinit(void);
 
     // uart.c

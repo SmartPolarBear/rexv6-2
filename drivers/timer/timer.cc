@@ -3,6 +3,8 @@
 #include "xv6/defs.h"
 #include "drivers/timer/timer.h"
 
+extern "C" uint ticks __attribute__((aligned(4))); //atomic granteed
+
 //Divide configuration register
 //------------------------------------
 //|  3   |   2   |   1     |    0    |
@@ -70,6 +72,16 @@ extern "C" void lapictimer_init(void)
     {
         init_periodic();
     }
+}
+
+extern "C" int timerintr(void)
+{
+    if (cpuid() == 0)
+    {
+        atom_inc((int *)&ticks);
+        return true;
+    }
+    return false;
 }
 
 void init_periodic(void)

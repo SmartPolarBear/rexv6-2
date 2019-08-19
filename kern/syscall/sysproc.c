@@ -7,6 +7,8 @@
 #include "xv6/mmu.h"
 #include "xv6/proc.h"
 
+#include "drivers/timer/timer.h"
+
 int sys_fork(void)
 {
   return fork();
@@ -57,18 +59,15 @@ int sys_sleep(void)
 
   if (argint(0, &n) < 0)
     return -1;
-  // acquire(&tickslock);
   ticks0 = ticks;
   while (ticks - ticks0 < n)
   {
     if (myproc()->killed)
     {
-      // release(&tickslock);
       return -1;
     }
     sleep(&ticks, NULL);
   }
-  // release(&tickslock);
   return 0;
 }
 

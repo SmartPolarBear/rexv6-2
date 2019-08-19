@@ -8,9 +8,9 @@
 extern "C"
 {
 #endif
-
+    int timerintr(void);
     void lapictimer_init(void);
-
+    extern uint ticks;
 #if defined(__cplusplus)
 }
 #endif

@@ -52,7 +52,8 @@
         "param.h": "c",
         "defs.h": "c",
         "kalloc.h": "c",
-        "lapic.h": "c"
+        "lapic.h": "c",
+        "timer.h": "c"
     },
     "autoHeader": {
         "format": {
