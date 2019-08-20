@@ -39,13 +39,19 @@ enum class TIMER_MODE : uint
     RESERVED = 0b110'0000'0000'0000'0000,     // Reserved
 };
 
-#define TICR (0x0380 / 4) // Timer Initial Count
-#define TCCR (0x0390 / 4) // Timer Current Count
-#define TDCR (0x03E0 / 4) // Timer Divide Configuration
+constexpr uint TICR = (0x0380 / 4); // Timer Initial Count
+constexpr uint TCCR = (0x0390 / 4); // Timer Current Count
+constexpr uint TDCR = (0x03E0 / 4); // Timer Divide Configuration
 
 void init_periodic(void);
 void init_tsc_deadline(void);
 
+/**
+ * @brief check CPUID.1.ECX:BITS24 for TSC deadline availablity.
+ * 
+ * @return true support
+ * @return false not support
+ */
 static bool tsc_deadline_support(void)
 {
     uint cpuid[4] = {0, 0, 0, 0};
@@ -55,15 +61,6 @@ static bool tsc_deadline_support(void)
 
 extern "C" void lapictimer_init(void)
 {
-    // OLD IMPLEMENTATION
-    // The timer repeatedly counts down at bus frequency
-    // from lapic[TICR] and then issues an interrupt.
-    // If xv6 cared more about precise timekeeping,
-    // TICR would be calibrated using an external time source.
-    //          lapicw(TDCR, static_cast<uint>(DIVISION::X1));
-    //          lapicw(TIMER, static_cast<uint>(TIMER_MODE::PERIODIC) | (T_IRQ0 + IRQ_TIMER));
-    //          lapicw(TICR, 10000000);
-
     if (tsc_deadline_support())
     {
         init_tsc_deadline();
@@ -74,6 +71,10 @@ extern "C" void lapictimer_init(void)
     }
 }
 
+/**
+ * @brief Handle the timer IRQ for trap.c
+ * @return true the ticks variable is updated. trap.c should wakeup proc chains.
+ */
 extern "C" int timerintr(void)
 {
     if (cpuid() == 0)
@@ -84,13 +85,26 @@ extern "C" int timerintr(void)
     return false;
 }
 
+/**
+ * @brief Init local apic timer in periodic mode
+ * 
+ */
 void init_periodic(void)
 {
+    // The timer repeatedly counts down at bus frequency
+    // from lapic[TICR] and then issues an interrupt.
+    // If xv6 cared more about precise timekeeping,
+    // TICR would be calibrated using an external time source.
+
     lapicw(TDCR, static_cast<uint>(DIVISION::X1));
     lapicw(TIMER, static_cast<uint>(TIMER_MODE::PERIODIC) | (T_IRQ0 + IRQ_TIMER));
     lapicw(TICR, 10000000);
 }
 
+/**
+ * @brief initialize local apic timer in the newer TSC-Deadline mode.
+ * 
+ */
 void init_tsc_deadline(void)
 {
     //TODO:Implement after finding the suitable VPC that support tsc-deadline mode
