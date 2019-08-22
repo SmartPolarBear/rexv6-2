@@ -53,7 +53,8 @@
         "defs.h": "c",
         "kalloc.h": "c",
         "lapic.h": "c",
-        "timer.h": "c"
+        "timer.h": "c",
+        "spinlock.h": "c"
     },
     "autoHeader": {
         "format": {

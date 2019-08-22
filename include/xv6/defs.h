@@ -26,7 +26,7 @@ extern "C"
     void consoleinit(void);
     void cprintf(char *, ...);
     void consoleintr(int (*)(void));
-    void panic(char *) __attribute__((noreturn));
+    void panic(const char *) __attribute__((noreturn));
 
     // exec.c
     int exec(char *, char **);
@@ -122,13 +122,7 @@ extern "C"
     void swtch(struct context **, struct context *);
 
     // spinlock.c
-    void acquire(struct spinlock *);
-    void getcallerpcs(void *, uint *);
-    int holding(struct spinlock *);
-    void initlock(struct spinlock *, char *);
-    void release(struct spinlock *);
-    void pushcli(void);
-    void popcli(void);
+    #include "spinlock.h"
 
     // sleeplock.c
     void acquiresleep(struct sleeplock *);

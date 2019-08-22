@@ -7,6 +7,10 @@
 #include "xv6/spinlock.h"
 #include "xv6/proc.h"
 
+
+extern "C" void forkret(void);
+extern "C" void trapret(void);
+
 struct
 {
   struct spinlock lock;
@@ -16,8 +20,6 @@ struct
 static struct proc *initproc;
 
 int nextpid = 1;
-extern void forkret(void);
-extern void trapret(void);
 
 static void wakeup1(void *chan);
 
@@ -513,12 +515,13 @@ int kill(int pid)
 void procdump(void)
 {
   static char *states[] = {
-      [UNUSED] "unused",
-      [EMBRYO] "embryo",
-      [SLEEPING] "sleep ",
-      [RUNNABLE] "runble",
-      [RUNNING] "run   ",
-      [ZOMBIE] "zombie"};
+      [UNUSED] = "unused",
+      [EMBRYO] = "embryo",
+      [SLEEPING] = "sleep ",
+      [RUNNABLE] = "runble",
+      [RUNNING] = "run   ",
+      [ZOMBIE] = "zombie"};
+    
   int i;
   struct proc *p;
   char *state;
