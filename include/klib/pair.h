@@ -5,6 +5,9 @@
 #error ONLY FOR C++
 #endif
 
+namespace klib
+{
+
 template <typename TF, typename TS>
 struct Pair
 {
@@ -14,5 +17,6 @@ struct Pair
     Pair(TF f, TS s) : first(f), second(s) {}
     ~Pair() {}
 };
+} // namespace klib
 
 #endif // __INCLUDE_KLIB_KPAIR_H

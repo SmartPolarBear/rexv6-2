@@ -5,7 +5,10 @@
 #error ONLY FOR C++
 #endif
 
-template<typename TElement,typename TAllocator,typename TPred>
+namespace klib
+{
+
+template <typename TElement, typename TAllocator, typename TPred>
 class PriorityQueue
 {
 private:
@@ -17,6 +20,7 @@ private:
     using size_type = unsigned int;
 
     alloc_type allocator;
+
 public:
     PriorityQueue(void);
     ~PriorityQueue();
@@ -26,5 +30,6 @@ public:
     element_type top(void);
     size_type size(void);
 };
+} // namespace klib
 
 #endif // __INCLUDE_KLIB_PriorityQueue_H
