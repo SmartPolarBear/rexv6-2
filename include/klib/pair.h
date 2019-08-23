@@ -6,13 +6,13 @@
 #endif
 
 template <typename TF, typename TS>
-struct kpair
+struct Pair
 {
     TF first;
     TS second;
-    kpair(void) : first(0), second(0) {}
-    kpair(TF f, TS s) : first(f), second(s) {}
-    ~kpair() {}
+    Pair(void) : first(0), second(0) {}
+    Pair(TF f, TS s) : first(f), second(s) {}
+    ~Pair() {}
 };
 
 #endif // __INCLUDE_KLIB_KPAIR_H

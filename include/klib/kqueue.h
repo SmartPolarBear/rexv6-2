@@ -1,6 +1,0 @@
-#if !defined(__INCLUDE_XV6_KLIB_KQUEUE_H)
-#define __INCLUDE_XV6_KLIB_KQUEUE_H
-
-
-
-#endif // __INCLUDE_XV6_KLIB_KQUEUE_H
