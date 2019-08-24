@@ -43,6 +43,7 @@ public:
 
 template <typename TEle, typename TAlloc>
 Vector<TEle, TAlloc>::Vector(unsigned int s)
+    :  size_(0),capacity_(0), data_(nullptr)
 {
     size_ = s;
     if (s != 0)
@@ -55,13 +56,14 @@ Vector<TEle, TAlloc>::Vector(unsigned int s)
 
 template <typename TEle, typename TAlloc>
 Vector<TEle, TAlloc>::Vector(const Vector &obj)
+    :  size_(0),capacity_(0), data_(nullptr)
 {
 
     size_ = obj.size_;
     capacity_ = obj.capacity_;
 
     data_ = alloc.allocate(capacity_); //new T[capacity_];
-    for (int i = 0; i < size_; ++i)
+    for (decltype(size_) i = 0u; i < size_; ++i)
     {
         data_[i] = obj.data_[i];
     }
@@ -113,7 +115,7 @@ void Vector<TEle, TAlloc>::push_back(TEle val)
         capacity_ = get_capacity(size_ + 1);
         TEle *temp = alloc.allocate(size_); //new T[size_];
 
-        for (int i = 0; i < size_; ++i)
+        for (auto i = 0u; i < size_; ++i)
         {
             temp[i] = data_[i];
         }
@@ -123,7 +125,7 @@ void Vector<TEle, TAlloc>::push_back(TEle val)
 
         data_ = alloc.allocate(capacity_); //new T[capacity_];
 
-        for (int i = 0; i < size_; ++i)
+        for (decltype(size_) i = 0u; i < size_; ++i)
         {
             data_[i] = temp[i];
         }
