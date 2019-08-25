@@ -2,13 +2,15 @@
 #include "klib/vector.h"
 #include "iostream"
 #include "ostream"
-
-using std::ostream;
+#include "algorithm"
 
 using klib::Vector;
+
 using std::cin;
 using std::cout;
 using std::endl;
+using std::ostream;
+using std::swap;
 
 struct data
 {
@@ -77,6 +79,59 @@ BOOST_AUTO_TEST_CASE(PushBackPopBack)
     BOOST_REQUIRE_EQUAL(vec.size(), 0);
     BOOST_REQUIRE_GE(vec.capacity(), vec.size());
     BOOST_REQUIRE_EQUAL(vec.empty(), true);
+}
+
+BOOST_AUTO_TEST_CASE(Iterators)
+{
+    Vector<data, allocator<data>> vec;
+
+    for (int i = 0; i < 9; i++)
+        for (int j = 0; j < 9; j++)
+            for (int k = 0; k < 9; k++)
+                vec.push_back({i, j, k});
+
+    cout << "Access" << endl;
+    auto bg = vec.begin();
+    for (auto it = vec.begin(); it != vec.end(); it++)
+    {
+        BOOST_REQUIRE_EQUAL(*it, vec[it - bg]);
+    }
+
+    cout << "Modify" << endl;
+    for (auto it = vec.begin(); it != vec.end(); it++)
+    {
+        int a = it->a, b = it->b, c = it->c;
+        swap(it->a, it->c);
+        BOOST_REQUIRE_EQUAL(*it, ((data){c, b, a}));
+    }
+
+    cout << "Assign" << endl;
+    for (auto it = vec.begin(); it != vec.end(); it++)
+    {
+        int a = it->a, b = it->b, c = it->c;
+        *it = (data){-a, -b, -c};
+        BOOST_REQUIRE_EQUAL(*it, ((data){-a, -b, -c}));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(InserErase)
+{
+    Vector<data, allocator<data>> vec;
+
+    for (int i = 0; i < 9; i++)
+        for (int j = 0; j < 9; j++)
+            for (int k = 0; k < 9; k++)
+                vec.push_back({i, j, k});
+
+    cout << "Insert" << endl;
+    data newele = {10, 11, 23};
+    BOOST_REQUIRE_EQUAL(*vec.insert(vec.begin() + 1, newele), newele);
+    BOOST_REQUIRE_EQUAL(*(vec.begin() + 1), newele);
+
+    cout << "Erase" << endl;
+    data next_newele = *(vec.begin() + 2);
+    BOOST_REQUIRE_EQUAL(*vec.erase(vec.begin() + 1), next_newele);
+    BOOST_REQUIRE_EQUAL(*(vec.begin() + 1), next_newele);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

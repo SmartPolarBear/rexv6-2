@@ -55,7 +55,9 @@
         "lapic.h": "c",
         "timer.h": "c",
         "spinlock.h": "c",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "list": "cpp",
+        "random": "cpp"
     },
     "autoHeader": {
         "format": {
