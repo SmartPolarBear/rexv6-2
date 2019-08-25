@@ -5,7 +5,7 @@ all: $(TARGET)
 
 run: all
 	@chmod +x $(TARGET)
-	@./$(TARGET)
+	@./$(TARGET) --log_level=test_suite
 
 $(TARGET): $(_OBJS)
 	@echo "[GCC LINKER]" $^ "->" $@

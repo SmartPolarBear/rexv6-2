@@ -34,6 +34,7 @@ public:
     Vector(const Vector &);
     ~Vector(void);
     size_type size();
+    bool empty();
     size_type capacity();
     void push_back(value_type);
     void pop_back();
@@ -84,6 +85,13 @@ unsigned int Vector<TEle, TAlloc>::size()
 {
     return size_;
 }
+
+template <typename TEle, typename TAlloc>
+bool Vector<TEle, TAlloc>::empty()
+{
+    return size_==0;
+}
+
 template <typename TEle, typename TAlloc>
 unsigned int Vector<TEle, TAlloc>::capacity()
 {

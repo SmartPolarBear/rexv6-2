@@ -54,7 +54,8 @@
         "kalloc.h": "c",
         "lapic.h": "c",
         "timer.h": "c",
-        "spinlock.h": "c"
+        "spinlock.h": "c",
+        "bitset": "cpp"
     },
     "autoHeader": {
         "format": {
