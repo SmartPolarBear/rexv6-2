@@ -21,6 +21,27 @@ SECTIONS
 		*(.rodata .rodata.* .gnu.linkonce.r.*)
 	}
 
+	. = ALIGN(0x1000);
+	PROVIDE(sprof = .);
+	.prof : {
+		*(.prof)
+	}
+	PROVIDE(eprof = .);
+
+        .init_array : {
+                PROVIDE_HIDDEN(__init_array_start = .);
+                KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
+                KEEP(*(.init_array))
+                KEEP(*(.ctors));
+                PROVIDE_HIDDEN(__init_array_end = .);
+        }
+
+	.percpuinit_array : {
+		PROVIDE_HIDDEN(__percpuinit_array_start = .);
+		KEEP(*(.percpuinit_array))
+		PROVIDE_HIDDEN(__percpuinit_array_end = .);
+	}
+
 	/* Include debugging information in kernel memory */
 	.stab : {
 		PROVIDE(__STAB_BEGIN__ = .);
@@ -51,7 +72,13 @@ SECTIONS
 
 	/* The data segment */
 	.data : {
-		*(.data)
+		*(.data .data.* .gnu.linkonce.d.*)
+        *(.got) *(.igot)
+        *(.got.plt)  *(.igot.plt)
+        *(.eh_frame_hdr)
+        *(.eh_frame)
+        *(.eh_frame_end)
+        *(.gcc_except_table .gcc_except_table.*)
 	}
 
 	PROVIDE(edata = .);

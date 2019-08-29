@@ -15,7 +15,7 @@ BINLIST = $(shell cat $(SETSDIR)/bin.list)
 BINOBJS =  $(addprefix $(BUILDDIR)/bin/,$(BINLIST))
 
 $(BUILDDIR)/kernel: $(SUBDIRS) $(OBJS) $(BASEBINOBJS) kern/kernel.ld
-	$(LD) $(LDFLAGS) -T kern/kernel.ld -o $@ $(OBJS) -b binary $(BASEBINOBJS)
+	$(LD) $(LDFLAGS) -T kern/kernel.ld -L /usr/lib/gcc/x86_64-linux-gnu/8/32 -lgcc_eh -lsupc++ -o $@ $(OBJS) -b binary $(BASEBINOBJS)
 	$(OBJDUMP) -S $@ > $(BUILDDIR)/kernel.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BUILDDIR)/kernel.sym
 

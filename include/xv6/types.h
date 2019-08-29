@@ -18,7 +18,10 @@ typedef unsigned int uint32_t;
 typedef long long int64_t;
 typedef unsigned long long uint64_t;
 
+
+#if !defined(NULL)
 #define NULL ((void *)0)
+#endif
 
 #endif // NONKERNEL
 #endif // __INCLUDE_XV6_TYPES_H

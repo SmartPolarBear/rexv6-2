@@ -1,6 +1,6 @@
 #if !defined(__INCLUDE_XV6_SPINLOCK_H)
 #define __INCLUDE_XV6_SPINLOCK_H
-
+#include "xv6/types.h"
 // Mutual exclusion lock.
 struct spinlock {
   uint locked;       // Is the lock held?

@@ -115,6 +115,7 @@ found:
   sp -= sizeof *p->context;
   p->context = (struct context *)sp;
   memset(p->context, 0, sizeof *p->context);
+  memset(p->__cxa_eh_global, 0, sizeof(p->__cxa_eh_global));
   p->context->eip = (uint)forkret;
 
   return p;
@@ -155,6 +156,7 @@ void userinit(void)
   p->state = RUNNABLE;
 
   release(&ptable.lock);
+
 }
 
 // Grow current process's memory by n bytes.

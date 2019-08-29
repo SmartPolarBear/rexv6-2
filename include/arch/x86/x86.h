@@ -207,36 +207,61 @@ static inline void wrmsr(uint msr, uint *lo, uint *hi)
                : "a"(lo), "d"(hi), "c"(msr));
 }
 
-
 static inline void
 atom_inc(volatile int *num)
 {
-    asm volatile("lock incl %0"
-                 : "=m"(*num));
+  asm volatile("lock incl %0"
+               : "=m"(*num));
 }
 
 static inline void
 lock_inc(uint *mem)
 {
-    asm volatile("lock incl %0"
-                 : "=m"(mem));
+  asm volatile("lock incl %0"
+               : "=m"(mem));
 }
 
 static inline void
 lock_dec(uint *mem)
 {
-    asm volatile("lock decl %0"
-                 : "=m"(mem));
+  asm volatile("lock decl %0"
+               : "=m"(mem));
 }
 
 static inline void
 lock_add(uint *mem, uint n)
 {
-    asm volatile("lock add %0, %1"
-                 : "=m"(mem)
-                 : "d"(n));
+  asm volatile("lock add %0, %1"
+               : "=m"(mem)
+               : "d"(n));
 }
 
+static inline int
+xchg32(volatile int *addr, int newval)
+{
+  int result;
+
+  // The + in "+m" denotes a read-modify-write operand.
+  asm volatile("lock; xchgl %0, %1"
+               : "+m"(*addr), "=a"(result)
+               : "1"(newval)
+               : "cc");
+  return result;
+}
+
+static inline int 
+cas(volatile int *addr, int expected, int newval)
+{
+  int ret = 1;
+  asm volatile("lock; cmpxchgl %3, (%2)\n\t" // eax == [ebx] ? [ebx] = newval : eax = [ebx]
+               "jz cas_success\n\t"
+               "movl $0, %0\n\t"
+               "cas_success:\n\t"
+               : "=m"(ret)
+               : "a"(expected), "b"(addr), "r"(newval)
+               : "memory");
+  return ret;
+}
 
 //PAGEBREAK: 36
 // Layout of the trap frame built on the stack by the
