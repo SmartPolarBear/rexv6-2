@@ -42,7 +42,7 @@ void free(void *vp)
 {
     if (vp == myproc()->exception_buf)
     {
-        xchg32(&myproc()->exception_inuse, false);
+        xchgl_int(&myproc()->exception_inuse, false);
         return;
     }
 

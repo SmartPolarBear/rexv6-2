@@ -237,9 +237,22 @@ lock_add(uint *mem, uint n)
 }
 
 static inline int
-xchg32(volatile int *addr, int newval)
+xchgl_int(volatile int *addr, int newval)
 {
   int result;
+
+  // The + in "+m" denotes a read-modify-write operand.
+  asm volatile("lock; xchgl %0, %1"
+               : "+m"(*addr), "=a"(result)
+               : "1"(newval)
+               : "cc");
+  return result;
+}
+
+static inline uint
+xchgl(volatile uint *addr, uint newval)
+{
+  uint result;
 
   // The + in "+m" denotes a read-modify-write operand.
   asm volatile("lock; xchgl %0, %1"

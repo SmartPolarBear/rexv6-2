@@ -18,12 +18,16 @@
 #if !defined(NONKERNEL) && !defined(__ASSEMBLER__)
 
 #include "xv6/types.h"
+#if !defined(offsetof)
 #define offsetof(s,memb) \
     ((size_t)((char *)&((s *)0)->memb - (char *)0))
-    
+#endif //offsetof
+
+#if !defined(container_of)
 #define container_of(ptr, type, member) ({                      \
         const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
         (type *)( (char *)__mptr - offsetof(type,member) );})
+#endif //container_of
 #endif // NONKERNEL
 
 #endif // __INCLUDE_XV6_PARAM_H
