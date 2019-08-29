@@ -12,7 +12,6 @@ extern "C" void *malloc(size_t);
 extern "C" void free(void *);
 
 bool malloc_proc = false;
-spinlock cfuncs_lock;
 
 void abort(void)
 {
@@ -42,7 +41,7 @@ void free(void *vp)
 {
     if (vp == myproc()->exception_buf)
     {
-        xchgl_int(&myproc()->exception_inuse, false);
+        xchg_int(&myproc()->exception_inuse, false);
         return;
     }
 

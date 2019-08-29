@@ -156,6 +156,33 @@ xchg(volatile uint *addr, uint newval)
   return result;
 }
 
+static inline int
+xchg_int(volatile int *addr, int newval)
+{
+  int result;
+
+  // The + in "+m" denotes a read-modify-write operand.
+  asm volatile("lock; xchgl %0, %1"
+               : "+m"(*addr), "=a"(result)
+               : "1"(newval)
+               : "cc");
+  return result;
+}
+
+static inline int 
+cas(volatile int *addr, int expected, int newval)
+{
+  int ret = 1;
+  asm volatile("lock; cmpxchgl %3, (%2)\n\t" // eax == [ebx] ? [ebx] = newval : eax = [ebx]
+               "jz cas_success\n\t"
+               "movl $0, %0\n\t"
+               "cas_success:\n\t"
+               : "=m"(ret)
+               : "a"(expected), "b"(addr), "r"(newval)
+               : "memory");
+  return ret;
+}
+
 static inline uint
 rcr2(void)
 {
@@ -236,45 +263,7 @@ lock_add(uint *mem, uint n)
                : "d"(n));
 }
 
-static inline int
-xchgl_int(volatile int *addr, int newval)
-{
-  int result;
 
-  // The + in "+m" denotes a read-modify-write operand.
-  asm volatile("lock; xchgl %0, %1"
-               : "+m"(*addr), "=a"(result)
-               : "1"(newval)
-               : "cc");
-  return result;
-}
-
-static inline uint
-xchgl(volatile uint *addr, uint newval)
-{
-  uint result;
-
-  // The + in "+m" denotes a read-modify-write operand.
-  asm volatile("lock; xchgl %0, %1"
-               : "+m"(*addr), "=a"(result)
-               : "1"(newval)
-               : "cc");
-  return result;
-}
-
-static inline int 
-cas(volatile int *addr, int expected, int newval)
-{
-  int ret = 1;
-  asm volatile("lock; cmpxchgl %3, (%2)\n\t" // eax == [ebx] ? [ebx] = newval : eax = [ebx]
-               "jz cas_success\n\t"
-               "movl $0, %0\n\t"
-               "cas_success:\n\t"
-               : "=m"(ret)
-               : "a"(expected), "b"(addr), "r"(newval)
-               : "memory");
-  return ret;
-}
 
 //PAGEBREAK: 36
 // Layout of the trap frame built on the stack by the
