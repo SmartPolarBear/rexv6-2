@@ -28,19 +28,26 @@ SECTIONS
 	}
 	PROVIDE(eprof = .);
 
-        .init_array : {
-                PROVIDE_HIDDEN(__init_array_start = .);
-                KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
-                KEEP(*(.init_array))
-                KEEP(*(.ctors));
-                PROVIDE_HIDDEN(__init_array_end = .);
-        }
+    .init_array : {
+            PROVIDE_HIDDEN(__init_array_start = .);
+            KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
+            KEEP(*(.init_array))
+            KEEP(*(.ctors));
+            PROVIDE_HIDDEN(__init_array_end = .);
+    }
 
 	.percpuinit_array : {
 		PROVIDE_HIDDEN(__percpuinit_array_start = .);
 		KEEP(*(.percpuinit_array))
 		PROVIDE_HIDDEN(__percpuinit_array_end = .);
 	}
+
+    /* Binary blobs from kernel/incbin.S */
+    .init_rodata : {
+            *(.init_rodata)
+    }
+
+	. = ALIGN(0x1000);
 
 	/* Include debugging information in kernel memory */
 	.stab : {
@@ -84,15 +91,23 @@ SECTIONS
 	PROVIDE(edata = .);
 
 	.bss : {
-		*(.bss)
+		*(.bss .bss.* .gnu.linkonce.b.*)
+	}
+
+	. = ALIGN(0x1000);
+	.percpu : {
+		PROVIDE(__percpu_start = .);
+		*(.percpu)
+		PROVIDE(__percpu_end = .);
 	}
 
 	PROVIDE(end = .);
 
 	/DISCARD/ : {
-		*(.eh_frame .note.GNU-stack)
+		/**(.eh_frame .note.GNU-stack)*/
 	}
 
+	
 	/*wrapping symbols: the generated symbol changes with the directory.*/
 	PROVIDE(_binary_entryother_start = _binary___build_kern_entryother_start);
 	PROVIDE(_binary_entryother_size = _binary___build_kern_entryother_size);

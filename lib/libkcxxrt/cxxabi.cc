@@ -23,8 +23,6 @@ extern spinlock cfuncs_lock;
 
 const std::nothrow_t std::nothrow;
 
-
-
 void __cxa_pure_virtual(void)
 {
     panic("__cxa_pure_virtual");
@@ -135,11 +133,18 @@ int dl_iterate_phdr(void)
     return -1;
 }
 
+extern "C" void __stack_chk_fail_local(void);
+void __stack_chk_fail_local(void)
+{
+    panic("__stack_chk_fail_local");
+}
+
 extern "C" void __stack_chk_fail(void);
 void __stack_chk_fail(void)
 {
     panic("stack_chk_fail");
 }
+
 
 extern "C" void *__cxa_get_globals(void);
 void *

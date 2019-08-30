@@ -30,4 +30,8 @@ kern/trapasm.o
 kern/vectors.o
 kern/vm.o
 lib/libc/string.o
-
+lib/libkcxxrt/cfuncs.o
+lib/libkcxxrt/cxxabi.o
+lib/libkcxxrt/memop.o
+lib/libkcxxrt/pthread.o
+lib/libkcxxrt/cxxabistart.o

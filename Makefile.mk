@@ -47,10 +47,10 @@ CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 &
 
 CXXFLAGS +=  $(COMMONCFLAGS)
 CXXFLAGS += -std=gnu++17 -mno-sse -ffreestanding -mno-red-zone 
-CXXFLAGS += -fno-builtin -Wall -m32 -fpermissive -fno-stack-protector -fpermissive
+CXXFLAGS += -fno-builtin -Wall -m32 -fpermissive -fno-stack-protector
+CXXFLAGS +=
 #CXXFLAGS += -fno-exceptions -fno-rtti -nostdlib
 #CXXFLAGS +=  -nostdinc
-CXXFLAGS += -mcx16
 CXXFLAGS += $(shell $(CXX) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 
 HOST_CC = gcc

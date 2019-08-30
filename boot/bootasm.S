@@ -86,3 +86,4 @@ gdtdesc:
   .word   (gdtdesc - gdt - 1)             # sizeof(gdt) - 1
   .long   gdt                             # address gdt
 
+

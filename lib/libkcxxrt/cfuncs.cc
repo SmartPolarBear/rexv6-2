@@ -47,3 +47,8 @@ void free(void *vp)
 
     kmfree(vp);
 }
+
+extern "C" size_t write()
+{
+    panic("fake write for libkcxxrt called");
+}

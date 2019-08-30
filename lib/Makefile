@@ -1,6 +1,6 @@
 TOP_SRCDIR = ..
 
-SUBDIRS = libc ulibc ulib
+SUBDIRS = libc ulibc ulib libkcxxrt
 
 all: $(SUBDIRS)
 

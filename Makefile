@@ -14,8 +14,12 @@ BASEBINOBJS = $(addprefix $(BUILDDIR)/,$(BASEBINLIST))
 BINLIST = $(shell cat $(SETSDIR)/bin.list)
 BINOBJS =  $(addprefix $(BUILDDIR)/bin/,$(BINLIST))
 
+CXXRUNTIME = $(shell $(CC) -m32 -print-file-name=libgcc_eh.a) \
+	  $(shell $(CC) -m32 -print-file-name=libsupc++.a)
+
+	  
 $(BUILDDIR)/kernel: $(SUBDIRS) $(OBJS) $(BASEBINOBJS) kern/kernel.ld
-	$(LD) $(LDFLAGS) -T kern/kernel.ld -L /usr/lib/gcc/x86_64-linux-gnu/8/32 -lgcc_eh -lsupc++ -o $@ $(OBJS) -b binary $(BASEBINOBJS)
+	$(LD) $(LDFLAGS) $(KLDFLAGS) -T kern/kernel.ld -o $@ $(OBJS) $(CXXRUNTIME) -b binary $(BASEBINOBJS)
 	$(OBJDUMP) -S $@ > $(BUILDDIR)/kernel.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BUILDDIR)/kernel.sym
 
