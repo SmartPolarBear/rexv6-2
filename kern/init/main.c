@@ -33,11 +33,12 @@ int main(void)
   fileinit();                         // file table
   ideinit();                          // disk
   startothers();                      // start other processors
-
   switch_allocator(BUDDY);
   initmem(P2V(4 * 1024 * 1024), P2V(PHYSTOP)); // must come after startothers()
- 
+
   userinit(); // first user process
+  cprintf("fuck!");
+  initcpprt(); //enable advanced C++ features
   mpmain();   // finish this processor's setup
 }
 

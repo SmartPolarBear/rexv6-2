@@ -38,8 +38,9 @@ ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
 # FreeBSD ld wants ``elf_i386_fbsd''
 LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
 
-COMMONCFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Wall -MD -ggdb -m32 -fno-omit-frame-pointer -I$(INCDIR)
+COMMONCFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Wall -MD -ggdb -fno-omit-frame-pointer -I$(INCDIR)
 COMMONCFLAGS += -O2
+COMMONCFLAGS +=  -m32 
 
 CFLAGS += $(COMMONCFLAGS)
 CFLAGS += -std=gnu18

@@ -1,4 +1,5 @@
 #include <new>
+
 #include "xv6/spinlock.h"
 #include "xv6/param.h"
 #include "xv6/mmu.h"
@@ -15,13 +16,11 @@ using s32 = int;
 using s64 = long long;
 
 extern "C" void __register_frame(u8 *);
-
+extern "C" void cprintf(char *, ...);                          //console.c
 extern "C" void panic(const char *) __attribute__((noreturn)); //console.c
 extern "C" struct proc *myproc(void);                          //proc.c
 extern bool malloc_proc;                                       //cstdfunc.cc
-extern spinlock cfuncs_lock;
 
-const std::nothrow_t std::nothrow;
 
 void __cxa_pure_virtual(void)
 {
@@ -160,6 +159,7 @@ __cxa_get_globals_fast(void)
     return myproc()->__cxa_eh_global;
 }
 
+extern "C"
 void initcpprt(void)
 {
     constexpr auto MAGIC = 5;
@@ -181,6 +181,7 @@ void initcpprt(void)
             panic("initcpprt:x != MAGIC");
         }
         malloc_proc = true;
+
         return;
     }
 

@@ -175,6 +175,9 @@ extern "C"
     int copyout(pde_t *, uint, void *, uint);
     void clearpteu(pde_t *pgdir, char *uva);
 
+    //cxxabi.cc
+    void initcpprt(void);
+
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x) / sizeof((x)[0]))
 #if defined(__cplusplus)
