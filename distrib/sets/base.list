@@ -33,5 +33,3 @@ lib/libc/string.o
 lib/libkcxxrt/cfuncs.o
 lib/libkcxxrt/cxxabi.o
 lib/libkcxxrt/memop.o
-lib/libkcxxrt/pthread.o
-lib/libkcxxrt/cxxabistart.o

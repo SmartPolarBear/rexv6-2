@@ -7,7 +7,7 @@ typedef unsigned char uchar;
 typedef uint pde_t;
 
 #if !defined(NONKERNEL) && !defined(__ASSEMBLER__)
-typedef uint size_t;
+typedef unsigned long size_t;
 
 typedef char int8_t;
 typedef unsigned char uint8_t;

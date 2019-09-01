@@ -76,7 +76,8 @@
         "string": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "allocator.h": "c"
     },
     "autoHeader": {
         "format": {

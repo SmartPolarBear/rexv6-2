@@ -10,7 +10,7 @@ BUILDDIR=$(TOP_SRCDIR)/build
 # TOOLPREFIX = i386-jos-elf
 
 # Using native tools (e.g., on X86 Linux)
-#TOOLPREFIX = 
+#TOOLPREFIX = i386-elf-
 
 # Try to infer the correct TOOLPREFIX if not set
 ifndef TOOLPREFIX
@@ -47,11 +47,9 @@ CFLAGS += -std=gnu18
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 
 CXXFLAGS +=  $(COMMONCFLAGS)
-CXXFLAGS += -std=gnu++17 -mno-sse -ffreestanding -mno-red-zone 
-CXXFLAGS += -fno-builtin -Wall -m32 -fpermissive -fno-stack-protector
-CXXFLAGS +=
-#CXXFLAGS += -fno-exceptions -fno-rtti -nostdlib
-#CXXFLAGS +=  -nostdinc
+CXXFLAGS += -std=gnu++17 -mno-sse -ffreestanding -mno-red-zone -nostdlib
+CXXFLAGS += -fno-builtin -Wall -m32 -fpermissive -fno-stack-protector -fno-exceptions -fno-rtti
+CXXFLAGS += -I/home/bear/opt/cross/include/c++/8.3.0
 CXXFLAGS += $(shell $(CXX) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 
 HOST_CC = gcc

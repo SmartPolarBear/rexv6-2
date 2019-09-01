@@ -3,24 +3,12 @@
 
 void *operator new(size_t size)
 {
-    auto ret = kmalloc(size);
-    if (ret == nullptr)
-    {
-        throw 0; //FIXME: throw a real exception calss
-    }
-
-    return ret;
+    return kmalloc(size);
 }
 
 void *operator new[](size_t size)
 {
-    auto ret = kmalloc(size);
-    if (ret == nullptr)
-    {
-        throw 0; //FIXME: throw a real exception calss
-    }
-
-    return ret;
+    return kmalloc(size);
 }
 
 void operator delete(void *p)

@@ -156,18 +156,6 @@ xchg(volatile uint *addr, uint newval)
   return result;
 }
 
-static inline int
-xchg_int(volatile int *addr, int newval)
-{
-  int result;
-
-  // The + in "+m" denotes a read-modify-write operand.
-  asm volatile("lock; xchgl %0, %1"
-               : "+m"(*addr), "=a"(result)
-               : "1"(newval)
-               : "cc");
-  return result;
-}
 
 static inline int 
 cas(volatile int *addr, int expected, int newval)
