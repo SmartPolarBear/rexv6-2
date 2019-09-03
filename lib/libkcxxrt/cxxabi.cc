@@ -13,13 +13,15 @@ using s16 = short;
 using s32 = int;
 using s64 = long long;
 
-extern "C" void __register_frame(u8 *);
-extern "C" void cprintf(char *, ...);                          //console.c
-extern "C" void panic(const char *) __attribute__((noreturn)); //console.c
+extern "C" //c symbols for cxxrt
+{
+    void cprintf(char *, ...);                          //console.c
+    void panic(const char *) __attribute__((noreturn)); //console.c
 
-extern "C" int dl_iterate_phdr(void);
-extern "C" void __stack_chk_fail_local(void);
-extern "C" void __stack_chk_fail(void);
+    int dl_iterate_phdr(void);
+    void __stack_chk_fail_local(void);
+    void __stack_chk_fail(void);
+}
 
 void __cxa_pure_virtual(void)
 {
@@ -102,8 +104,8 @@ void __stack_chk_fail(void)
     panic("stack_chk_fail");
 }
 
-
-extern "C" void initcpprt(void)
+extern "C" 
+void initcpprt(void)
 {
     using ctor_func = void (*)();
     extern ctor_func sinit_array[];             // zero terminated constructors table

@@ -34,8 +34,12 @@ void *operator new[](size_t, void *p) noexcept
 
 void operator delete(void *, void *)noexcept
 {
+    //do nothing for palcement new
+    ;
 }
 
 void operator delete[](void *, void *) noexcept
 {
+    //do nothing for palcement new[]
+    ;
 }

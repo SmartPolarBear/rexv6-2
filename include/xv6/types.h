@@ -7,8 +7,8 @@ typedef unsigned char uchar;
 typedef uint pde_t;
 
 #if !defined(NONKERNEL) && !defined(__ASSEMBLER__)
-typedef unsigned long size_t;
 
+typedef unsigned int size_t;
 typedef char int8_t;
 typedef unsigned char uint8_t;
 typedef short int16_t;
@@ -17,7 +17,6 @@ typedef int int32_t;
 typedef unsigned int uint32_t;
 typedef long long int64_t;
 typedef unsigned long long uint64_t;
-
 
 #if !defined(NULL)
 #define NULL ((void *)0)

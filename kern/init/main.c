@@ -8,12 +8,14 @@
 
 static void startothers(void);
 static void mpmain(void) __attribute__((noreturn));
+
 extern pde_t *kpgdir;
 extern char end[]; // first address after kernel loaded from ELF file
 
 // Bootstrap processor starts running C code here.
 // Allocate a real stack and switch to it, first
 // doing some setup required for memory allocator to work.
+
 int main(void)
 {
   initcpprt(); //enable C++ features, call ctors
@@ -37,9 +39,8 @@ int main(void)
   startothers(); // start other processors
   switch_allocator(BUDDY);
   initmem(P2V(4 * 1024 * 1024), P2V(PHYSTOP)); // must come after startothers()
-  testcpp();
-  userinit(); // first user process
-  mpmain();   // finish this processor's setup
+  userinit();                                  // first user process
+  mpmain();                                    // finish this processor's setup
 }
 
 // Other CPUs jump here from entryother.S.

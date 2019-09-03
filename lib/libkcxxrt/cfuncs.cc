@@ -10,7 +10,7 @@ extern "C" void free(void *);
 
 extern "C" void abort(void)
 {
-    panic("abort");
+    panic("kernel cxxrt abort called");
 }
 
 extern "C" void *malloc(size_t n)
