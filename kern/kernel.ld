@@ -8,13 +8,12 @@ ENTRY(_start)
 SECTIONS
 {
 	/* Link the kernel at this address: "." means the current address */
-        /* Must be equal to KERNLINK */
+    /* Must be equal to KERNLINK */
 	. = 0x80100000;
 
 	.text : AT(0x100000) {
 		*(.text .stub .text.* .gnu.linkonce.t.*)
 	}
-
 	PROVIDE(etext = .);	/* Define the 'etext' symbol to this value */
 
 	.rodata : {
@@ -78,7 +77,6 @@ SECTIONS
 	 * symbols, because the convention started before there was a
 	 * read-only rodata section between text and data. */
 	PROVIDE(data = .);
-
 	/* The data segment */
 	.data : {
 		*(.data .data.* .gnu.linkonce.d.*)
@@ -89,7 +87,6 @@ SECTIONS
         *(.eh_frame_end)
         *(.gcc_except_table .gcc_except_table.*)
 	}
-
 	PROVIDE(edata = .);
 
 	.bss : {
@@ -102,6 +99,8 @@ SECTIONS
 		*(.percpu)
 		PROVIDE(__percpu_end = .);
 	}
+
+
 
 	PROVIDE(end = .);
 
