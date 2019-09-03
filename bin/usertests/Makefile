@@ -1,7 +1,7 @@
 TOP_SRCDIR = ../..
 BIN_SRCDIR= ..
 
-ULIB = $(ULIBDIR)/ulib.o \
+ULIB = $(ULIBCDIR)/ulib.o \
 	$(ULIBDIR)/usys.o \
 	$(ULIBCDIR)/umalloc.o \
 	$(ULIBCDIR)/printf.o \
