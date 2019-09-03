@@ -28,19 +28,21 @@ SECTIONS
 	}
 	PROVIDE(eprof = .);
 
+	PROVIDE(sinit_array = .);
     .init_array : {
-            PROVIDE_HIDDEN(__init_array_start = .);
+            
             KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
             KEEP(*(.init_array))
             KEEP(*(.ctors));
-            PROVIDE_HIDDEN(__init_array_end = .);
     }
+    PROVIDE(einit_array = .);
 
+
+	PROVIDE(spercpuinit_array_start = .);
 	.percpuinit_array : {
-		PROVIDE_HIDDEN(__percpuinit_array_start = .);
 		KEEP(*(.percpuinit_array))
-		PROVIDE_HIDDEN(__percpuinit_array_end = .);
 	}
+	PROVIDE(epercpuinit_array_end = .);
 
     /* Binary blobs from kernel/incbin.S */
     .init_rodata : {
@@ -104,7 +106,7 @@ SECTIONS
 	PROVIDE(end = .);
 
 	/DISCARD/ : {
-		/**(.eh_frame .note.GNU-stack)*/
+		*(.note.GNU-stack)
 	}
 
 	

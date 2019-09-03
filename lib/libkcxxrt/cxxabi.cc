@@ -87,7 +87,6 @@ void (*__terminate_handler)() = cxx_terminate;
 void (*__unexpected_handler)() = cxx_unexpected;
 }; // namespace __cxxabiv1
 
-
 int dl_iterate_phdr(void)
 {
     return -1;
@@ -103,7 +102,20 @@ void __stack_chk_fail(void)
     panic("stack_chk_fail");
 }
 
+
 extern "C" void initcpprt(void)
 {
-  
+    using ctor_func = void (*)();
+    extern ctor_func sinit_array[];             // zero terminated constructors table
+    extern ctor_func spercpuinit_array_start[]; // per-cpu zero terminated constructors table
+
+    for (size_t i = 0; sinit_array[i]; i++)
+    {
+        sinit_array[i]();
+    }
+
+    for (size_t i = 0; spercpuinit_array_start[i]; i++)
+    {
+        spercpuinit_array_start[i]();
+    }
 }
