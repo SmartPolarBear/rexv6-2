@@ -26,28 +26,13 @@ struct data
     }
 };
 
-template <typename T>
-struct allocator
-{
-    void release(T *p)
-    {
-        // cout << "allocator.release" << endl;
-        delete[] p;
-    }
 
-    T *allocate(unsigned int size)
-    {
-        // cout << "allocator.allocate" << endl;
-
-        return new T[size];
-    }
-};
 
 BOOST_AUTO_TEST_SUITE(VectorTest);
 
 BOOST_AUTO_TEST_CASE(PushBackPopBack)
 {
-    Vector<data, allocator<data>> vec;
+    Vector<data> vec;
 
     data element = {2, 3, 4}, element2 = {5, 4, 3};
     vec.push_back(element);
@@ -83,7 +68,7 @@ BOOST_AUTO_TEST_CASE(PushBackPopBack)
 
 BOOST_AUTO_TEST_CASE(Iterators)
 {
-    Vector<data, allocator<data>> vec;
+    Vector<data> vec;
 
     for (int i = 0; i < 9; i++)
         for (int j = 0; j < 9; j++)
@@ -116,7 +101,7 @@ BOOST_AUTO_TEST_CASE(Iterators)
 
 BOOST_AUTO_TEST_CASE(InserErase)
 {
-    Vector<data, allocator<data>> vec;
+    Vector<data> vec;
 
     for (int i = 0; i < 9; i++)
         for (int j = 0; j < 9; j++)

@@ -8,7 +8,21 @@
 namespace klib
 {
 
-template <typename TEle, typename TAlloc>
+template <typename T>
+struct allocator
+{
+    void release(T *p)
+    {
+        delete[] p;
+    }
+
+    T *allocate(unsigned int size)
+    {
+        return new T[size];
+    }
+};
+
+template <typename TEle, typename TAlloc=allocator<TEle>>
 class Vector
 {
 
