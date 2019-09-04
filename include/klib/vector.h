@@ -1,26 +1,14 @@
 #if !defined(__INCLUDE_KLIB_VECTOR_H)
 #define __INCLUDE_KLIB_VECTOR_H
 
+#include "klib/allocator.h"
+
 #if !defined(__cplusplus)
 #error ONLY FOR C++
 #endif
 
 namespace klib
 {
-
-template <typename T>
-struct allocator
-{
-    void release(T *p)
-    {
-        delete[] p;
-    }
-
-    T *allocate(unsigned int size)
-    {
-        return new T[size];
-    }
-};
 
 template <typename TEle, typename TAlloc=allocator<TEle>>
 class Vector
