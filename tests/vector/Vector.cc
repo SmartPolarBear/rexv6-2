@@ -26,9 +26,28 @@ struct data
     }
 };
 
-
-
 BOOST_AUTO_TEST_SUITE(VectorTest);
+
+BOOST_AUTO_TEST_CASE(Constructor)
+{
+    Vector<int> vec;
+    for (int i = 0; i < 1200; i++)
+    {
+        vec.push_back(i);
+    }
+
+    cout << "Copy Constructor" << endl;
+
+    Vector veccopy(vec);
+
+    BOOST_REQUIRE_EQUAL(vec.size(), veccopy.size());
+    BOOST_REQUIRE_EQUAL(vec.empty(), veccopy.empty());
+
+    for (size_t i = 0; i < vec.size(); i++)
+    {
+        BOOST_REQUIRE_EQUAL(vec[i], veccopy[i]);
+    }
+}
 
 BOOST_AUTO_TEST_CASE(PushBackPopBack)
 {
@@ -64,6 +83,34 @@ BOOST_AUTO_TEST_CASE(PushBackPopBack)
     BOOST_REQUIRE_EQUAL(vec.size(), 0);
     BOOST_REQUIRE_GE(vec.capacity(), vec.size());
     BOOST_REQUIRE_EQUAL(vec.empty(), true);
+}
+
+BOOST_AUTO_TEST_CASE(Clear)
+{
+    cout << "First Add" << endl;
+    Vector<int> vec;
+    for (int i = 0; i < 1000; i++)
+    {
+        vec.push_back(i);
+    }
+
+    BOOST_REQUIRE_EQUAL(vec.empty(), false);
+    BOOST_REQUIRE_EQUAL(vec.size(), 1000);
+
+    cout << "Clear" << endl;
+    vec.clear();
+
+    BOOST_REQUIRE_EQUAL(vec.empty(), true);
+    BOOST_REQUIRE_EQUAL(vec.size(), 0);
+
+    cout << "Secondary Add" << endl;
+    for (int i = 0; i < 1200; i++)
+    {
+        vec.push_back(i);
+    }
+
+    BOOST_REQUIRE_EQUAL(vec.empty(), false);
+    BOOST_REQUIRE_EQUAL(vec.size(), 1200);
 }
 
 BOOST_AUTO_TEST_CASE(Iterators)

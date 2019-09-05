@@ -1,7 +1,7 @@
 #if !defined(__INCLUDE_KLIB_VECTOR_H)
 #define __INCLUDE_KLIB_VECTOR_H
 
-#include "klib/allocator.h"
+#include "klib/internal/allocator.h"
 
 #if !defined(__cplusplus)
 #error ONLY FOR C++
@@ -10,7 +10,7 @@
 namespace klib
 {
 
-template <typename TEle, typename TAlloc=allocator<TEle>>
+template <typename TEle, typename TAlloc = allocator<TEle>>
 class Vector
 {
 
@@ -44,6 +44,7 @@ public:
     void shrink_to_fit();
     void push_back(value_type);
     void pop_back();
+    void clear();
 
     iterator_type begin();
     iterator_type end();
@@ -195,6 +196,15 @@ void Vector<TEle, TAlloc>::pop_back()
     }
 
     size_--;
+}
+
+template <typename TEle, typename TAlloc>
+void Vector<TEle, TAlloc>::clear()
+{
+    alloc.release(data_);
+    size_ = 0;
+    capacity_ = get_capacity(size_);
+    data_ = alloc.allocate(1); //new T[capacity_];
 }
 
 template <typename TEle, typename TAlloc>

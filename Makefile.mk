@@ -55,7 +55,7 @@ CXXFLAGS += $(shell $(CXX) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&
 HOST_CC = gcc
 HOST_CXX = g++
 HOST_CFLAGS = -Werror -Wall -std=gnu18 -I$(INCDIR)
-HOST_CXXFLAGS = -Werror -Wall -std=gnu++17 -I$(INCDIR)
+HOST_CXXFLAGS = -Werror -Wall -std=gnu++2a -I$(INCDIR)
 
 # try to generate a unique GDB port
 GDBPORT = $(shell expr `id -u` % 5000 + 25000)

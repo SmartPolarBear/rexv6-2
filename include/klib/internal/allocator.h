@@ -1,5 +1,5 @@
-#if !defined(__INCLUDE_KLIB_ALLOCATOR_H)
-#define __INCLUDE_KLIB_ALLOCATOR_H
+#if !defined(__INCLUDE_KLIB_INTERNAL_ALLOCATOR_H)
+#define __INCLUDE_KLIB_INTERNAL_ALLOCATOR_H
 
 #if !defined(__cplusplus)
 #error ONLY FOR C++
@@ -24,4 +24,4 @@ struct allocator
 
 } // namespace klib
 
-#endif // __INCLUDE_KLIB_ALLOCATOR_H
+#endif // __INCLUDE_KLIB_INTERNAL_ALLOCATOR_H
