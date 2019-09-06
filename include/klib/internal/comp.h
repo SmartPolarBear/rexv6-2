@@ -5,17 +5,24 @@
 #error ONLY FOR C++
 #endif
 
-//TODO: Implement these functors
 namespace klib
 {
 template <typename T>
 struct less
 {
+    constexpr bool operator()(const T &lhs, const T &rhs) const
+    {
+        return lhs < rhs;
+    }
 };
 
 template <typename T>
 struct greater
 {
+    constexpr bool operator()(const T &lhs, const T &rhs) const
+    {
+        return lhs > rhs;
+    }
 };
 } // namespace klib
 

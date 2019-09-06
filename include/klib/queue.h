@@ -2,6 +2,7 @@
 #define __INCLUDE_KLIB_QUEUE_H
 
 #include "klib/internal/allocator.h"
+#include "klib/internal/comp.h"
 
 #if !defined(__cplusplus)
 #error ONLY FOR C++
@@ -26,6 +27,9 @@ private:
     alloc_type allocator;
     container_type container;
 
+    TElement placeholder0;
+    size_type nelement;
+
 public:
     PriorityQueue(void);
     PriorityQueue(const PriorityQueue &prq);
@@ -33,7 +37,7 @@ public:
 
     void push(value_type element);
     void pop(void);
-    value_type top(void);
+    const_reference top(void) const;
     size_type size(void) const;
     [[nodiscard]] bool empty(void) const;
 };
@@ -41,6 +45,8 @@ template <typename TElement, typename TCont, typename TAllocator, typename TPred
 PriorityQueue<TElement, TCont, TAllocator, TPred>::PriorityQueue(void)
 {
     container.clear();
+    container.push_back(placeholder0);
+    nelement = 0;
 }
 
 template <typename TElement, typename TCont, typename TAllocator, typename TPred>
@@ -51,12 +57,14 @@ PriorityQueue<TElement, TCont, TAllocator, TPred>::PriorityQueue(const PriorityQ
     {
         this.container.push_back(prq.container[i]);
     }
+    nelement = this.container.nelement;
 }
 
 template <typename TElement, typename TCont, typename TAllocator, typename TPred>
 PriorityQueue<TElement, TCont, TAllocator, TPred>::~PriorityQueue(void)
 {
     container.clear();
+    nelement = 0;
 }
 
 template <typename TElement, typename TCont, typename TAllocator, typename TPred>
@@ -67,7 +75,47 @@ template <typename TElement, typename TCont, typename TAllocator, typename TPred
 template <typename TElement, typename TCont, typename TAllocator, typename TPred>
 typename PriorityQueue<TElement, TCont, TAllocator, TPred>::size_type PriorityQueue<TElement, TCont, TAllocator, TPred>::size(void) const
 {
-    return container.size();
+    return nelement;
+}
+
+template <typename TElement, typename TCont, typename TAllocator, typename TPred>
+typename PriorityQueue<TElement, TCont, TAllocator, TPred>::const_reference PriorityQueue<TElement, TCont, TAllocator, TPred>::top(void) const
+{
+    return container[1];
+}
+
+template <typename TElement, typename TCont, typename TAllocator, typename TPred>
+void PriorityQueue<TElement, TCont, TAllocator, TPred>::pop(void)
+{
+}
+
+template <typename TElement, typename TCont, typename TAllocator, typename TPred>
+void PriorityQueue<TElement, TCont, TAllocator, TPred>::push(value_type element)
+{
+    if (container.empty())
+    {
+        container.push_back(placeholder0); //the container must have at least one element
+    }
+
+    container.push_back(element);
+    nelement++;
+    
+    if (nelement > 1)
+    {
+        size_type p = nelement;
+        while (p > 1)
+        {
+            if (container[p] > container[p / 2])
+            {
+                swap(container[p], container[p / 2]);
+                p /= 2;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
 }
 
 } // namespace klib

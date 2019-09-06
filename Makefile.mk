@@ -49,7 +49,6 @@ CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 &
 CXXFLAGS +=  $(COMMONCFLAGS)
 CXXFLAGS += -std=gnu++17 -mno-sse -ffreestanding -mno-red-zone -nostdlib
 CXXFLAGS += -fno-builtin -Wall -m32 -fpermissive -fno-stack-protector -fno-exceptions -fno-rtti
-CXXFLAGS += -I/home/bear/opt/cross/include/c++/8.3.0
 CXXFLAGS += $(shell $(CXX) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 
 HOST_CC = gcc

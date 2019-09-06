@@ -164,6 +164,9 @@ BOOST_AUTO_TEST_CASE(InserErase)
     data next_newele = *(vec.begin() + 2);
     BOOST_REQUIRE_EQUAL(*vec.erase(vec.begin() + 1), next_newele);
     BOOST_REQUIRE_EQUAL(*(vec.begin() + 1), next_newele);
+
 }
+
+
 
 BOOST_AUTO_TEST_SUITE_END()
