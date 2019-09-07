@@ -53,14 +53,15 @@ PriorityQueue<TElement, TCont, TPred, TAllocator>::PriorityQueue(void)
 }
 
 template <typename TElement, typename TCont, typename TPred, typename TAllocator>
-PriorityQueue<TElement, TCont, TPred, TAllocator>::PriorityQueue(const PriorityQueue &prq)
+PriorityQueue<TElement, TCont, TPred, TAllocator>::PriorityQueue(const PriorityQueue &_prq)
 {
     container.clear();
-    for (int i = 0; i < prq.container.size(); i++)
+    PriorityQueue &prq = (PriorityQueue &)_prq;
+    for (size_type i = 0; i < prq.container.size(); i++)
     {
-        this.container.push_back(prq.container[i]);
+        this->container.push_back(prq.container[i]);
     }
-    nelement = this.container.nelement;
+    nelement = prq.nelement;
 }
 
 template <typename TElement, typename TCont, typename TPred, typename TAllocator>
