@@ -17,7 +17,6 @@ extern "C" //c symbols for cxxrt
 {
     void cprintf(char *, ...);                          //console.c
     void panic(const char *) __attribute__((noreturn)); //console.c
-
 }
 
 extern "C" void __cxa_pure_virtual(void)
@@ -122,7 +121,4 @@ extern "C" void initcpprt(void)
 
 extern "C" void post_cppinit(void)
 {
-
-    int *it = new int[10];
-    delete[] it;
 }

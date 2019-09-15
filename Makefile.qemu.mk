@@ -29,6 +29,6 @@ CPUS := 4
 endif
 
 QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw
-#QEMUOPTS += -accel whpx
-QEMUOPTS += -cpu Skylake-Client-v2,check,+tsc-deadline,+x2apic
+QEMUOPTS += -accel whpx
+QEMUOPTS += -cpu Skylake-Client-v2
 QEMUOPTS += -smp $(CPUS) -m 2048 $(QEMUEXTRA)

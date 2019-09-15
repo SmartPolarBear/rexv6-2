@@ -18,7 +18,7 @@ extern char end[]; // first address after kernel loaded from ELF file
 
 int main(void)
 {
-  initcpprt(); //enable C++ features, call ctors
+  // initcpprt(); //enable C++ features, call ctors
 
   switch_allocator(FREELIST);
   initmem(end, P2V(4 * 1024 * 1024)); // phys page allocator
@@ -40,7 +40,7 @@ int main(void)
   switch_allocator(BUDDY);
   initmem(P2V(4 * 1024 * 1024), P2V(PHYSTOP)); // must come after startothers()
 
-  post_cppinit();
+  // post_cppinit();
   userinit(); // first user process
   mpmain();   // finish this processor's setup
 }
