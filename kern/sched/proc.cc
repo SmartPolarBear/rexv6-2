@@ -1,3 +1,6 @@
+//TODO:Make C interfaces compatible with const char* to attack the warning.
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
 #include "xv6/types.h"
 #include "xv6/defs.h"
 #include "xv6/memlayout.h"
@@ -7,6 +10,12 @@
 #include "xv6/spinlock.h"
 #include "xv6/proc.h"
 
+#include "klib/queue.h"
+#include "klib/vector.h"
+
+using klib::greater;
+using klib::PriorityQueue;
+using klib::Vector;
 
 extern "C" void forkret(void);
 extern "C" void trapret(void);
@@ -15,11 +24,27 @@ struct
 {
   struct spinlock lock;
   struct proc proc[NPROC];
+
+  struct
+  {
+    size_t nextpid;
+
+  } pidallocator;
 } ptable;
 
 static struct proc *initproc;
 
 int nextpid = 1;
+
+size_t alloc_pid(void)
+{
+
+  return nextpid++;
+}
+
+void free_pid(size_t pid)
+{
+}
 
 static void wakeup1(void *chan);
 
@@ -91,7 +116,7 @@ allocproc(void)
 
 found:
   p->state = EMBRYO;
-  p->pid = nextpid++;
+  p->pid = alloc_pid();
 
   release(&ptable.lock);
 
@@ -523,7 +548,7 @@ void procdump(void)
       [RUNNABLE] = "runble",
       [RUNNING] = "run   ",
       [ZOMBIE] = "zombie"};
-    
+
   int i;
   struct proc *p;
   char *state;
@@ -547,3 +572,5 @@ void procdump(void)
     cprintf("\n");
   }
 }
+
+#pragma GCC diagnostic pop

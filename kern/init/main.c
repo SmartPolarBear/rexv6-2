@@ -39,8 +39,10 @@ int main(void)
   startothers(); // start other processors
   switch_allocator(BUDDY);
   initmem(P2V(4 * 1024 * 1024), P2V(PHYSTOP)); // must come after startothers()
-  userinit();                                  // first user process
-  mpmain();                                    // finish this processor's setup
+
+  post_cppinit();
+  userinit(); // first user process
+  mpmain();   // finish this processor's setup
 }
 
 // Other CPUs jump here from entryother.S.
@@ -77,7 +79,7 @@ startothers(void)
   // Write entry code to unused memory at 0x7000.
   // The linker has placed the image of entryother.S in
   // _binary_entryother_start.
-  code = P2V(0x7000);
+  code = (uchar *)P2V(0x7000);
   memmove(code, _binary_entryother_start, (uint)_binary_entryother_size);
 
   for (c = cpus; c < cpus + ncpu; c++)
@@ -91,7 +93,7 @@ startothers(void)
     stack = kalloc();
     *(void **)(code - 4) = stack + KSTACKSIZE;
     *(void (**)(void))(code - 8) = mpenter;
-    *(int **)(code - 12) = (void *)V2P(entrypgdir);
+    *(int **)(code - 12) = (int *)(void *)V2P(entrypgdir);
 
     lapicstartap(c->apicid, V2P(code));
 
@@ -109,7 +111,7 @@ startothers(void)
 __attribute__((__aligned__(PGSIZE)))
 pde_t entrypgdir[NPDENTRIES] = {
     // Map VA's [0, 4MB) to PA's [0, 4MB)
-    [0] = (0) | PTE_P | PTE_W | PTE_PS,
+    [0] = ((0) | PTE_P | PTE_W | PTE_PS),
     // Map VA's [KERNBASE, KERNBASE+4MB) to PA's [0, 4MB)
     [KERNBASE >> PDXSHIFT] = (0) | PTE_P | PTE_W | PTE_PS,
 };

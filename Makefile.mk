@@ -47,7 +47,7 @@ CFLAGS += -std=gnu18
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 
 CXXFLAGS +=  $(COMMONCFLAGS)
-CXXFLAGS += -std=gnu++17 -mno-sse -ffreestanding -mno-red-zone -nostdlib
+CXXFLAGS += -std=gnu++2a -mno-sse -ffreestanding -mno-red-zone -nostdlib
 CXXFLAGS += -fno-builtin -Wall -m32 -fpermissive -fno-stack-protector -fno-exceptions -fno-rtti
 CXXFLAGS += $(shell $(CXX) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 

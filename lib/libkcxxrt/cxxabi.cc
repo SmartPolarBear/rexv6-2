@@ -18,17 +18,14 @@ extern "C" //c symbols for cxxrt
     void cprintf(char *, ...);                          //console.c
     void panic(const char *) __attribute__((noreturn)); //console.c
 
-    int dl_iterate_phdr(void);
-    void __stack_chk_fail_local(void);
-    void __stack_chk_fail(void);
 }
 
-void __cxa_pure_virtual(void)
+extern "C" void __cxa_pure_virtual(void)
 {
     panic("__cxa_pure_virtual");
 }
 
-int __cxa_guard_acquire(s64 *guard)
+extern "C" int __cxa_guard_acquire(s64 *guard)
 {
     volatile u8 *x = (u8 *)guard;
     volatile u32 *l = (u32 *)(x + 4);
@@ -46,7 +43,7 @@ int __cxa_guard_acquire(s64 *guard)
     return 1;
 }
 
-void __cxa_guard_release(s64 *guard)
+extern "C" void __cxa_guard_release(s64 *guard)
 {
     volatile u8 *x = (u8 *)guard;
     volatile u32 *l = (u32 *)(x + 4);
@@ -57,7 +54,7 @@ void __cxa_guard_release(s64 *guard)
     popcli();
 }
 
-void __cxa_guard_abort(s64 *guard)
+extern "C" void __cxa_guard_abort(s64 *guard)
 {
     volatile u8 *x = (u8 *)guard;
     volatile u32 *l = (u32 *)(x + 4);
@@ -66,7 +63,7 @@ void __cxa_guard_abort(s64 *guard)
     popcli();
 }
 
-int __cxa_atexit(void (*f)(void *), void *p, void *d)
+extern "C" int __cxa_atexit(void (*f)(void *), void *p, void *d)
 {
     return 0;
 }
@@ -81,7 +78,7 @@ static void cxx_unexpected(void)
     panic("cxx unexpected");
 }
 
-void *__dso_handle;
+void *__dso_handle = 0;
 
 namespace __cxxabiv1
 {
@@ -89,23 +86,22 @@ void (*__terminate_handler)() = cxx_terminate;
 void (*__unexpected_handler)() = cxx_unexpected;
 }; // namespace __cxxabiv1
 
-int dl_iterate_phdr(void)
+extern "C" int dl_iterate_phdr(void)
 {
     return -1;
 }
 
-void __stack_chk_fail_local(void)
+extern "C" void __stack_chk_fail_local(void)
 {
     panic("__stack_chk_fail_local");
 }
 
-void __stack_chk_fail(void)
+extern "C" void __stack_chk_fail(void)
 {
     panic("stack_chk_fail");
 }
 
-extern "C" 
-void initcpprt(void)
+extern "C" void initcpprt(void)
 {
     using ctor_func = void (*)();
     extern ctor_func sinit_array[];             // zero terminated constructors table
@@ -120,4 +116,13 @@ void initcpprt(void)
     {
         spercpuinit_array_start[i]();
     }
+
+    // panic("fuck!");
+}
+
+extern "C" void post_cppinit(void)
+{
+
+    int *it = new int[10];
+    delete[] it;
 }

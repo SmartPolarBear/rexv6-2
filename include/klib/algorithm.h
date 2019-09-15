@@ -7,12 +7,16 @@
 
 #include "klib/move.h"
 
+namespace klib
+{
+
 template <typename T>
 void swap(T &t1, T &t2)
 {
-    T temp = std::move(t1);
-    t1 = std::move(t2);
-    t2 = std::move(temp);
+    T temp = move(t1);
+    t1 = move(t2);
+    t2 = move(temp);
 }
+} // namespace klib
 
 #endif // __INCLUDE_KLIB_ALGORITHM_H
