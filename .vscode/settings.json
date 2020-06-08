@@ -78,6 +78,7 @@
         "cinttypes": "cpp",
         "typeindex": "cpp",
         "allocator.h": "c",
+        "buddy.h": "c"
     },
     "autoHeader": {
         "format": {

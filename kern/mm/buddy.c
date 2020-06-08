@@ -2,7 +2,7 @@
  * @ Author: SmartPolarBear
  * @ Create Time: 2019-07-24 15:03:17
  * @ Modified by: SmartPolarBear
- * @ Modified time: 2019-08-15 23:25:10
+ * @ Modified time: 2019-10-15 19:59:41
  * @ Description: Buddy memory allocator
  * 
  *  this file implement the buddy memory allocator. Each order divides
@@ -13,13 +13,13 @@
  *  about 8% overhead (maximum) for this structure.
  */
 
-#include "xv6/types.h"
+#include "xv6/buddy.h"
 #include "xv6/defs.h"
-#include "xv6/param.h"
 #include "xv6/memlayout.h"
 #include "xv6/mmu.h"
+#include "xv6/param.h"
 #include "xv6/spinlock.h"
-#include "xv6/buddy.h"
+#include "xv6/types.h"
 
 #define MAX_ORD (12)
 #define MIN_ORD (6)
@@ -102,7 +102,6 @@ static inline uint32_t roundup_powerof2(uint32_t v)
     return v;
 }
 
-
 void buddy_init(void *vstart, void *vend)
 {
     initlock(&kmem.lock, "buddy");
@@ -116,6 +115,7 @@ void buddy_init(void *vstart, void *vend)
     uint total = 0;
     for (int i = N_ORD - 1; i >= 0; i--)
     {
+        cprintf("total=%d,n=%d\n", total, n);
         order_t *ord = kmem.orders + i;
         ord->offset = total;
         ord->head = NIL;
@@ -126,10 +126,17 @@ void buddy_init(void *vstart, void *vend)
             mark_t *mk = get_mark(i + MIN_ORD, j);
             mk->lnks = LNKS(NIL, NIL);
             mk->bitmap = 0;
+            if (j == 1)
+            {
+                cprintf("addr1=0x%p,bitmap=%d\n", mk, mk->bitmap);
+            }
         }
 
         total += n;
         n <<= 1; // each order doubles required marks
+
+        mark_t *mark = get_mark(i + MIN_ORD, 1);
+        cprintf("addr2=0x%p,bitmap=%d\n", mark, mark->bitmap);
     }
 
     // add all available memory to the highest order bucket
